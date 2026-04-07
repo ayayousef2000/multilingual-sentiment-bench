@@ -1,0 +1,229 @@
+{
+  "name": "React App",
+
+  // ── Image ─────────────────────────────────────────────────────────────────
+  // Pulls the pre-built dev image from Docker Hub — no local Dockerfile.
+  // Image source: github.com/ayayousef2000/react-devcontainer
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+
+  // ── Remote environment ────────────────────────────────────────────────────
+  "remoteEnv": {
+    "GIT_SSH_COMMAND": "ssh -o StrictHostKeyChecking=accept-new",
+    "PNPM_HOME": "/root/.local/share/pnpm"
+  },
+
+  // ── VS Code customisations ────────────────────────────────────────────────
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // ── Language & formatting ────────────────────────────────────────────
+        "biomejs.biome",
+        "ms-vscode.vscode-typescript-next",
+        "yoavbls.pretty-ts-errors",
+
+        // ── CSS / Styling ────────────────────────────────────────────────────
+        // Tailwind IntelliSense — harmless when Tailwind is not yet installed.
+        // Activate once you add Tailwind to your project.
+        "bradlc.vscode-tailwindcss",
+        "csstools.postcss",
+
+        // ── Testing ──────────────────────────────────────────────────────────
+        // Vitest and Playwright panels are inactive until the test runner
+        // packages are installed by the developer.
+        "vitest.explorer",
+        "ms-playwright.playwright",
+
+        // ── Git ──────────────────────────────────────────────────────────────
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+
+        // ── Docker ───────────────────────────────────────────────────────────
+        "ms-azuretools.vscode-docker",
+
+        // ── Utilities ────────────────────────────────────────────────────────
+        "mikestead.dotenv",
+        "redhat.vscode-yaml",
+        "PKief.material-icon-theme",
+        "aaron-bond.better-comments",
+        "usernamehw.errorlens",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "wix.vscode-import-cost",
+        "oderwat.indent-rainbow",
+        "streetsidesoftware.code-spell-checker",
+
+        // ── AI ───────────────────────────────────────────────────────────────
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+
+      "settings": {
+        // ── TypeScript ────────────────────────────────────────────────────────
+        // Points to the project-local TypeScript install (available after pnpm install).
+        "typescript.tsdk": "/workspace/node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "typescript.preferences.importModuleSpecifier": "shortest",
+        "typescript.suggest.autoImports": true,
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "javascript.updateImportsOnFileMove.enabled": "always",
+
+        // ── Editor ────────────────────────────────────────────────────────────
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.rulers": [80, 120],
+        "editor.renderWhitespace": "boundary",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.defaultFormatter": "biomejs.biome",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit",
+          "source.fixAll.biome": "explicit"
+        },
+        "editor.suggest.preview": true,
+        "editor.inlineSuggest.enabled": true,
+
+        // ── Files ─────────────────────────────────────────────────────────────
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.trimFinalNewlines": true,
+        "files.eol": "\n",
+        "files.associations": {
+          "**/*.env*": "dotenv",
+          "Dockerfile*": "dockerfile",
+          "*.sh": "shellscript"
+        },
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/.git": false,
+          "**/dist": true,
+          "**/coverage": true,
+          "**/.cache": true
+        },
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/dist/**": true,
+          "**/coverage/**": true
+        },
+
+        // ── Search ────────────────────────────────────────────────────────────
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/coverage": true,
+          "**/.cache": true,
+          "**/pnpm-lock.yaml": true
+        },
+
+        // ── Terminal ──────────────────────────────────────────────────────────
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.fontSize": 14,
+        "terminal.integrated.scrollback": 5000,
+
+        // ── Formatter per language ────────────────────────────────────────────
+        "[typescript]":     { "editor.defaultFormatter": "biomejs.biome" },
+        "[typescriptreact]":{ "editor.defaultFormatter": "biomejs.biome" },
+        "[javascript]":     { "editor.defaultFormatter": "biomejs.biome" },
+        "[javascriptreact]":{ "editor.defaultFormatter": "biomejs.biome" },
+        "[json]":           { "editor.defaultFormatter": "biomejs.biome" },
+        "[jsonc]":          { "editor.defaultFormatter": "biomejs.biome" },
+        "[css]":            { "editor.defaultFormatter": "biomejs.biome" },
+        "[html]":           { "editor.defaultFormatter": "vscode.html-language-features" },
+        "[markdown]": {
+          "editor.defaultFormatter": "vscode.markdown-language-features",
+          "editor.formatOnSave": false,
+          "files.trimTrailingWhitespace": false
+        },
+        "[yaml]": { "editor.defaultFormatter": "redhat.vscode-yaml" },
+
+        // ── Tailwind ─────────────────────────────────────────────────────────
+        // Pre-configured for common utility patterns.
+        // Inactive until Tailwind is installed in the project.
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+          ["cx\\(([^)]*)\\)",  "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+          ["cn\\(([^)]*)\\)",  "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+        ],
+        "tailwindCSS.includeLanguages": {
+          "typescript": "javascript",
+          "typescriptreact": "javascript"
+        },
+
+        // ── Explorer sidebar ──────────────────────────────────────────────────
+        "explorer.fileNesting.enabled": true,
+        "explorer.fileNesting.expand": false,
+        "explorer.fileNesting.patterns": {
+          "*.ts":          "${capture}.js, ${capture}.d.ts, ${capture}.test.ts, ${capture}.spec.ts",
+          "*.tsx":         "${capture}.test.tsx, ${capture}.spec.tsx, ${capture}.stories.tsx",
+          "package.json":  "package-lock.json, pnpm-lock.yaml, pnpm-workspace.yaml, .npmrc, bun.lockb",
+          "vite.config.*": "vitest.config.*, tsconfig.*.json",
+          "tsconfig.json": "tsconfig.*.json",
+          ".env":          ".env.*, .envrc",
+          "biome.json":    ".eslintrc*, .prettierrc*, .editorconfig",
+          "README.md":     "CHANGELOG.md, CONTRIBUTING.md, LICENSE"
+        },
+
+        // ── Git ───────────────────────────────────────────────────────────────
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "git.enableSmartCommit": true,
+        "gitlens.hovers.currentLine.over": "line",
+
+        // ── Vitest ────────────────────────────────────────────────────────────
+        // Inactive until Vitest is installed. No errors shown pre-scaffold.
+        "vitest.enable": true,
+        "vitest.include": ["src/**/*.{test,spec}.{ts,tsx}"],
+
+        // ── Error Lens ────────────────────────────────────────────────────────
+        "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+        "errorLens.followCursor": "allLines",
+
+        // ── Spell checker ─────────────────────────────────────────────────────
+        "cSpell.words": [
+          "biomejs",
+          "commitlint",
+          "devcontainer",
+          "dockerfile",
+          "husky",
+          "pnpm",
+          "shadcn",
+          "tanstack",
+          "tsconfig",
+          "vite",
+          "vitest",
+          "zustand"
+        ]
+      }
+    }
+  },
+
+  // ── Port forwarding ───────────────────────────────────────────────────────
+  // Port 5173 is the Vite default. Auto-opens browser once the dev server
+  // is running. No effect on a fresh template.
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "openBrowser"
+    }
+  },
+
+  // ── Lifecycle hooks ───────────────────────────────────────────────────────
+  //
+  // postCreateCommand — runs once when the container is first created.
+  //   Installs Husky + commitlint and registers all git hooks automatically.
+  //   Safe to run on a fresh template: package.json is always present and
+  //   `pnpm install` only installs the two declared devDependencies.
+  //   When the developer later scaffolds their framework and adds more
+  //   dependencies, they run `pnpm install` again manually to install those.
+  //
+  // postStartCommand — runs on every container start.
+  //   Shows a context-aware getting-started banner.
+  //
+  "postCreateCommand": "pnpm install",
+  "postStartCommand": "bash /workspace/scripts/welcome.sh",
+
+  "remoteUser": "root"
+}

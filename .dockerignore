@@ -1,0 +1,37 @@
+# ── Dependencies (reinstalled during prod build) ──────────────
+node_modules/
+.pnpm-store/
+
+# ── Dev environment ───────────────────────────────────────────
+.devcontainer/
+.husky/
+# scripts/ contains entrypoint.dev.sh which is only needed at dev time
+# (SSH permission fixer for Windows NTFS mounts). Not needed in prod image.
+scripts/
+
+# ── Testing ──────────────────────────────────────────────────
+coverage/
+playwright-report/
+test-results/
+tests/
+
+# ── Environment & secrets ─────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Editor ───────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+
+# ── Git ──────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+
+# ── Docs ─────────────────────────────────────────────────────
+*.md
+docs/

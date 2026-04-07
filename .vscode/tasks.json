@@ -1,0 +1,158 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ── Dev ────────────────────────────────────────────────────────────
+    {
+      "label": "pnpm: dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "isBackground": true,
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "pnpm: build",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "pnpm: preview",
+      "type": "shell",
+      "command": "pnpm preview",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+
+    // ── Testing ────────────────────────────────────────────────────────
+    {
+      "label": "Vitest: Run All",
+      "type": "shell",
+      "command": "pnpm test",
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Vitest: Watch",
+      "type": "shell",
+      "command": "pnpm test --watch",
+      "isBackground": true,
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Vitest: Coverage",
+      "type": "shell",
+      "command": "pnpm test:coverage",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Vitest: Current File",
+      "type": "shell",
+      "command": "pnpm exec vitest run ${file}",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Playwright: Run E2E",
+      "type": "shell",
+      "command": "pnpm test:e2e",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+
+    // ── Code Quality ───────────────────────────────────────────────────
+    {
+      "label": "Biome: Lint + Fix",
+      "type": "shell",
+      "command": "pnpm lint:fix",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Biome: Format",
+      "type": "shell",
+      "command": "pnpm format",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "TypeScript: Check",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Biome: Check All",
+      "type": "shell",
+      "command": "pnpm exec biome check .",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+
+    // ── Dependencies ───────────────────────────────────────────────────
+    {
+      "label": "pnpm: install",
+      "type": "shell",
+      "command": "pnpm install",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "pnpm: add package",
+      "type": "shell",
+      "command": "pnpm add ${input:packageName}",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "pnpm: add dev package",
+      "type": "shell",
+      "command": "pnpm add -D ${input:packageName}",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "pnpm: update interactive",
+      "type": "shell",
+      "command": "pnpm update --interactive",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "pnpm: audit",
+      "type": "shell",
+      "command": "pnpm audit --audit-level=high",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+
+    // ── Husky ──────────────────────────────────────────────────────────
+    {
+      "label": "Husky: Install Hooks",
+      "type": "shell",
+      "command": "pnpm exec husky",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+
+    // ── Docker ─────────────────────────────────────────────────────────
+    {
+      "label": "Docker: Build Production Image",
+      "type": "shell",
+      "command": "docker build -f docker/Dockerfile.prod -t react-app:latest .",
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "packageName",
+      "type": "promptString",
+      "description": "Package name to install with pnpm add"
+    }
+  ]
+}

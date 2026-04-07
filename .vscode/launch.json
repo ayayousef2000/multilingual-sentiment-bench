@@ -1,0 +1,109 @@
+{
+  // ============================================================
+  //  .vscode/launch.json
+  //
+  //  Debug configurations — press F5 to launch.
+  //  All configs work from inside the dev container.
+  //
+  //  Configs:
+  //    1. Debug Vite Dev Server     → attach Chrome to running dev server
+  //    2. Debug Current Test File   → run + debug one Vitest file with F5
+  //    3. Debug All Tests           → run + debug entire Vitest suite
+  //    4. Debug Playwright E2E      → run E2E tests with debugger attached
+  // ============================================================
+  "version": "0.2.0",
+  "configurations": [
+
+    // ── 1. Debug in Chrome ───────────────────────────────────
+    // Start `pnpm dev` first, then press F5 to open Chrome
+    // with the debugger attached. Set breakpoints in your
+    // TypeScript source files directly in VS Code.
+    //
+    // sourceMapPathOverrides: Vite uses "vite:///" (not "webpack:///").
+    // The second entry covers absolute paths emitted by some plugins.
+    {
+      "name": "🌐 Debug in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "vite:///src/*": "${webRoot}/*",
+        "/*": "${webRoot}/*"
+      },
+      "preLaunchTask": null
+    },
+
+    // ── 2. Debug Current Test File ───────────────────────────
+    // Open a *.test.ts or *.spec.ts file, press F5.
+    // Runs only that file with the debugger attached.
+    // Set breakpoints directly in the test or source code.
+    {
+      "name": "🧪 Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "${relativeFile}",
+        "--reporter=verbose"
+      ],
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+
+    // ── 3. Debug All Tests ───────────────────────────────────
+    // Runs the full Vitest suite with the debugger attached.
+    // Useful for debugging intermittent failures across files.
+    {
+      "name": "🧪 Debug All Tests",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "--reporter=verbose"
+      ],
+      "smartStep": true,
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+
+    // ── 4. Debug Playwright E2E ──────────────────────────────
+    // Runs E2E tests with Playwright inspector attached.
+    // Use PWDEBUG=1 to pause on each action and inspect the DOM.
+    {
+      "name": "🎭 Debug Playwright E2E",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": [
+        "test",
+        "--headed",
+        "--project=chromium"
+      ],
+      "env": {
+        "PWDEBUG": "1"
+      },
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    }
+  ],
+
+  // ── Compound launch configs ───────────────────────────────
+  // Run multiple configs simultaneously
+  "compounds": [
+    {
+      "name": "🚀 Dev + Chrome Debugger",
+      "configurations": ["🌐 Debug in Chrome"],
+      "preLaunchTask": "pnpm: dev",
+      "stopAll": true
+    }
+  ]
+}

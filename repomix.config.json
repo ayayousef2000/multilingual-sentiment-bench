@@ -1,0 +1,35 @@
+{
+  "output": {
+    "style": "xml",
+    "removeComments": true,
+    "removeEmptyLines": true,
+    "compress": true,
+    "filePath": "react-template-code.xml"
+  },
+  "include": [
+    "**/*",
+    "**/*.mjs",
+    ".github/**/*"
+  ],
+  "security": {
+    "enableSecurityCheck": false
+  },
+  "ignore": {
+    "useGitignore": false,
+    "useDefaultPatterns": false,
+    "customPatterns": [
+      ".git",
+      "node_modules",
+      ".venv",
+      "__pycache__",
+      "*.pyc",
+      "dist",
+      "build",
+      "*.log",
+      ".env",
+      "package-lock.json",
+      "react-template-code.xml",
+      "repomix.config.json"
+    ]
+  }
+}

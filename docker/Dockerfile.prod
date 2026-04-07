@@ -1,0 +1,72 @@
+# ============================================================
+#  docker/Dockerfile.prod
+#
+#  PLACEHOLDER — This file is future-ready.
+#  It will work automatically once you have scaffolded your
+#  project and the following files exist at the repo root:
+#    • vite.config.ts
+#    • pnpm-lock.yaml
+#
+#  The docker.yml CI workflow checks for these files before
+#  triggering a build, so this file is safely ignored on a
+#  fresh template.
+#
+#  When your project is initialised, this Dockerfile:
+#    1. Installs dependencies with pnpm (frozen lockfile)
+#    2. Runs `pnpm build` to produce a Vite production bundle
+#    3. Serves the static output via Nginx (~25 MB final image)
+#
+#  Multi-platform: linux/amd64 + linux/arm64
+# ============================================================
+
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM node:24-slim AS builder
+
+# Install pnpm via corepack (ships with Node 24)
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy dependency manifests first for layer caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install all dependencies (frozen — no lockfile mutations in CI)
+RUN pnpm install --frozen-lockfile
+
+# Copy the rest of the source
+COPY . .
+
+# Build the production bundle
+RUN pnpm build
+
+# ── Stage 2: Serve ────────────────────────────────────────────────────────────
+FROM nginx:alpine AS runner
+
+# Remove the default Nginx static content
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy the Vite build output from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy the custom Nginx configuration
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Run as non-root user — required by Trivy DS-0002 and container security
+# best practice. nginx:alpine ships with a built-in 'nginx' user (uid 101).
+# We grant it ownership of the files it needs to read and the pid/cache dirs
+# it needs to write, then drop privileges before the process starts.
+RUN chown -R nginx:nginx /usr/share/nginx/html \
+    && chown -R nginx:nginx /var/cache/nginx \
+    && chown -R nginx:nginx /var/log/nginx \
+    && touch /var/run/nginx.pid \
+    && chown nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
+# Port 8080 — non-root processes cannot bind to ports below 1024.
+# Update docker-compose.yml and any reverse proxy accordingly:
+#   ports:
+#     - "80:8080"
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]

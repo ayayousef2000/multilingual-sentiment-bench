@@ -1,0 +1,14 @@
+echo "📝 Validating commit message..."
+
+pnpm exec commitlint --edit "$1" || {
+  echo ""
+  echo "❌ Invalid commit message format."
+  echo "   Format: <type>: <description>"
+  echo "   Types:  feat | fix | docs | style | refactor | perf"
+  echo "           test | build | ci | chore | revert | wip"
+  echo "   Example: feat: add user authentication"
+  echo ""
+  exit 1
+}
+
+echo "✅ Commit message valid"

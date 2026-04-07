@@ -1,0 +1,41 @@
+# ============================================================
+#  pnpm-workspace.yaml
+#
+#  Single-project (non-monorepo) workspace configuration.
+#
+#  Since pnpm v10, all pnpm-specific settings live here.
+#  Keep .npmrc for auth/registry only.
+#
+#  Docs: https://pnpm.io/settings
+# ============================================================
+
+# ── Engine enforcement ────────────────────────────────────────────────────────
+# Mirrors the "engines" field in package.json.
+# Fails loudly if Node or pnpm version is outside the declared range.
+engineStrict: true
+
+# ── Supply-chain hardening ────────────────────────────────────────────────────
+# minimumReleaseAge is intentionally omitted from this template.
+#
+# This setting is a project-level supply-chain policy that belongs in the
+# application repo you scaffold from this template — not here. The template
+# only installs two dev dependencies (husky + commitlint) on container create,
+# and an age restriction on those packages causes pnpm install to fail when a
+# version was published recently (as commitlint releases are infrequent and
+# pnpm would block the install until the age threshold is met).
+#
+# Once you have scaffolded your real project, add this to your own
+# pnpm-workspace.yaml as a supply-chain best practice:
+#
+#   minimumReleaseAge: "3 days"
+#   minimumReleaseAgeExclude:
+#     - "@commitlint/cli"
+#     - "@commitlint/config-conventional"
+#
+# Docs: https://pnpm.io/settings#minimumreleaseage
+
+# ── Node modules layout ───────────────────────────────────────────────────────
+# Strict layout (default in pnpm v10): packages can only access
+# dependencies explicitly declared in their own package.json.
+# Prevents phantom dependency bugs.
+nodeLinker: isolated

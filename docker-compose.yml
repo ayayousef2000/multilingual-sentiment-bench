@@ -1,0 +1,35 @@
+name: react-template
+services:
+  app:
+    image: ${DOCKERHUB_USERNAME:-ayayousef7}/react-devcontainer:latest
+    container_name: react_app
+    # "no" is correct for a dev container — VS Code manages the lifecycle.
+    # "unless-stopped" would cause Docker to restart the container on crashes,
+    # which is undesirable when the container is managed by the Dev Containers extension.
+    restart: "no"
+    entrypoint: ["/workspace/scripts/entrypoint.dev.sh"]
+    command: sleep infinity
+    volumes:
+      - .:/workspace:cached
+      - ${USERPROFILE:-$HOME}/.gitconfig:/root/.gitconfig:ro
+      - ${USERPROFILE:-$HOME}/.ssh:/root/.ssh:cached
+      - pnpm-store:/root/.local/share/pnpm/store
+      - shell-history:/root/.shell_history
+    environment:
+      GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
+      NODE_ENV: development
+      # Uncomment after scaffolding Vite — required for the dev server
+      # to bind to all interfaces so it's reachable from your host browser.
+      # VITE_HOST: "0.0.0.0"
+      # VITE_PORT: "5173"
+    ports:
+      - "5173:5173"
+    working_dir: /workspace
+    networks:
+      - react-network
+volumes:
+  pnpm-store:
+  shell-history:
+networks:
+  react-network:
+    driver: bridge

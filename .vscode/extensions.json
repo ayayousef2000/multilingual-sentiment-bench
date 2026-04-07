@@ -1,0 +1,53 @@
+{
+  // ============================================================
+  //  .vscode/extensions.json
+  //
+  //  VS Code shows a "Install Recommended Extensions?" popup
+  //  when a developer first opens this project.
+  //
+  //  SPLIT STRATEGY:
+  //    This file  → extensions needed on the WINDOWS side
+  //                 (before or outside the dev container)
+  //    devcontainer.json → extensions installed INSIDE the container
+  //                        (where the actual code lives)
+  //
+  //  The most important extension here is remote-containers —
+  //  without it the developer cannot open the dev container at all.
+  // ============================================================
+  "recommendations": [
+    // ── Dev Container — THE most critical for this template ──
+    // Without this, "Reopen in Container" does not exist
+    "ms-vscode-remote.remote-containers",
+
+    // ── Docker Desktop integration ───────────────────────────
+    // Manage containers, images, volumes from VS Code sidebar
+    "ms-azuretools.vscode-docker",
+
+    // ── Git ──────────────────────────────────────────────────
+    // Enhanced git blame, history, and branch management
+    "eamodio.gitlens",
+    // Visual git graph — see branches and commits as a diagram
+    "mhutchie.git-graph",
+
+    // ── GitHub ───────────────────────────────────────────────
+    // AI pair programmer — works on Windows and inside container
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+
+    // ── File utilities ───────────────────────────────────────
+    // .env file syntax highlighting
+    "mikestead.dotenv",
+    // Better file icons in the explorer sidebar
+    "PKief.material-icon-theme",
+    // Spell checker for code and comments
+    "streetsidesoftware.code-spell-checker"
+  ],
+
+  // Extensions actively discouraged for this project
+  // (e.g. conflicts with Biome)
+  "unwantedRecommendations": [
+    // Biome replaces both of these — having them causes conflicts
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ]
+}
