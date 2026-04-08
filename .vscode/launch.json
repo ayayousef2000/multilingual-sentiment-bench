@@ -13,7 +13,6 @@
   // ============================================================
   "version": "0.2.0",
   "configurations": [
-
     // ── 1. Debug in Chrome ───────────────────────────────────
     // Start `pnpm dev` first, then press F5 to open Chrome
     // with the debugger attached. Set breakpoints in your
@@ -45,11 +44,7 @@
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": [
-        "run",
-        "${relativeFile}",
-        "--reporter=verbose"
-      ],
+      "args": ["run", "${relativeFile}", "--reporter=verbose"],
       "smartStep": true,
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
@@ -65,10 +60,7 @@
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": [
-        "run",
-        "--reporter=verbose"
-      ],
+      "args": ["run", "--reporter=verbose"],
       "smartStep": true,
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
@@ -82,11 +74,7 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/.bin/playwright",
-      "args": [
-        "test",
-        "--headed",
-        "--project=chromium"
-      ],
+      "args": ["test", "--headed", "--project=chromium"],
       "env": {
         "PWDEBUG": "1"
       },

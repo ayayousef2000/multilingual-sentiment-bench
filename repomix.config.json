@@ -4,13 +4,9 @@
     "removeComments": true,
     "removeEmptyLines": true,
     "compress": true,
-    "filePath": "react-template-code.xml"
+    "filePath": "multilingual-sentiment-bench-code.xml"
   },
-  "include": [
-    "**/*",
-    "**/*.mjs",
-    ".github/**/*"
-  ],
+  "include": ["**/*", "**/*.mjs", ".github/**/*"],
   "security": {
     "enableSecurityCheck": false
   },
@@ -28,7 +24,9 @@
       "*.log",
       ".env",
       "package-lock.json",
-      "react-template-code.xml",
+      ".pnpm-store",
+      "pnpm-lock.yaml",
+      "multilingual-sentiment-bench-code.xml",
       "repomix.config.json"
     ]
   }
