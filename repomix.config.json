@@ -1,18 +1,22 @@
 {
   "output": {
+    "filePath": "multilingual-sentiment-bench-code.xml",
     "style": "xml",
+    "compress": true,
     "removeComments": true,
     "removeEmptyLines": true,
-    "compress": true,
-    "filePath": "multilingual-sentiment-bench-code.xml"
+    "showLineNumbers": false,
+    "copyToClipboard": false,
+    "parsableStyle": false,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100
+    }
   },
   "include": ["**/*", "**/*.mjs", ".github/**/*"],
-  "security": {
-    "enableSecurityCheck": false
-  },
   "ignore": {
-    "useGitignore": false,
-    "useDefaultPatterns": false,
+    "useGitignore": true,
+    "useDefaultPatterns": true,
     "customPatterns": [
       ".git",
       "node_modules",
@@ -27,7 +31,20 @@
       ".pnpm-store",
       "pnpm-lock.yaml",
       "multilingual-sentiment-bench-code.xml",
-      "repomix.config.json"
+      "repomix.config.json",
+      "**/.devcontainer/**",
+      "**/.github/**",
+      "**/.husky/**",
+      "**/docker/**",
+      "**/public/**",
+      "**/scripts/**",
+      "**/assets/**",
+      "**/README.md",
+      "**/.dockerignore",
+      "**/.gitignore"
     ]
+  },
+  "security": {
+    "enableSecurityCheck": true
   }
 }
