@@ -1,6 +1,6 @@
 import { MODELS } from "@/lib/models";
 import type { ModelLoadState } from "@/types";
-import { Badge, Button, Card, ProgressBar, Select } from "../ui";
+import { Button, ProgressBar } from "../ui";
 
 interface ModelLoaderProps {
   selectedModelId: string;
@@ -9,100 +9,94 @@ interface ModelLoaderProps {
   onLoad: () => void;
 }
 
-const STATUS_BADGE: Record<
-  ModelLoadState["status"],
-  { label: string; variant: "default" | "positive" | "negative" | "info" | "warning" }
-> = {
-  idle: { label: "Not loaded", variant: "default" },
-  loading: { label: "Loading…", variant: "info" },
-  ready: { label: "Ready", variant: "positive" },
-  error: { label: "Error", variant: "negative" },
-};
-
 export function ModelLoader({
   selectedModelId,
   loadState,
   onModelChange,
   onLoad,
 }: ModelLoaderProps) {
+  const model = MODELS.find((m) => m.id === selectedModelId);
   const isLoading = loadState.status === "loading";
   const isReady = loadState.status === "ready";
-  const { label, variant } = STATUS_BADGE[loadState.status];
+
+  const modelOptions = MODELS.map((m) => ({ value: m.id, label: m.name }));
 
   return (
-    <Card>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ flex: "1 1 200px" }}>
-          <Select
-            label="Model"
-            value={selectedModelId}
-            onChange={onModelChange}
-            disabled={isLoading}
-            options={MODELS.map((m) => ({
-              value: m.id,
-              label: `${m.name} (${m.size})`,
-            }))}
-          />
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+      <div>
+        <span className="sidebar-section-title">Model Selection</span>
+        <p className="sidebar-section-desc">
+          All inference runs locally in a Web Worker via{" "}
+          <code style={{ fontSize: 11 }}>@huggingface/transformers</code>
+        </p>
+      </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingBottom: "1px" }}>
-          <Badge variant={variant}>{label}</Badge>
-          {!isReady && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onLoad}
-              disabled={isLoading}
-              loading={isLoading}
-            >
-              {isLoading ? "Loading…" : "Load model"}
-            </Button>
-          )}
+      <div>
+        <label htmlFor="model-select" className="sidebar-label">
+          Model
+        </label>
+        <div className="select-wrap">
+          <select
+            id="model-select"
+            value={selectedModelId}
+            onChange={(e) => onModelChange(e.target.value)}
+            disabled={isLoading}
+            aria-disabled={isLoading}
+          >
+            {modelOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <span className="select-chevron" aria-hidden="true">
+            ▾
+          </span>
         </div>
       </div>
 
-      {isLoading && (
-        <div style={{ marginTop: "12px" }}>
-          <ProgressBar
-            value={loadState.progress}
-            label="Model download and initialisation progress"
-            statusText={loadState.statusText}
-          />
+      {model && (
+        <div className="model-desc-card">
+          <p className="model-desc-text">{model.description}</p>
+          <div className="model-tags">
+            <span className="model-tag model-tag-size">{model.size}</span>
+            {model.languages.slice(0, 3).map((lang) => (
+              <span key={lang} className="model-tag model-tag-lang">
+                {lang.toUpperCase()}
+              </span>
+            ))}
+            {model.languages.length > 3 && (
+              <span className="model-tag model-tag-lang">+{model.languages.length - 3}</span>
+            )}
+          </div>
         </div>
       )}
 
-      {loadState.status === "error" && loadState.error && (
-        <p
-          role="alert"
-          style={{
-            marginTop: "10px",
-            fontSize: "12px",
-            color: "var(--color-text-danger)",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
-          {loadState.error}
-        </p>
+      {isLoading && (
+        <ProgressBar
+          value={loadState.progress}
+          label="Loading model…"
+          statusText={loadState.statusText}
+        />
       )}
 
-      {isReady && (
-        <p
-          style={{
-            marginTop: "10px",
-            fontSize: "12px",
-            color: "var(--color-text-tertiary)",
-          }}
+      {loadState.status === "error" && (
+        <div
+          style={{ fontSize: 12, color: "var(--color-negative)", fontFamily: "var(--font-mono)" }}
         >
-          {MODELS.find((m) => m.id === selectedModelId)?.description}
-        </p>
+          ⚠ {loadState.error}
+        </div>
       )}
-    </Card>
+
+      <Button
+        variant={isReady ? "ghost" : "primary"}
+        className="btn-full"
+        onClick={onLoad}
+        loading={isLoading}
+        disabled={isLoading}
+      >
+        {isReady ? "✓ Model Loaded" : "Load Model"}
+      </Button>
+    </div>
   );
 }

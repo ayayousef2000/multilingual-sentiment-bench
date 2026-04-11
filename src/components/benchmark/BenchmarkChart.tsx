@@ -11,7 +11,6 @@ import {
 } from "recharts";
 import { formatMs } from "@/lib/export";
 import type { BenchmarkResult } from "@/types";
-import { Card } from "../ui";
 
 interface BenchmarkChartProps {
   results: BenchmarkResult[];
@@ -27,34 +26,46 @@ interface ChartPoint {
 
 function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
-  const d = payload[0].payload as ChartPoint;
+  const d = payload[0]?.payload as ChartPoint;
   return (
     <div
-      role="tooltip"
       style={{
-        background: "var(--color-background-primary)",
-        border: "0.5px solid var(--color-border-secondary)",
-        borderRadius: "var(--border-radius-md)",
-        padding: "8px 12px",
-        fontSize: "12px",
-        lineHeight: 1.6,
+        background: "var(--color-bg-elevated)",
+        border: "1px solid var(--color-border)",
+        borderRadius: "var(--radius-md)",
+        padding: "10px 14px",
+        fontFamily: "var(--font-mono)",
+        fontSize: 11,
+        color: "var(--color-text-secondary)",
+        boxShadow: "var(--shadow-md)",
+        minWidth: 140,
       }}
     >
-      <p style={{ margin: 0, fontWeight: 500 }}>{d.sample_id}</p>
-      <p style={{ margin: 0, color: "var(--color-text-secondary)" }}>
-        Input: {d.input_len} chars · {formatMs(d.time_ms)}
-      </p>
-      <p style={{ margin: 0, color: "var(--color-text-secondary)" }}>
-        {d.label} ({(d.score * 100).toFixed(1)}%)
-      </p>
+      <div style={{ color: "var(--color-accent)", fontWeight: 700, marginBottom: 6 }}>
+        {d.label}
+      </div>
+      <div>
+        Latency:{" "}
+        <strong style={{ color: "var(--color-text-primary)" }}>{formatMs(d.time_ms)}</strong>
+      </div>
+      <div>
+        Input: <strong style={{ color: "var(--color-text-primary)" }}>{d.input_len} chars</strong>
+      </div>
+      <div>
+        Score: <strong style={{ color: "var(--color-text-primary)" }}>{d.score.toFixed(3)}</strong>
+      </div>
     </div>
   );
 }
 
-export const BenchmarkChart = memo(function BenchmarkChart({ results }: BenchmarkChartProps) {
-  if (results.length === 0) return null;
+const LABEL_COLORS: Record<string, string> = {
+  POSITIVE: "#00e5c3",
+  NEGATIVE: "#ff4d6d",
+  NEUTRAL: "#6b7c99",
+};
 
-  const data: ChartPoint[] = results.map((r) => ({
+export const BenchmarkChart = memo(function BenchmarkChart({ results }: BenchmarkChartProps) {
+  const points: ChartPoint[] = results.map((r) => ({
     input_len: r.input_len,
     time_ms: r.time_ms,
     label: r.label,
@@ -63,46 +74,53 @@ export const BenchmarkChart = memo(function BenchmarkChart({ results }: Benchmar
   }));
 
   return (
-    <Card>
-      <p
-        style={{
-          margin: "0 0 12px",
-          fontSize: "13px",
-          fontWeight: 500,
-          color: "var(--color-text-secondary)",
-        }}
-      >
-        Latency vs input length
-      </p>
-      <div
-        role="img"
-        aria-label={`Scatter chart showing inference latency against input length for ${results.length} samples`}
-      >
-        <ResponsiveContainer width="100%" height={260}>
-          <ScatterChart margin={{ top: 4, right: 16, bottom: 4, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-tertiary)" />
-            <XAxis
-              dataKey="input_len"
-              name="Input length"
-              tick={{ fontSize: 11 }}
-              label={{
-                value: "chars",
-                position: "insideBottomRight",
-                offset: -4,
-                fontSize: 11,
-              }}
-            />
-            <YAxis
-              dataKey="time_ms"
-              name="Latency (ms)"
-              tick={{ fontSize: 11 }}
-              tickFormatter={(v: number) => `${Math.round(v)}ms`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Scatter data={data} fill="var(--color-accent, #1a6cff)" opacity={0.75} />
-          </ScatterChart>
-        </ResponsiveContainer>
+    <>
+      <div className="panel-label" style={{ marginBottom: "var(--space-4)" }}>
+        Latency vs Input Length
       </div>
-    </Card>
+      <ResponsiveContainer width="100%" height={280}>
+        <ScatterChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+          <XAxis
+            dataKey="input_len"
+            name="Input length"
+            type="number"
+            tick={{ fill: "#555", fontFamily: "var(--font-mono)", fontSize: 10 }}
+            axisLine={{ stroke: "#2a2a2a" }}
+            tickLine={false}
+            label={{
+              value: "chars",
+              position: "insideBottomRight",
+              offset: -4,
+              fill: "#555",
+              fontSize: 10,
+            }}
+          />
+          <YAxis
+            dataKey="time_ms"
+            name="Latency"
+            type="number"
+            tick={{ fill: "#555", fontFamily: "var(--font-mono)", fontSize: 10 }}
+            axisLine={{ stroke: "#2a2a2a" }}
+            tickLine={false}
+            tickFormatter={(v) => `${v}ms`}
+          />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ stroke: "rgba(0,229,195,0.2)", strokeWidth: 1 }}
+          />
+          {["POSITIVE", "NEGATIVE", "NEUTRAL"].map((lbl) => (
+            <Scatter
+              key={lbl}
+              name={lbl}
+              data={points.filter((p) => p.label === lbl)}
+              fill={LABEL_COLORS[lbl]}
+              fillOpacity={0.75}
+              r={4}
+            />
+          ))}
+        </ScatterChart>
+      </ResponsiveContainer>
+    </>
   );
 });

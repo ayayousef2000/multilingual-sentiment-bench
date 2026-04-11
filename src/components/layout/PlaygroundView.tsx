@@ -9,26 +9,24 @@ import { ErrorBoundary } from "../ui";
 
 export function PlaygroundView() {
   const { loadState, loadModel, classify } = useClassifierContext();
-
   const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
   const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
 
-  const handleLoadModel = useCallback(() => {
+  const handleModelChange = useCallback((id: string) => {
+    setSelectedModelId(id);
+  }, []);
+
+  const handleLoad = useCallback(() => {
     loadModel(selectedModelId);
   }, [loadModel, selectedModelId]);
 
   const handleClassify = useCallback(
     async (text: string) => {
       setIsClassifying(true);
-      setResult(null);
       try {
-        const out = await classify(text, selectedModelId);
-        setResult(out);
-      } catch (err) {
-        if ((err as DOMException).name !== "AbortError") {
-          console.error("Playground classify error:", err);
-        }
+        const res = await classify(text, selectedModelId);
+        setResult(res);
       } finally {
         setIsClassifying(false);
       }
@@ -39,27 +37,44 @@ export function PlaygroundView() {
   const isModelReady = loadState.status === "ready";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <ErrorBoundary label="ModelLoader">
-        <ModelLoader
-          selectedModelId={selectedModelId}
-          loadState={loadState}
-          onModelChange={setSelectedModelId}
-          onLoad={handleLoadModel}
-        />
-      </ErrorBoundary>
+    <div className="page-body">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <ErrorBoundary label="ModelLoader">
+          <ModelLoader
+            selectedModelId={selectedModelId}
+            loadState={loadState}
+            onModelChange={handleModelChange}
+            onLoad={handleLoad}
+          />
+        </ErrorBoundary>
+      </aside>
 
-      <ErrorBoundary label="TextInput">
-        <TextInput
-          onClassify={handleClassify}
-          isLoading={isClassifying}
-          isModelReady={isModelReady}
-        />
-      </ErrorBoundary>
+      {/* Main */}
+      <main className="main-content">
+        {/* Heading */}
+        <div className="page-heading">
+          <h1>
+            Interactive <span>Playground</span>
+          </h1>
+          <p>
+            Classify sentiment across 100+ languages directly in your browser. Zero server latency —
+            all inference runs in a Web Worker.
+          </p>
+        </div>
 
-      <ErrorBoundary label="ResultCard">
-        <ResultCard result={result} isLoading={isClassifying} />
-      </ErrorBoundary>
+        <ErrorBoundary label="TextInput">
+          <TextInput
+            onClassify={handleClassify}
+            isLoading={isClassifying}
+            isModelReady={isModelReady}
+          />
+        </ErrorBoundary>
+
+        <ErrorBoundary label="ResultCard">
+          <ResultCard result={result} isLoading={isClassifying} />
+        </ErrorBoundary>
+      </main>
     </div>
   );
 }

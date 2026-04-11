@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useClassifierContext } from "@/context/ClassifierContext";
 import { useBenchmark } from "@/hooks/useBenchmark";
 import { DATASETS } from "@/lib/datasets";
@@ -10,19 +10,18 @@ import { BenchmarkStatsPanel } from "../benchmark/BenchmarkStats";
 import { ResultsTable } from "../benchmark/ResultsTable";
 import { ErrorBoundary } from "../ui";
 
+// Stable empty array — prevents BenchmarkChart/Stats from re-rendering
+const EMPTY: never[] = [];
+
 export function BenchmarkView() {
   const { loadModel, classify } = useClassifierContext();
 
   const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
-  const [selectedDatasetId, setSelectedDatasetId] = useState(() => DATASETS[0]?.id ?? "");
+  const [selectedDatasetId, setSelectedDatasetId] = useState(DATASETS[0]?.id ?? "");
 
-  const { results, runState, isPending, start, stop, clear } = useBenchmark({
-    classify,
-  });
+  const { results, runState, start, stop, clear } = useBenchmark({ classify });
 
-  // Stable reference — prevents BenchmarkChart/Stats from re-rendering
-  // on every keystroke or unrelated state change
-  const stableResults = useMemo(() => results, [results]);
+  const stableResults = results.length > 0 ? results : EMPTY;
 
   const handleLoadModel = () => loadModel(selectedModelId);
 
@@ -32,46 +31,73 @@ export function BenchmarkView() {
 
   const handleExport = () => {
     const csv = resultsToCSV(results);
-    const ts = new Date().toISOString().replace(/[:.]/g, "-");
-    downloadCSV(csv, `benchmark-${selectedModelId}-${ts}.csv`);
+    downloadCSV(csv, `benchmark-${selectedModelId}-${selectedDatasetId}.csv`);
   };
 
+  const hasResults = results.length > 0;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <BenchmarkControls
-        selectedDatasetId={selectedDatasetId}
-        selectedModelId={selectedModelId}
-        runState={runState}
-        onDatasetChange={setSelectedDatasetId}
-        onModelChange={setSelectedModelId}
-        onLoadModel={handleLoadModel}
-        onStart={handleStart}
-        onStop={stop}
-        onClear={clear}
-        onExport={handleExport}
-        hasResults={results.length > 0}
-      />
+    <div className="page-body">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <ErrorBoundary label="BenchmarkControls">
+          <BenchmarkControls
+            selectedDatasetId={selectedDatasetId}
+            selectedModelId={selectedModelId}
+            runState={runState}
+            onDatasetChange={setSelectedDatasetId}
+            onModelChange={setSelectedModelId}
+            onLoadModel={handleLoadModel}
+            onStart={handleStart}
+            onStop={stop}
+            onClear={clear}
+            onExport={handleExport}
+            hasResults={hasResults}
+          />
+        </ErrorBoundary>
+      </aside>
 
-      {isPending && (
-        <p
-          aria-live="polite"
-          style={{ fontSize: "12px", color: "var(--color-text-tertiary)", margin: 0 }}
-        >
-          Updating results…
-        </p>
-      )}
+      {/* Main */}
+      <main className="main-content">
+        {/* Heading */}
+        <div className="page-heading">
+          <h1>
+            Benchmark <span>Lab</span>
+          </h1>
+          <p>
+            Run systematic evaluations across multilingual datasets. Export results as CSV for
+            downstream statistical analysis.
+          </p>
+        </div>
 
-      <ErrorBoundary label="BenchmarkStats">
-        <BenchmarkStatsPanel results={stableResults} />
-      </ErrorBoundary>
+        {/* Chart / placeholder */}
+        {!hasResults ? (
+          <div className="bench-placeholder">
+            <div className="bench-placeholder-icon">▦</div>
+            <p className="bench-placeholder-text">
+              Select a model and dataset, then click <strong>Run Benchmark</strong> to start
+            </p>
+          </div>
+        ) : (
+          <>
+            <ErrorBoundary label="BenchmarkStats">
+              <BenchmarkStatsPanel results={stableResults} />
+            </ErrorBoundary>
 
-      <ErrorBoundary label="BenchmarkChart">
-        <BenchmarkChart results={stableResults} />
-      </ErrorBoundary>
+            <ErrorBoundary label="BenchmarkChart">
+              <div className="chart-container">
+                <BenchmarkChart results={stableResults} />
+              </div>
+            </ErrorBoundary>
 
-      <ErrorBoundary label="ResultsTable">
-        <ResultsTable results={stableResults} maxRows={150} />
-      </ErrorBoundary>
+            <ErrorBoundary label="ResultsTable">
+              <div className="results-table-wrap">
+                <ResultsTable results={stableResults} />
+              </div>
+            </ErrorBoundary>
+          </>
+        )}
+      </main>
     </div>
   );
 }

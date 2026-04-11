@@ -11,50 +11,21 @@ export default function App() {
 
   return (
     <ClassifierProvider>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100dvh",
-          background: "var(--color-background-tertiary)",
-        }}
-      >
+      <div className="app-shell">
         <Header activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <main
-          style={{
-            flex: 1,
-            padding: "24px",
-            maxWidth: "960px",
-            width: "100%",
-            margin: "0 auto",
-            boxSizing: "border-box",
-          }}
-        >
-          {/* Playground panel */}
-          <div
-            role="tabpanel"
-            id="panel-playground"
-            aria-labelledby="tab-playground"
-            hidden={activeTab !== "playground"}
-          >
-            <ErrorBoundary label="PlaygroundView">
-              <PlaygroundView />
-            </ErrorBoundary>
-          </div>
+        <ErrorBoundary label="App">
+          {activeTab === "playground" ? <PlaygroundView /> : <BenchmarkView />}
+        </ErrorBoundary>
 
-          {/* Benchmark panel */}
-          <div
-            role="tabpanel"
-            id="panel-benchmark"
-            aria-labelledby="tab-benchmark"
-            hidden={activeTab !== "benchmark"}
-          >
-            <ErrorBoundary label="BenchmarkView">
-              <BenchmarkView />
-            </ErrorBoundary>
-          </div>
-        </main>
+        <footer className="app-footer">
+          Multilingual Sentiment Bench · Powered by{" "}
+          <a href="https://huggingface.co/docs/transformers.js" target="_blank" rel="noreferrer">
+            Transformers.js
+          </a>
+          <span className="footer-sep">·</span>
+          All inference runs locally in your browser
+        </footer>
       </div>
     </ClassifierProvider>
   );

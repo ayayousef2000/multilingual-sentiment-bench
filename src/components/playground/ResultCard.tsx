@@ -1,66 +1,92 @@
 import { formatMB, formatMs } from "@/lib/export";
 import type { PlaygroundResult, SentimentLabel } from "@/types";
-import { Badge, Card, ProgressBar, Stat } from "../ui";
 
 interface ResultCardProps {
   result: PlaygroundResult | null;
   isLoading: boolean;
 }
 
-const LABEL_VARIANT: Record<SentimentLabel, "positive" | "negative" | "neutral"> = {
-  POSITIVE: "positive",
-  NEGATIVE: "negative",
-  NEUTRAL: "neutral",
+const LABEL_META: Record<SentimentLabel, { cls: string; emoji: string; label: string }> = {
+  POSITIVE: { cls: "badge-positive", emoji: "↑", label: "Positive" },
+  NEGATIVE: { cls: "badge-negative", emoji: "↓", label: "Negative" },
+  NEUTRAL: { cls: "badge-neutral", emoji: "→", label: "Neutral" },
 };
 
 export function ResultCard({ result, isLoading }: ResultCardProps) {
-  return (
-    <Card aria-live="polite" aria-busy={isLoading} aria-label="Classification result">
-      {isLoading && (
-        <p
-          style={{
-            margin: 0,
-            fontSize: "13px",
-            color: "var(--color-text-secondary)",
-            animation: "pulse 1.2s ease-in-out infinite",
-          }}
+  if (isLoading) {
+    return (
+      <div className="panel results-empty">
+        <span
+          style={{ color: "var(--color-accent)", fontFamily: "var(--font-mono)", fontSize: 12 }}
         >
           Classifying…
-        </p>
-      )}
+        </span>
+      </div>
+    );
+  }
 
-      {!isLoading && !result && (
-        <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-tertiary)" }}>
-          Results will appear here.
-        </p>
-      )}
+  if (!result) {
+    return <div className="panel results-empty">Results will appear here</div>;
+  }
 
-      {!isLoading && result && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Badge variant={LABEL_VARIANT[result.label]}>{result.label}</Badge>
-            <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-              {(result.score * 100).toFixed(1)}% confidence
-            </span>
-          </div>
+  const meta = LABEL_META[result.label];
+  const scorePct = Math.round(result.score * 100);
 
-          <ProgressBar
-            value={result.score * 100}
-            label={`Confidence score: ${(result.score * 100).toFixed(1)}%`}
-          />
+  return (
+    <div className="result-card">
+      {/* Label + score */}
+      <div className="result-label-row">
+        <span className={`result-label-badge ${meta.cls}`}>
+          {meta.emoji} {meta.label}
+        </span>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 13,
+            color: "var(--color-text-secondary)",
+          }}
+        >
+          {scorePct}% confidence
+        </span>
+      </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
-              gap: "10px",
-            }}
-          >
-            <Stat label="Latency" value={formatMs(result.time_ms)} />
-            {result.memory_mb != null && <Stat label="Memory" value={formatMB(result.memory_mb)} />}
-          </div>
+      <div
+        className="result-score-bar"
+        role="progressbar"
+        aria-valuenow={scorePct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Confidence: ${scorePct}%`}
+      >
+        <div
+          className="result-score-fill"
+          style={{
+            width: `${scorePct}%`,
+            background:
+              result.label === "POSITIVE"
+                ? "var(--color-positive)"
+                : result.label === "NEGATIVE"
+                  ? "var(--color-negative)"
+                  : "var(--color-neutral)",
+          }}
+        />
+      </div>
+
+      {/* Stats */}
+      <div className="result-stats-grid">
+        <div className="result-stat">
+          <span className="result-stat-label">Latency</span>
+          <span className="result-stat-value">{formatMs(result.time_ms)}</span>
         </div>
-      )}
-    </Card>
+        <div className="result-stat">
+          <span className="result-stat-label">Score</span>
+          <span className="result-stat-value">{result.score.toFixed(4)}</span>
+        </div>
+        <div className="result-stat">
+          <span className="result-stat-label">Memory</span>
+          <span className="result-stat-value">{formatMB(result.memory_mb)}</span>
+        </div>
+      </div>
+    </div>
   );
 }

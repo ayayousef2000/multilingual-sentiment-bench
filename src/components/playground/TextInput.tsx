@@ -1,11 +1,26 @@
 import { useId, useRef, useState } from "react";
-import { Button, Card } from "../ui";
+import { Button } from "../ui";
 
 interface TextInputProps {
   onClassify: (text: string) => void;
   isLoading: boolean;
   isModelReady: boolean;
 }
+
+const QUICK_EXAMPLES = [
+  { lang: "EN", text: "This product is absolutely fantastic! Best purchase I've made all year." },
+  { lang: "EN", text: "Completely broken on arrival. Total waste of money." },
+  { lang: "DE", text: "Absolut begeistert! Qualität ist hervorragend." },
+  { lang: "FR", text: "Vraiment décevant. Le produit ne correspond pas à la description." },
+  { lang: "AR", text: "منتج رائع جداً، سأشتري منه مجدداً" },
+] as const;
+
+const LANG_CLASS: Record<string, string> = {
+  EN: "chip-lang-en",
+  DE: "chip-lang-de",
+  FR: "chip-lang-fr",
+  AR: "chip-lang-ar",
+};
 
 const MAX_CHARS = 512;
 
@@ -14,95 +29,92 @@ export function TextInput({ onClassify, isLoading, isModelReady }: TextInputProp
   const textareaId = useId();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const trimmed = text.trim();
-  const canSubmit = isModelReady && !isLoading && trimmed.length > 0;
-  const remaining = MAX_CHARS - text.length;
-
   const handleSubmit = () => {
-    if (!canSubmit) return;
-    onClassify(trimmed);
+    const trimmed = text.trim();
+    if (trimmed) onClassify(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
+  const handleExample = (exampleText: string) => {
+    setText(exampleText);
+    textareaRef.current?.focus();
+  };
+
+  const remaining = MAX_CHARS - text.length;
+
   return (
-    <Card>
-      <label
-        htmlFor={textareaId}
-        style={{
-          display: "block",
-          fontSize: "12px",
-          fontWeight: 500,
-          color: "var(--color-text-secondary)",
-          marginBottom: "8px",
-        }}
-      >
-        Input text
-      </label>
-
-      <textarea
-        ref={textareaRef}
-        id={textareaId}
-        value={text}
-        onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
-        onKeyDown={handleKeyDown}
-        placeholder={
-          isModelReady
-            ? "Enter text to analyse… (⌘ Enter to run)"
-            : "Load a model first, then enter text here"
-        }
-        disabled={!isModelReady || isLoading}
-        aria-describedby={`${textareaId}-hint`}
-        rows={4}
-        style={{
-          width: "100%",
-          resize: "vertical",
-          fontFamily: "inherit",
-          fontSize: "13px",
-          padding: "10px 12px",
-          borderRadius: "var(--border-radius-md)",
-          border: "0.5px solid var(--color-border-secondary)",
-          background: "var(--color-background-primary)",
-          color: "var(--color-text-primary)",
-          lineHeight: 1.6,
-          boxSizing: "border-box",
-          opacity: !isModelReady ? 0.5 : 1,
-        }}
-      />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: "8px",
-        }}
-      >
-        <span
-          id={`${textareaId}-hint`}
-          style={{
-            fontSize: "11px",
-            color: remaining < 50 ? "var(--color-text-warning)" : "var(--color-text-tertiary)",
-          }}
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+      {/* Input panel */}
+      <div className="panel">
+        <label htmlFor={textareaId} className="panel-label">
+          Input Text
+        </label>
+        <p
+          style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: "var(--space-3)" }}
         >
-          {remaining} chars remaining
-        </span>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          loading={isLoading}
-          aria-label="Classify sentiment"
-        >
-          {isLoading ? "Classifying…" : "Classify"}
-        </Button>
+          Enter text in any supported language to classify sentiment
+        </p>
+
+        <div className="text-area-wrap">
+          <textarea
+            id={textareaId}
+            ref={textareaRef}
+            className="text-input"
+            value={text}
+            onChange={(e) => setText(e.target.value.slice(0, MAX_CHARS))}
+            onKeyDown={handleKeyDown}
+            placeholder="Type or paste text here…"
+            rows={5}
+            aria-label="Text to classify"
+          />
+          <span className="char-counter" aria-live="polite">
+            {remaining}
+          </span>
+        </div>
+
+        {/* Quick examples */}
+        <div style={{ marginTop: "var(--space-4)" }}>
+          <p className="quick-examples-label">Quick Examples</p>
+          <div className="quick-examples">
+            {QUICK_EXAMPLES.map((ex) => (
+              <button
+                key={ex.text}
+                className="example-chip"
+                onClick={() => handleExample(ex.text)}
+                title={ex.text}
+                type="button"
+              >
+                <span className={`chip-lang ${LANG_CLASS[ex.lang] ?? ""}`}>{ex.lang}</span>
+                {ex.text.slice(0, 38)}&hellip;
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Action row */}
+        <div className="classify-row">
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            loading={isLoading}
+            disabled={!isModelReady || !text.trim() || isLoading}
+          >
+            Classify
+          </Button>
+          {!isModelReady && <span className="classify-hint">Load a model first</span>}
+          {isModelReady && (
+            <span className="classify-hint" style={{ opacity: 0.5 }}>
+              ⌘↵ to run
+            </span>
+          )}
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
