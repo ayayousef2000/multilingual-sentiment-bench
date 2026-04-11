@@ -1,135 +1,53 @@
+import { memo, useMemo } from "react";
 import { computeStats, formatMB, formatMs } from "@/lib/export";
 import type { BenchmarkResult } from "@/types";
 import { Card, Stat } from "../ui";
 
-interface BenchmarkStatsProps {
+interface BenchmarkStatsPanelProps {
   results: BenchmarkResult[];
 }
 
-export function BenchmarkStatsPanel({ results }: BenchmarkStatsProps) {
-  if (results.length === 0) return null;
+export const BenchmarkStatsPanel = memo(function BenchmarkStatsPanel({
+  results,
+}: BenchmarkStatsPanelProps) {
+  const stats = useMemo(() => computeStats(results), [results]);
 
-  const stats = computeStats(results);
-  if (!stats) return null;
-
-  const posRatio = (stats.positiveCount / stats.count) * 100;
-  const negRatio = (stats.negativeCount / stats.count) * 100;
-  const neutRatio = (stats.neutralCount / stats.count) * 100;
+  if (results.length === 0 || !stats) return null;
 
   return (
-    <Card style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <h2
+    <Card aria-label="Benchmark statistics">
+      <p
         style={{
-          fontFamily: "var(--font-display)",
-          fontWeight: 700,
-          fontSize: "0.8125rem",
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "var(--text-muted)",
+          margin: "0 0 12px",
+          fontSize: "13px",
+          fontWeight: 500,
+          color: "var(--color-text-secondary)",
         }}
       >
-        Run Statistics
-      </h2>
-
-      {/* Key metrics grid */}
+        Run statistics
+      </p>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
-          gap: "var(--space-5)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          gap: "10px",
         }}
       >
-        <Stat label="Samples" value={String(stats.count)} accent />
-        <Stat label="Avg Latency" value={formatMs(stats.avgLatency)} />
-        <Stat label="Min Latency" value={formatMs(stats.minLatency)} sub="best" />
-        <Stat label="Max Latency" value={formatMs(stats.maxLatency)} sub="worst" />
-        {stats.avgMemory !== null && (
-          <Stat label="Avg Memory Δ" value={formatMB(stats.avgMemory)} />
+        <Stat label="Samples" value={stats.count} />
+        <Stat label="Avg latency" value={formatMs(stats.avgLatency)} />
+        <Stat
+          label="Min / Max"
+          value={`${formatMs(stats.minLatency)} / ${formatMs(stats.maxLatency)}`}
+        />
+        {stats.avgMemory != null && <Stat label="Avg memory" value={formatMB(stats.avgMemory)} />}
+        {stats.accuracy != null && (
+          <Stat label="Accuracy" value={`${(stats.accuracy * 100).toFixed(1)}%`} />
         )}
-      </div>
-
-      {/* Label distribution */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-        <div
-          style={{
-            fontSize: "0.6875rem",
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--text-muted)",
-            fontFamily: "var(--font-display)",
-          }}
-        >
-          Label Distribution
-        </div>
-
-        {[
-          {
-            label: "Positive",
-            count: stats.positiveCount,
-            pct: posRatio,
-            color: "var(--sentiment-positive)",
-          },
-          {
-            label: "Negative",
-            count: stats.negativeCount,
-            pct: negRatio,
-            color: "var(--sentiment-negative)",
-          },
-          {
-            label: "Neutral",
-            count: stats.neutralCount,
-            pct: neutRatio,
-            color: "var(--sentiment-neutral)",
-          },
-        ].map(({ label, count, pct, color }) => (
-          <div key={label} style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <span
-              style={{
-                width: 72,
-                fontSize: "0.75rem",
-                color: "var(--text-secondary)",
-                flexShrink: 0,
-              }}
-            >
-              {label}
-            </span>
-            <div
-              style={{
-                flex: 1,
-                height: 8,
-                background: "var(--bg-overlay)",
-                borderRadius: 4,
-                overflow: "hidden",
-                border: "1px solid var(--border-subtle)",
-              }}
-            >
-              <div
-                style={{
-                  width: `${pct}%`,
-                  height: "100%",
-                  background: color,
-                  borderRadius: 4,
-                  transition: "width 600ms var(--ease-default)",
-                  boxShadow: `0 0 6px ${color}60`,
-                }}
-              />
-            </div>
-            <span
-              style={{
-                width: 52,
-                textAlign: "right",
-                fontSize: "0.75rem",
-                color: "var(--text-muted)",
-                fontVariantNumeric: "tabular-nums",
-                flexShrink: 0,
-              }}
-            >
-              {count} ({pct.toFixed(0)}%)
-            </span>
-          </div>
-        ))}
+        <Stat
+          label="Distribution"
+          value={`${stats.positiveCount}+ / ${stats.negativeCount}− / ${stats.neutralCount}○`}
+        />
       </div>
     </Card>
   );
-}
+});

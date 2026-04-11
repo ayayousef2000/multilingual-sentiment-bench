@@ -2,53 +2,60 @@ import { useState } from "react";
 import { BenchmarkView } from "@/components/layout/BenchmarkView";
 import { Header } from "@/components/layout/Header";
 import { PlaygroundView } from "@/components/layout/PlaygroundView";
-import { useClassifier } from "@/hooks/useClassifier";
+import { ErrorBoundary } from "@/components/ui";
+import { ClassifierProvider } from "@/context/ClassifierContext";
+import type { AppTab } from "@/types";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"playground" | "benchmark">("playground");
-
-  // Single worker shared between both views — avoids double model downloads
-  const { loadModel, classify, loadState } = useClassifier();
+  const [activeTab, setActiveTab] = useState<AppTab>("playground");
 
   return (
-    <>
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
-
-      <main style={{ flex: 1 }}>
-        {activeTab === "playground" ? (
-          <PlaygroundView loadState={loadState} onLoadModel={loadModel} classify={classify} />
-        ) : (
-          <BenchmarkView loadState={loadState} onLoadModel={loadModel} classify={classify} />
-        )}
-      </main>
-
-      <footer
+    <ClassifierProvider>
+      <div
         style={{
-          borderTop: "1px solid var(--border-subtle)",
-          padding: "var(--space-4) var(--space-6)",
-          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100dvh",
+          background: "var(--color-background-tertiary)",
         }}
       >
-        <p
+        <Header activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <main
           style={{
-            fontSize: "0.6875rem",
-            color: "var(--text-muted)",
-            fontFamily: "var(--font-display)",
-            letterSpacing: "0.04em",
+            flex: 1,
+            padding: "24px",
+            maxWidth: "960px",
+            width: "100%",
+            margin: "0 auto",
+            boxSizing: "border-box",
           }}
         >
-          Multilingual Sentiment Bench · Powered by{" "}
-          <a
-            href="https://huggingface.co/docs/transformers.js"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: "var(--accent-primary)", textDecoration: "none" }}
+          {/* Playground panel */}
+          <div
+            role="tabpanel"
+            id="panel-playground"
+            aria-labelledby="tab-playground"
+            hidden={activeTab !== "playground"}
           >
-            Transformers.js
-          </a>{" "}
-          · All inference runs locally in your browser
-        </p>
-      </footer>
-    </>
+            <ErrorBoundary label="PlaygroundView">
+              <PlaygroundView />
+            </ErrorBoundary>
+          </div>
+
+          {/* Benchmark panel */}
+          <div
+            role="tabpanel"
+            id="panel-benchmark"
+            aria-labelledby="tab-benchmark"
+            hidden={activeTab !== "benchmark"}
+          >
+            <ErrorBoundary label="BenchmarkView">
+              <BenchmarkView />
+            </ErrorBoundary>
+          </div>
+        </main>
+      </div>
+    </ClassifierProvider>
   );
 }

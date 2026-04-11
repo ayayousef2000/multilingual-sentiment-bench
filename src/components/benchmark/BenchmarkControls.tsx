@@ -1,12 +1,12 @@
+import { useClassifierContext } from "@/context/ClassifierContext";
 import { DATASETS } from "@/lib/datasets";
 import { MODELS } from "@/lib/models";
-import type { BenchmarkRunState, ModelLoadState } from "@/types";
+import type { BenchmarkRunState } from "@/types";
 import { Button, Card, ProgressBar, Select } from "../ui";
 
 interface BenchmarkControlsProps {
   selectedDatasetId: string;
   selectedModelId: string;
-  loadState: ModelLoadState;
   runState: BenchmarkRunState;
   onDatasetChange: (id: string) => void;
   onModelChange: (id: string) => void;
@@ -21,7 +21,6 @@ interface BenchmarkControlsProps {
 export function BenchmarkControls({
   selectedDatasetId,
   selectedModelId,
-  loadState,
   runState,
   onDatasetChange,
   onModelChange,
@@ -32,98 +31,93 @@ export function BenchmarkControls({
   onExport,
   hasResults,
 }: BenchmarkControlsProps) {
+  const { loadState } = useClassifierContext();
+
   const isModelReady = loadState.status === "ready";
   const isModelLoading = loadState.status === "loading";
-  const progress = runState.total > 0 ? (runState.currentIdx / runState.total) * 100 : 0;
+  const canStart = isModelReady && !runState.isRunning;
+  const canLoad = !isModelLoading && !runState.isRunning;
 
   return (
-    <Card style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <div>
-        <h2
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 700,
-            fontSize: "0.8125rem",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--text-muted)",
-            marginBottom: "4px",
-          }}
-        >
-          Benchmark Configuration
-        </h2>
-        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-          Run a full dataset through any model and collect latency & accuracy metrics
-        </p>
+    <Card>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "12px",
+          marginBottom: "14px",
+        }}
+      >
+        <Select
+          label="Model"
+          value={selectedModelId}
+          onChange={onModelChange}
+          disabled={isModelLoading || runState.isRunning}
+          options={MODELS.map((m) => ({ value: m.id, label: m.name }))}
+        />
+        <Select
+          label="Dataset"
+          value={selectedDatasetId}
+          onChange={onDatasetChange}
+          disabled={runState.isRunning}
+          options={DATASETS.map((d) => ({ value: d.id, label: d.name }))}
+        />
       </div>
 
-      <Select
-        label="Model"
-        value={selectedModelId}
-        onChange={onModelChange}
-        disabled={runState.isRunning || isModelLoading}
-        options={MODELS.map((m) => ({ value: m.id, label: `${m.name} (${m.size})` }))}
-      />
-
-      <Select
-        label="Dataset"
-        value={selectedDatasetId}
-        onChange={onDatasetChange}
-        disabled={runState.isRunning}
-        options={DATASETS.map((d) => ({
-          value: d.id,
-          label: `${d.name} — ${d.samples.length} samples`,
-        }))}
-      />
-
-      {/* Model load */}
-      {!isModelReady && (
-        <Button onClick={onLoadModel} disabled={isModelLoading} variant="ghost" size="md">
-          {isModelLoading ? "Loading…" : "Load Model First"}
-        </Button>
-      )}
-
       {isModelLoading && (
-        <ProgressBar value={loadState.progress} label={loadState.statusText} size="sm" />
+        <div style={{ marginBottom: "14px" }}>
+          <ProgressBar
+            value={loadState.progress}
+            label="Model loading progress"
+            statusText={loadState.statusText}
+          />
+        </div>
       )}
 
-      {/* Run controls */}
-      <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-        <Button
-          onClick={onStart}
-          disabled={!isModelReady || runState.isRunning}
-          variant="primary"
-          size="md"
-        >
-          {runState.isRunning ? "Running…" : "▶ Run Benchmark"}
-        </Button>
-        {runState.isRunning && (
-          <Button onClick={onStop} variant="danger" size="md">
-            ■ Stop
+      {runState.isRunning && (
+        <div style={{ marginBottom: "14px" }}>
+          <ProgressBar
+            value={runState.total > 0 ? (runState.currentIdx / runState.total) * 100 : 0}
+            label="Benchmark progress"
+            statusText={`${runState.currentIdx} / ${runState.total} samples`}
+          />
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        {!isModelReady && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onLoadModel}
+            disabled={!canLoad}
+            loading={isModelLoading}
+          >
+            {isModelLoading ? "Loading model…" : "Load model"}
           </Button>
         )}
-        {hasResults && !runState.isRunning && (
+
+        {!runState.isRunning ? (
+          <Button variant="primary" size="sm" onClick={onStart} disabled={!canStart}>
+            Run benchmark
+          </Button>
+        ) : (
+          <Button variant="danger" size="sm" onClick={onStop}>
+            Stop
+          </Button>
+        )}
+
+        {hasResults && (
           <>
-            <Button onClick={onExport} variant="ghost" size="md">
-              ↓ Export CSV
+            <Button variant="ghost" size="sm" onClick={onExport} disabled={runState.isRunning}>
+              Export CSV
             </Button>
-            <Button onClick={onClear} variant="ghost" size="md">
+            <Button variant="ghost" size="sm" onClick={onClear} disabled={runState.isRunning}>
               Clear
             </Button>
           </>
         )}
       </div>
-
-      {/* Run progress */}
-      {(runState.isRunning || runState.currentIdx > 0) && runState.total > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-          <ProgressBar
-            value={progress}
-            label={`${runState.currentIdx} / ${runState.total} samples`}
-            color={runState.isRunning ? "var(--accent-primary)" : "var(--sentiment-positive)"}
-          />
-        </div>
-      )}
     </Card>
   );
 }

@@ -7,31 +7,23 @@
     "removeEmptyLines": true,
     "showLineNumbers": false,
     "copyToClipboard": false,
-    "parsableStyle": false,
+    "parsableStyle": true,
     "git": {
       "sortByChanges": true,
       "sortByChangesMaxCommits": 100
     }
   },
-  "include": ["**/*", "**/*.mjs", ".github/**/*"],
+  "include": ["src/**/*"],
   "ignore": {
     "useGitignore": true,
     "useDefaultPatterns": true,
     "customPatterns": [
-      ".git",
-      "node_modules",
-      ".venv",
-      "__pycache__",
-      "*.pyc",
-      "dist",
-      "build",
-      "*.log",
-      ".env",
-      "package-lock.json",
-      ".pnpm-store",
-      "pnpm-lock.yaml",
-      "multilingual-sentiment-bench-code.xml",
       "repomix.config.json",
+      "src/**/*.test.*",
+      "src/**/*.spec.*",
+      "src/**/*.stories.*",
+      "src/**/__tests__/**",
+      "src/**/__mocks__/**",
       "**/.devcontainer/**",
       "**/.github/**",
       "**/.husky/**",
@@ -41,7 +33,8 @@
       "**/assets/**",
       "**/README.md",
       "**/.dockerignore",
-      "**/.gitignore"
+      "**/.gitignore",
+      "**/docker-compose.yml"
     ]
   },
   "security": {

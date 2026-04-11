@@ -1,5 +1,5 @@
 import { formatMB, formatMs } from "@/lib/export";
-import type { PlaygroundResult } from "@/types";
+import type { PlaygroundResult, SentimentLabel } from "@/types";
 import { Badge, Card, ProgressBar, Stat } from "../ui";
 
 interface ResultCardProps {
@@ -7,115 +7,60 @@ interface ResultCardProps {
   isLoading: boolean;
 }
 
-const LABEL_CONFIG = {
-  POSITIVE: { color: "var(--sentiment-positive)", variant: "positive" as const, icon: "↑" },
-  NEGATIVE: { color: "var(--sentiment-negative)", variant: "negative" as const, icon: "↓" },
-  NEUTRAL: { color: "var(--sentiment-neutral)", variant: "neutral" as const, icon: "→" },
+const LABEL_VARIANT: Record<SentimentLabel, "positive" | "negative" | "neutral"> = {
+  POSITIVE: "positive",
+  NEGATIVE: "negative",
+  NEUTRAL: "neutral",
 };
 
 export function ResultCard({ result, isLoading }: ResultCardProps) {
-  if (isLoading) {
-    return (
-      <Card
-        style={{ minHeight: 160, display: "flex", alignItems: "center", justifyContent: "center" }}
-      >
-        <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              border: "2px solid var(--border-default)",
-              borderTopColor: "var(--accent-primary)",
-              borderRadius: "50%",
-              animation: "spin 0.7s linear infinite",
-              margin: "0 auto 12px",
-            }}
-          />
-          <p style={{ fontSize: "0.8125rem" }}>Running inference…</p>
-        </div>
-      </Card>
-    );
-  }
-
-  if (!result) {
-    return (
-      <Card
-        style={{
-          minHeight: 160,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          border: "1px dashed var(--border-subtle)",
-          background: "transparent",
-        }}
-      >
-        <p style={{ fontSize: "0.8125rem", color: "var(--text-muted)", textAlign: "center" }}>
-          Results will appear here
-        </p>
-      </Card>
-    );
-  }
-
-  const cfg = LABEL_CONFIG[result.label];
-
   return (
-    <Card glow style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: "var(--space-4)",
-        }}
-      >
-        <div>
+    <Card aria-live="polite" aria-busy={isLoading} aria-label="Classification result">
+      {isLoading && (
+        <p
+          style={{
+            margin: 0,
+            fontSize: "13px",
+            color: "var(--color-text-secondary)",
+            animation: "pulse 1.2s ease-in-out infinite",
+          }}
+        >
+          Classifying…
+        </p>
+      )}
+
+      {!isLoading && !result && (
+        <p style={{ margin: 0, fontSize: "13px", color: "var(--color-text-tertiary)" }}>
+          Results will appear here.
+        </p>
+      )}
+
+      {!isLoading && result && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Badge variant={LABEL_VARIANT[result.label]}>{result.label}</Badge>
+            <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+              {(result.score * 100).toFixed(1)}% confidence
+            </span>
+          </div>
+
+          <ProgressBar
+            value={result.score * 100}
+            label={`Confidence score: ${(result.score * 100).toFixed(1)}%`}
+          />
+
           <div
             style={{
-              fontSize: "0.6875rem",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "var(--text-muted)",
-              fontFamily: "var(--font-display)",
-              marginBottom: "var(--space-2)",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
+              gap: "10px",
             }}
           >
-            Prediction
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                fontSize: "2rem",
-                color: cfg.color,
-                lineHeight: 1,
-              }}
-            >
-              {cfg.icon} {result.label}
-            </span>
-            <Badge label={`${(result.score * 100).toFixed(1)}%`} variant={cfg.variant} />
+            <Stat label="Latency" value={formatMs(result.time_ms)} />
+            {result.memory_mb != null && <Stat label="Memory" value={formatMB(result.memory_mb)} />}
           </div>
         </div>
-      </div>
-
-      {/* Confidence bar */}
-      <ProgressBar value={result.score * 100} label="Confidence" color={cfg.color} size="md" />
-
-      {/* Performance metrics */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "var(--space-4)",
-          paddingTop: "var(--space-4)",
-          borderTop: "1px solid var(--border-subtle)",
-        }}
-      >
-        <Stat label="Latency" value={formatMs(result.time_ms)} accent />
-        <Stat label="Memory Δ" value={formatMB(result.memory_mb)} />
-        <Stat label="Score" value={result.score.toFixed(4)} sub="raw logit" />
-      </div>
+      )}
     </Card>
   );
 }

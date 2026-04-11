@@ -1,17 +1,15 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@/styles/globals.css";
-import App from "./App.tsx";
+import App from "./App";
 
-// CSS keyframe for spinner — injected globally once
-const style = document.createElement("style");
-style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
-document.head.appendChild(style);
+const rootEl = document.getElementById("root");
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Root element #root not found");
+if (!rootEl) {
+  throw new Error("Root element #root not found. Check your index.html.");
+}
 
-createRoot(root).render(
+createRoot(rootEl).render(
   <StrictMode>
     <App />
   </StrictMode>

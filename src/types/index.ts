@@ -1,65 +1,72 @@
-// ─── Model Types ─────────────────────────────────────────────────────────────
+// ─── Sentiment ───────────────────────────────────────────────────────────────
 
 export type SentimentLabel = "POSITIVE" | "NEGATIVE" | "NEUTRAL";
 
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+export type ModelSize = "small" | "medium" | "large";
+export type ModelTask = "sentiment-analysis" | "text-classification";
+export type ModelLoadStatus = "idle" | "loading" | "ready" | "error";
+
 export interface ModelConfig {
-  id: string;
-  name: string;
-  description: string;
-  languages: string[];
-  size: "small" | "medium" | "large";
-  task: "sentiment-analysis" | "text-classification";
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly languages: readonly string[];
+  readonly size: ModelSize;
+  readonly task: ModelTask;
 }
 
-// ─── Worker Message Types ─────────────────────────────────────────────────────
+export interface ModelLoadState {
+  readonly status: ModelLoadStatus;
+  readonly progress: number;
+  readonly statusText: string;
+  readonly error?: string;
+}
 
-export type WorkerMessageType =
-  | "LOAD_MODEL"
-  | "CLASSIFY"
-  | "MODEL_READY"
-  | "CLASSIFICATION_RESULT"
-  | "PROGRESS"
-  | "ERROR";
+// ─── Worker messages (discriminated unions) ──────────────────────────────────
 
 export interface WorkerInboundLoad {
-  type: "LOAD_MODEL";
-  modelId: string;
+  readonly type: "LOAD_MODEL";
+  readonly modelId: string;
 }
 
 export interface WorkerInboundClassify {
-  type: "CLASSIFY";
-  id: string;
-  text: string;
-  modelId: string;
+  readonly type: "CLASSIFY";
+  readonly id: string;
+  readonly text: string;
+  readonly modelId: string;
 }
 
 export type WorkerInbound = WorkerInboundLoad | WorkerInboundClassify;
 
 export interface WorkerOutboundReady {
-  type: "MODEL_READY";
-  modelId: string;
+  readonly type: "MODEL_READY";
+  readonly modelId: string;
 }
 
 export interface WorkerOutboundProgress {
-  type: "PROGRESS";
-  modelId: string;
-  progress: number;
-  status: string;
+  readonly type: "PROGRESS";
+  readonly modelId: string;
+  readonly progress: number;
+  readonly status: string;
 }
 
 export interface WorkerOutboundResult {
-  type: "CLASSIFICATION_RESULT";
-  id: string;
-  label: SentimentLabel;
-  score: number;
-  time_ms: number;
-  memory_mb: number | null;
+  readonly type: "CLASSIFICATION_RESULT";
+  readonly id: string;
+  readonly label: SentimentLabel;
+  readonly score: number;
+  readonly time_ms: number;
+  readonly memory_mb: number | null;
 }
 
 export interface WorkerOutboundError {
-  type: "ERROR";
-  message: string;
-  modelId?: string;
+  readonly type: "ERROR";
+  readonly message: string;
+  readonly modelId?: string;
+  /** If present, the pending classify request that should be rejected */
+  readonly requestId?: string;
 }
 
 export type WorkerOutbound =
@@ -68,85 +75,83 @@ export type WorkerOutbound =
   | WorkerOutboundResult
   | WorkerOutboundError;
 
-// ─── Benchmark Types ──────────────────────────────────────────────────────────
+export type WorkerMessageType = WorkerOutbound["type"];
+
+// ─── Datasets ────────────────────────────────────────────────────────────────
 
 export interface BenchmarkSample {
-  id: string;
-  text: string;
-  language: string;
-  expected?: SentimentLabel;
+  readonly id: string;
+  readonly text: string;
+  readonly language: string;
+  readonly expected?: SentimentLabel;
 }
 
 export interface BenchmarkDataset {
-  id: string;
-  name: string;
-  description: string;
-  language: string;
-  samples: BenchmarkSample[];
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly language: string;
+  readonly samples: readonly BenchmarkSample[];
 }
 
+// ─── Results ─────────────────────────────────────────────────────────────────
+
 export interface BenchmarkResult {
-  id: string;
-  sample_id: string;
-  model_id: string;
-  dataset_id: string;
-  label: SentimentLabel;
-  score: number;
-  time_ms: number;
-  memory_mb: number | null;
-  input_len: number;
-  language: string;
-  timestamp: number;
+  readonly id: string;
+  readonly sample_id: string;
+  readonly model_id: string;
+  readonly dataset_id: string;
+  readonly label: SentimentLabel;
+  readonly score: number;
+  readonly time_ms: number;
+  readonly memory_mb: number | null;
+  readonly input_len: number;
+  readonly language: string;
+  readonly timestamp: number;
 }
 
 export interface BenchmarkRunState {
-  isRunning: boolean;
-  currentIdx: number;
-  total: number;
-  datasetId: string | null;
-  modelId: string | null;
+  readonly isRunning: boolean;
+  readonly currentIdx: number;
+  readonly total: number;
+  readonly datasetId: string | null;
+  readonly modelId: string | null;
 }
 
 export interface BenchmarkStats {
-  count: number;
-  avgLatency: number;
-  minLatency: number;
-  maxLatency: number;
-  avgMemory: number | null;
-  positiveCount: number;
-  negativeCount: number;
-  neutralCount: number;
-  accuracy: number | null;
+  readonly count: number;
+  readonly avgLatency: number;
+  readonly minLatency: number;
+  readonly maxLatency: number;
+  readonly avgMemory: number | null;
+  readonly positiveCount: number;
+  readonly negativeCount: number;
+  readonly neutralCount: number;
+  readonly accuracy: number | null;
 }
-
-// ─── Playground Types ─────────────────────────────────────────────────────────
 
 export interface PlaygroundResult {
-  label: SentimentLabel;
-  score: number;
-  time_ms: number;
-  memory_mb: number | null;
+  readonly label: SentimentLabel;
+  readonly score: number;
+  readonly time_ms: number;
+  readonly memory_mb: number | null;
 }
 
-export type ModelLoadStatus = "idle" | "loading" | "ready" | "error";
-
-export interface ModelLoadState {
-  status: ModelLoadStatus;
-  progress: number;
-  statusText: string;
-}
-
-// ─── Export Types ─────────────────────────────────────────────────────────────
+// ─── Export ──────────────────────────────────────────────────────────────────
 
 export interface ExportRow {
-  model_id: string;
-  dataset_id: string;
-  sample_id: string;
-  language: string;
-  input_len: number;
-  label: string;
-  score: number;
-  time_ms: number;
-  memory_mb: number | null;
-  timestamp: number;
+  readonly model_id: string;
+  readonly dataset_id: string;
+  readonly sample_id: string;
+  readonly language: string;
+  readonly input_len: number;
+  readonly label: string;
+  readonly score: number;
+  readonly time_ms: number;
+  readonly memory_mb: number | null;
+  readonly timestamp: number;
 }
+
+// ─── Tab routing ─────────────────────────────────────────────────────────────
+
+export type AppTab = "playground" | "benchmark";

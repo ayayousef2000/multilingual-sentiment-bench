@@ -1,234 +1,121 @@
-import type { CSSProperties, ReactNode } from "react";
+/**
+ * Primitive UI components.
+ *
+ * Each component is a focused, accessible building block.
+ * All interactive elements meet WCAG 2.2 AA requirements.
+ */
 
-/* ─── Button ─────────────────────────────────────────────────────────────────── */
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
 
-interface ButtonProps {
+// ─── Button ───────────────────────────────────────────────────────────────────
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
   variant?: "primary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
-  type?: "button" | "submit" | "reset";
-  style?: CSSProperties;
+  loading?: boolean;
 }
+
+const BUTTON_BASE: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "6px",
+  fontFamily: "inherit",
+  fontWeight: 500,
+  borderRadius: "var(--radius-md, 8px)",
+  border: "1.5px solid transparent",
+  cursor: "pointer",
+  transition: "background 0.15s, opacity 0.15s, transform 0.1s",
+  userSelect: "none",
+};
+
+const VARIANT_STYLES: Record<NonNullable<ButtonProps["variant"]>, CSSProperties> = {
+  primary: {
+    background: "var(--color-accent, #1a6cff)",
+    color: "#fff",
+    borderColor: "transparent",
+  },
+  ghost: {
+    background: "transparent",
+    color: "var(--color-text-primary)",
+    borderColor: "var(--color-border-secondary)",
+  },
+  danger: {
+    background: "var(--color-background-danger)",
+    color: "var(--color-text-danger)",
+    borderColor: "var(--color-border-danger, transparent)",
+  },
+};
+
+const SIZE_STYLES: Record<NonNullable<ButtonProps["size"]>, CSSProperties> = {
+  sm: { padding: "5px 12px", fontSize: "12px", height: "30px" },
+  md: { padding: "7px 16px", fontSize: "13px", height: "36px" },
+  lg: { padding: "10px 20px", fontSize: "14px", height: "42px" },
+};
 
 export function Button({
   children,
-  onClick,
-  disabled,
-  variant = "primary",
+  variant = "ghost",
   size = "md",
-  type = "button",
+  loading = false,
+  disabled,
   style,
+  ...rest
 }: ButtonProps) {
-  const base: CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-    fontFamily: "var(--font-display)",
-    fontWeight: 600,
-    letterSpacing: "0.03em",
-    border: "1px solid transparent",
-    borderRadius: "var(--radius-md)",
-    cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.4 : 1,
-    transition:
-      "background var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default)",
-    userSelect: "none",
-    whiteSpace: "nowrap",
-    ...(size === "sm" && { padding: "5px 12px", fontSize: "0.75rem" }),
-    ...(size === "md" && { padding: "8px 18px", fontSize: "0.8125rem" }),
-    ...(size === "lg" && { padding: "11px 24px", fontSize: "0.875rem" }),
-    ...(variant === "primary" && {
-      background: "var(--accent-primary)",
-      color: "#0a0b0f",
-      borderColor: "var(--accent-primary)",
-    }),
-    ...(variant === "ghost" && {
-      background: "transparent",
-      color: "var(--text-secondary)",
-      borderColor: "var(--border-default)",
-    }),
-    ...(variant === "danger" && {
-      background: "var(--sentiment-negative-dim)",
-      color: "var(--sentiment-negative)",
-      borderColor: "var(--sentiment-negative)",
-    }),
-    ...style,
-  };
+  const isDisabled = disabled || loading;
 
   return (
     <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      style={base}
-      onMouseEnter={(e) => {
-        if (disabled) return;
-        if (variant === "primary") {
-          (e.currentTarget as HTMLButtonElement).style.boxShadow = "var(--shadow-accent)";
-          (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-        }
-        if (variant === "ghost") {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-strong)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--text-primary)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.boxShadow = "";
-        (e.currentTarget as HTMLButtonElement).style.transform = "";
-        if (variant === "ghost") {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-default)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
-        }
+      {...rest}
+      disabled={isDisabled}
+      aria-disabled={isDisabled}
+      aria-busy={loading}
+      style={{
+        ...BUTTON_BASE,
+        ...VARIANT_STYLES[variant],
+        ...SIZE_STYLES[size],
+        opacity: isDisabled ? 0.5 : 1,
+        cursor: isDisabled ? "not-allowed" : "pointer",
+        ...style,
       }}
     >
+      {loading && (
+        <span
+          aria-hidden="true"
+          style={{
+            width: "12px",
+            height: "12px",
+            border: "2px solid currentColor",
+            borderTopColor: "transparent",
+            borderRadius: "50%",
+            display: "inline-block",
+            animation: "spin 0.6s linear infinite",
+          }}
+        />
+      )}
       {children}
     </button>
   );
 }
 
-/* ─── Badge ──────────────────────────────────────────────────────────────────── */
+// ─── Card ─────────────────────────────────────────────────────────────────────
 
-interface BadgeProps {
-  label: string;
-  variant?: "positive" | "negative" | "neutral" | "accent" | "muted";
-}
-
-export function Badge({ label, variant = "muted" }: BadgeProps) {
-  const colors: Record<string, { bg: string; color: string; border: string }> = {
-    positive: {
-      bg: "var(--sentiment-positive-dim)",
-      color: "var(--sentiment-positive)",
-      border: "rgba(52,211,153,0.25)",
-    },
-    negative: {
-      bg: "var(--sentiment-negative-dim)",
-      color: "var(--sentiment-negative)",
-      border: "rgba(248,113,113,0.25)",
-    },
-    neutral: {
-      bg: "var(--sentiment-neutral-dim)",
-      color: "var(--sentiment-neutral)",
-      border: "rgba(148,163,184,0.25)",
-    },
-    accent: {
-      bg: "var(--accent-primary-dim)",
-      color: "var(--accent-primary)",
-      border: "rgba(0,229,200,0.25)",
-    },
-    muted: {
-      bg: "rgba(255,255,255,0.04)",
-      color: "var(--text-muted)",
-      border: "var(--border-subtle)",
-    },
-  };
-  const c = colors[variant];
-
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "2px 8px",
-        borderRadius: "var(--radius-sm)",
-        fontSize: "0.6875rem",
-        fontWeight: 600,
-        fontFamily: "var(--font-display)",
-        letterSpacing: "0.05em",
-        textTransform: "uppercase",
-        background: c.bg,
-        color: c.color,
-        border: `1px solid ${c.border}`,
-      }}
-    >
-      {label}
-    </span>
-  );
-}
-
-/* ─── ProgressBar ────────────────────────────────────────────────────────────── */
-
-interface ProgressBarProps {
-  value: number; // 0–100
-  label?: string;
-  showPercent?: boolean;
-  color?: string;
-  size?: "sm" | "md";
-}
-
-export function ProgressBar({
-  value,
-  label,
-  showPercent = true,
-  color = "var(--accent-primary)",
-  size = "md",
-}: ProgressBarProps) {
-  const clamp = Math.max(0, Math.min(100, value));
-  const height = size === "sm" ? 3 : 6;
-
-  return (
-    <div style={{ width: "100%" }}>
-      {(label || showPercent) && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "6px",
-            fontSize: "0.75rem",
-            color: "var(--text-secondary)",
-          }}
-        >
-          {label && <span>{label}</span>}
-          {showPercent && (
-            <span style={{ fontVariantNumeric: "tabular-nums" }}>{clamp.toFixed(0)}%</span>
-          )}
-        </div>
-      )}
-      <div
-        style={{
-          width: "100%",
-          height,
-          background: "var(--bg-overlay)",
-          borderRadius: height,
-          overflow: "hidden",
-          border: "1px solid var(--border-subtle)",
-        }}
-      >
-        <div
-          style={{
-            width: `${clamp}%`,
-            height: "100%",
-            background: color,
-            borderRadius: height,
-            transition: "width 300ms var(--ease-default)",
-            boxShadow: clamp > 0 ? `0 0 8px ${color}60` : "none",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ─── Card ───────────────────────────────────────────────────────────────────── */
-
-interface CardProps {
+export interface CardProps {
   children: ReactNode;
   style?: CSSProperties;
-  glow?: boolean;
+  className?: string;
 }
 
-export function Card({ children, style, glow }: CardProps) {
+export function Card({ children, style, className }: CardProps) {
   return (
     <div
+      className={className}
       style={{
-        background: "var(--bg-surface)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-xl)",
-        padding: "var(--space-6)",
-        boxShadow: glow ? "var(--shadow-accent), var(--shadow-md)" : "var(--shadow-sm)",
-        transition: "box-shadow var(--duration-default) var(--ease-default)",
+        background: "var(--color-background-primary)",
+        border: "0.5px solid var(--color-border-tertiary)",
+        borderRadius: "var(--border-radius-lg)",
+        padding: "1rem 1.25rem",
         ...style,
       }}
     >
@@ -237,15 +124,61 @@ export function Card({ children, style, glow }: CardProps) {
   );
 }
 
-/* ─── Select ─────────────────────────────────────────────────────────────────── */
+// ─── ProgressBar ──────────────────────────────────────────────────────────────
 
-interface SelectOption {
-  value: string;
+export interface ProgressBarProps {
+  /** 0–100 */
+  value: number;
   label: string;
-  disabled?: boolean;
+  /** Optional visible status text displayed beside the bar */
+  statusText?: string;
 }
 
-interface SelectProps {
+export function ProgressBar({ value, label, statusText }: ProgressBarProps) {
+  const clamped = Math.min(100, Math.max(0, Math.round(value)));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+      {statusText && (
+        <span style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>{statusText}</span>
+      )}
+      <div
+        role="progressbar"
+        aria-valuenow={clamped}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label}
+        style={{
+          width: "100%",
+          height: "6px",
+          background: "var(--color-background-tertiary)",
+          borderRadius: "999px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${clamped}%`,
+            height: "100%",
+            background: "var(--color-accent, #1a6cff)",
+            borderRadius: "999px",
+            transition: "width 0.2s ease",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Select ───────────────────────────────────────────────────────────────────
+
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface SelectProps {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
@@ -253,21 +186,18 @@ interface SelectProps {
   disabled?: boolean;
 }
 
-export function Select({ value, onChange, options, label, disabled }: SelectProps) {
-  const selectId = label ? `select-${label.toLowerCase().replace(/\s+/g, "-")}` : undefined;
+export function Select({ id, value, onChange, options, label, disabled }: SelectProps) {
+  const selectId = id ?? `select-${label?.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
       {label && (
         <label
           htmlFor={selectId}
           style={{
-            fontSize: "0.6875rem",
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--text-muted)",
-            fontFamily: "var(--font-display)",
+            fontSize: "12px",
+            fontWeight: 500,
+            color: "var(--color-text-secondary)",
           }}
         >
           {label}
@@ -278,26 +208,23 @@ export function Select({ value, onChange, options, label, disabled }: SelectProp
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
+        aria-disabled={disabled}
         style={{
-          background: "var(--bg-elevated)",
-          border: "1px solid var(--border-default)",
-          borderRadius: "var(--radius-md)",
-          color: "var(--text-primary)",
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.8125rem",
-          padding: "8px 32px 8px 12px",
-          appearance: "none",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b92a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "right 10px center",
+          fontFamily: "inherit",
+          fontSize: "13px",
+          padding: "0 10px",
+          height: "36px",
+          borderRadius: "var(--border-radius-md)",
+          border: "0.5px solid var(--color-border-secondary)",
+          background: "var(--color-background-primary)",
+          color: "var(--color-text-primary)",
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.5 : 1,
-          transition: "border-color var(--duration-fast) var(--ease-default)",
           width: "100%",
         }}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+          <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
         ))}
@@ -306,61 +233,168 @@ export function Select({ value, onChange, options, label, disabled }: SelectProp
   );
 }
 
-/* ─── Spinner ────────────────────────────────────────────────────────────────── */
+// ─── Badge ────────────────────────────────────────────────────────────────────
 
-export function Spinner({ size = 16 }: { size?: number }) {
+export type BadgeVariant = "default" | "positive" | "negative" | "neutral" | "info" | "warning";
+
+export interface BadgeProps {
+  children: ReactNode;
+  variant?: BadgeVariant;
+}
+
+const BADGE_STYLES: Record<BadgeVariant, CSSProperties> = {
+  default: {
+    background: "var(--color-background-secondary)",
+    color: "var(--color-text-secondary)",
+  },
+  positive: {
+    background: "#EAF3DE",
+    color: "#3B6D11",
+  },
+  negative: {
+    background: "#FCEBEB",
+    color: "#A32D2D",
+  },
+  neutral: {
+    background: "#F1EFE8",
+    color: "#5F5E5A",
+  },
+  info: {
+    background: "var(--color-background-info)",
+    color: "var(--color-text-info)",
+  },
+  warning: {
+    background: "var(--color-background-warning)",
+    color: "var(--color-text-warning)",
+  },
+};
+
+export function Badge({ children, variant = "default" }: BadgeProps) {
   return (
     <span
       style={{
-        display: "inline-block",
-        width: size,
-        height: size,
-        border: `2px solid var(--border-default)`,
-        borderTopColor: "var(--accent-primary)",
-        borderRadius: "50%",
-        animation: "spin 0.7s linear infinite",
+        display: "inline-flex",
+        alignItems: "center",
+        fontSize: "11px",
+        fontWeight: 500,
+        padding: "3px 8px",
+        borderRadius: "var(--border-radius-md)",
+        lineHeight: 1.4,
+        ...BADGE_STYLES[variant],
       }}
-    />
+    >
+      {children}
+    </span>
   );
 }
 
-/* ─── Stat ───────────────────────────────────────────────────────────────────── */
+// ─── Stat ─────────────────────────────────────────────────────────────────────
 
-interface StatProps {
+export interface StatProps {
   label: string;
-  value: string;
-  sub?: string;
-  accent?: boolean;
+  value: ReactNode;
+  sub?: ReactNode;
 }
 
-export function Stat({ label, value, sub, accent }: StatProps) {
+export function Stat({ label, value, sub }: StatProps) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-      <span
+    <div
+      style={{
+        background: "var(--color-background-secondary)",
+        borderRadius: "var(--border-radius-md)",
+        padding: "14px 12px",
+      }}
+    >
+      <p
         style={{
-          fontSize: "0.6875rem",
-          fontWeight: 600,
-          letterSpacing: "0.08em",
+          margin: 0,
+          fontSize: "11px",
+          color: "var(--color-text-secondary)",
+          fontWeight: 500,
           textTransform: "uppercase",
-          color: "var(--text-muted)",
-          fontFamily: "var(--font-display)",
+          letterSpacing: "0.06em",
+          marginBottom: "4px",
         }}
       >
         {label}
-      </span>
-      <span
+      </p>
+      <p
         style={{
-          fontSize: "1.5rem",
-          fontWeight: 700,
-          fontFamily: "var(--font-display)",
-          color: accent ? "var(--accent-primary)" : "var(--text-primary)",
-          lineHeight: 1.1,
-          fontVariantNumeric: "tabular-nums",
+          margin: 0,
+          fontSize: "22px",
+          fontWeight: 500,
+          color: "var(--color-text-primary)",
+          lineHeight: 1,
         }}
       >
         {value}
-      </span>
-      {sub && <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{sub}</span>}
+      </p>
+      {sub && (
+        <p
+          style={{
+            margin: "4px 0 0",
+            fontSize: "12px",
+            color: "var(--color-text-tertiary)",
+          }}
+        >
+          {sub}
+        </p>
+      )}
     </div>
   );
+}
+
+// ─── ErrorBoundary ────────────────────────────────────────────────────────────
+
+import { Component, type ErrorInfo } from "react";
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+  label?: string;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(`[ErrorBoundary: ${this.props.label ?? "unknown"}]`, error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback ?? (
+          <div
+            role="alert"
+            style={{
+              padding: "1rem",
+              borderRadius: "var(--border-radius-lg)",
+              border: "0.5px solid var(--color-border-danger)",
+              background: "var(--color-background-danger)",
+              color: "var(--color-text-danger)",
+              fontSize: "13px",
+            }}
+          >
+            <strong>Something went wrong</strong>
+            {this.state.error && (
+              <p style={{ margin: "4px 0 0", fontFamily: "var(--font-mono)", fontSize: "12px" }}>
+                {this.state.error.message}
+              </p>
+            )}
+          </div>
+        )
+      );
+    }
+    return this.props.children;
+  }
 }

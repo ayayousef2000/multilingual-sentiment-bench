@@ -1,92 +1,112 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 import { getDatasetById } from "@/lib/datasets";
 import type { BenchmarkResult, BenchmarkRunState, PlaygroundResult } from "@/types";
 
 interface UseBenchmarkOptions {
-  classify: (text: string, modelId: string) => Promise<PlaygroundResult>;
+  classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
 }
 
-export function useBenchmark({ classify }: UseBenchmarkOptions) {
+interface UseBenchmarkReturn {
+  results: BenchmarkResult[];
+  runState: BenchmarkRunState;
+  isPending: boolean;
+  start: (datasetId: string, modelId: string) => Promise<void>;
+  stop: () => void;
+  clear: () => void;
+}
+
+const INITIAL_RUN_STATE: BenchmarkRunState = {
+  isRunning: false,
+  currentIdx: 0,
+  total: 0,
+  datasetId: null,
+  modelId: null,
+};
+
+export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkReturn {
   const [results, setResults] = useState<BenchmarkResult[]>([]);
-  const [runState, setRunState] = useState<BenchmarkRunState>({
-    isRunning: false,
-    currentIdx: 0,
-    total: 0,
-    datasetId: null,
-    modelId: null,
-  });
+  const [runState, setRunState] = useState<BenchmarkRunState>(INITIAL_RUN_STATE);
+  const [isPending, startTransition] = useTransition();
 
-  const abortRef = useRef(false);
+  // AbortController for the current run — replaced on each start()
+  const abortRef = useRef<AbortController | null>(null);
 
-  const startBenchmark = useCallback(
+  // ── Start ─────────────────────────────────────────────────────────────────
+  const start = useCallback(
     async (datasetId: string, modelId: string) => {
       const dataset = getDatasetById(datasetId);
-      if (!dataset) throw new Error(`Dataset "${datasetId}" not found`);
+      if (!dataset) {
+        console.warn(`useBenchmark: unknown dataset "${datasetId}"`);
+        return;
+      }
 
-      abortRef.current = false;
-      setResults([]);
-      setRunState({
-        isRunning: true,
-        currentIdx: 0,
-        total: dataset.samples.length,
-        datasetId,
-        modelId,
-      });
+      // Cancel any previous run
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      const accumulated: BenchmarkResult[] = [];
+      const { signal } = controller;
+      const total = dataset.samples.length;
 
-      for (let i = 0; i < dataset.samples.length; i++) {
-        if (abortRef.current) break;
+      setRunState({ isRunning: true, currentIdx: 0, total, datasetId, modelId });
+
+      for (let i = 0; i < total; i++) {
+        if (signal.aborted) break;
 
         const sample = dataset.samples[i];
-        setRunState((prev) => ({ ...prev, currentIdx: i }));
+        const started = performance.now();
 
         try {
-          const result = await classify(sample.text, modelId);
-          const row: BenchmarkResult = {
+          const output = await classify(sample.text, modelId, signal);
+
+          if (signal.aborted) break;
+
+          const result: BenchmarkResult = {
             id: `${datasetId}-${modelId}-${sample.id}`,
             sample_id: sample.id,
             model_id: modelId,
             dataset_id: datasetId,
-            label: result.label,
-            score: result.score,
-            time_ms: result.time_ms,
-            memory_mb: result.memory_mb,
+            label: output.label,
+            score: output.score,
+            time_ms: output.time_ms ?? performance.now() - started,
+            memory_mb: output.memory_mb,
             input_len: sample.text.length,
             language: sample.language,
             timestamp: Date.now(),
           };
-          accumulated.push(row);
-          setResults([...accumulated]);
-        } catch {
-          // Silently skip failed samples — they won't appear in stats
+
+          // useTransition keeps the UI responsive during bulk appends
+          startTransition(() => {
+            setResults((prev) => [...prev, result]);
+          });
+
+          setRunState((prev) => ({ ...prev, currentIdx: i + 1 }));
+        } catch (err) {
+          if ((err as DOMException).name === "AbortError") break;
+          console.error(`useBenchmark: sample ${sample.id} failed`, err);
+          // Continue with next sample on non-abort errors
         }
       }
 
-      setRunState((prev) => ({
-        ...prev,
-        isRunning: false,
-        currentIdx: prev.total,
-      }));
+      if (!signal.aborted) {
+        setRunState((prev) => ({ ...prev, isRunning: false }));
+      }
     },
     [classify]
   );
 
-  const stopBenchmark = useCallback(() => {
-    abortRef.current = true;
+  // ── Stop ──────────────────────────────────────────────────────────────────
+  const stop = useCallback(() => {
+    abortRef.current?.abort();
     setRunState((prev) => ({ ...prev, isRunning: false }));
   }, []);
 
-  const clearResults = useCallback(() => {
+  // ── Clear ─────────────────────────────────────────────────────────────────
+  const clear = useCallback(() => {
+    abortRef.current?.abort();
     setResults([]);
-    setRunState({
-      isRunning: false,
-      currentIdx: 0,
-      total: 0,
-      datasetId: null,
-      modelId: null,
-    });
+    setRunState(INITIAL_RUN_STATE);
   }, []);
 
-  return { results, runState, startBenchmark, stopBenchmark, clearResults };
+  return { results, runState, isPending, start, stop, clear };
 }
