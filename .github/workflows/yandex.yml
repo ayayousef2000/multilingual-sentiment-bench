@@ -120,7 +120,7 @@ jobs:
           revision-memory: 256Mb
           revision-cores: 1
           revision-core-fraction: 100
-          revision-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
+          revision-service-account-id: aje8p245hlaeg0l3q0s0
           revision-concurrency: 16
           revision-execution-timeout: 10
 
