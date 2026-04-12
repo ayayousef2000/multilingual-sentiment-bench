@@ -6,6 +6,22 @@ All inference runs entirely **in your browser** via a dedicated Web Worker power
 
 ---
 
+## 🌐 Live Demo
+
+> **[https://bbac76j5ul8lkk1sendj.containers.yandexcloud.net](https://bbac76j5ul8lkk1sendj.containers.yandexcloud.net)**
+
+Deployed on **Yandex Cloud Serverless Containers** — a fully managed, auto-scaling container runtime. The production image is built by GitHub Actions on every push or merged PR to `main` and pushed to Yandex Container Registry, then deployed as a new revision with zero downtime.
+
+| | |
+|---|---|
+| **Platform** | Yandex Cloud Serverless Containers |
+| **Registry** | Yandex Container Registry (YCR) |
+| **Runtime** | `nginx:1.27-alpine`, non-root, port `8080` |
+| **CI/CD** | GitHub Actions → `.github/workflows/yandex.yml` |
+| **Triggers** | Push to `main` · PR merged to `main` · Manual dispatch |
+
+---
+
 ## ✨ Features
 
 | Feature | Details |
@@ -330,7 +346,9 @@ df_v1 = df[df["app_version"] == "1.1.0"]
 
 ---
 
-## 🐳 Docker Dev Container
+## 🐳 Docker
+
+### Dev Container
 
 ```bash
 cp .env.example .env
@@ -340,6 +358,21 @@ docker compose up -d
 docker compose exec react_app pnpm install
 docker compose exec react_app pnpm dev
 ```
+
+### Production Image
+
+The production image is a multi-stage build (`docker/Dockerfile.prod`) that compiles the Vite bundle and serves it via `nginx:1.27-alpine` on port `8080`. It runs as a non-root `nginx` user and is hardened with COOP/COEP/CORP headers to enable `SharedArrayBuffer` for WASM multi-threading.
+
+```bash
+# Build locally
+docker build -f docker/Dockerfile.prod -t multilingual-sentiment-bench .
+
+# Run locally (mirrors Yandex Serverless Container environment)
+docker run -p 8080:8080 multilingual-sentiment-bench
+# → http://localhost:8080
+```
+
+Production deployments are fully automated via `.github/workflows/yandex.yml` — push to `main` or merge a PR and the image is built, pushed to YCR, and deployed automatically.
 
 ---
 
@@ -363,4 +396,6 @@ docker compose exec react_app pnpm dev
 
 <p align="center">
   Built with <a href="https://huggingface.co/docs/transformers.js">Transformers.js</a> · All inference runs locally in your browser · EN · AR · RU
+  <br/>
+  <a href="https://bbac76j5ul8lkk1sendj.containers.yandexcloud.net">🚀 Live on Yandex Cloud</a>
 </p>

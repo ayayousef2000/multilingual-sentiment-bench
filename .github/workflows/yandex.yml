@@ -5,7 +5,7 @@
 #  Yandex Container Registry (YCR), and deploys a new revision
 #  to Yandex Serverless Containers.
 #
-#  Trigger  : push to `deploy` branch, or manual dispatch
+#  Trigger  : push to main, PR targeting main, or manual dispatch
 #
 #  Required GitHub Secrets:
 #    YC_SA_JSON_CREDENTIALS   Yandex Cloud service account key (full JSON)
@@ -19,7 +19,12 @@ name: Yandex Cloud Deploy
 on:
   push:
     branches:
-      - deploy
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed # only fires when PR is actually merged (check merged flag below)
   workflow_dispatch:
     inputs:
       force_rebuild:
@@ -43,6 +48,9 @@ jobs:
   build-and-push:
     name: Build & Push to YCR
     runs-on: ubuntu-latest
+    # For pull_request events: only run when the PR was actually merged,
+    # not when it was simply closed/rejected.
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     permissions:
       contents: read
 
