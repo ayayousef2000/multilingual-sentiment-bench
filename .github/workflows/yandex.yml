@@ -1,0 +1,172 @@
+# ============================================================
+#  .github/workflows/yandex.yml
+#
+#  Builds the production Docker image, pushes it to
+#  Yandex Container Registry (YCR), and deploys it to
+#  Yandex Serverless Containers.
+#
+#  Trigger: push to `deploy` branch only
+#
+#  Required GitHub Secrets:
+#    YC_SA_JSON_CREDENTIALS   Yandex Cloud service account key (full JSON)
+#    YC_REGISTRY_ID           Yandex Container Registry ID (crp...)
+#    YC_FOLDER_ID             Yandex Cloud folder ID (b1g...)
+#
+#  Image endpoint:
+#    cr.yandex/<YC_REGISTRY_ID>/multilingual-sentiment-bench:<tag>
+# ============================================================
+
+name: Yandex Cloud Deploy
+
+on:
+  push:
+    branches:
+      - deploy
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Bypass layer cache (full rebuild)"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: yandex-deploy-${{ github.ref }}
+  cancel-in-progress: false # never cancel an in-flight deploy
+
+env:
+  IMAGE_NAME: multilingual-sentiment-bench
+  CONTAINER_NAME: multilingual-sentiment-bench
+  YC_REGION: cr.yandex
+
+jobs:
+  # ── 1. Build & Push to Yandex Container Registry ──────────────────────────
+  build-and-push:
+    name: Build & Push to YCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+      image-digest: ${{ steps.build.outputs.digest }}
+      full-image: ${{ env.YC_REGION }}/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout deploy branch
+        uses: actions/checkout@v4
+
+      # ── Auth ──────────────────────────────────────────────────────────────
+      - name: Authenticate to Yandex Cloud
+        uses: yc-actions/yc-login@v3
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      # ── Docker setup ──────────────────────────────────────────────────────
+      - name: Set up QEMU (multi-arch)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Yandex Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: cr.yandex
+          username: json_key
+          password: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      # ── Image metadata ────────────────────────────────────────────────────
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.YC_REGION }}/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+            type=raw,value=${{ github.run_number }}
+
+      # ── Build & push ──────────────────────────────────────────────────────
+      - name: Build and push image to YCR
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.prod
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          no-cache: ${{ inputs.force_rebuild == true }}
+          provenance: false # YCR does not support OCI provenance attestations
+          build-args: |
+            CACHE_BUST=${{ hashFiles('docker/Dockerfile.prod', 'package.json', 'pnpm-lock.yaml') }}
+
+      # ── Summary ───────────────────────────────────────────────────────────
+      - name: Write build summary
+        run: |
+          echo "## 🐳 YCR Image Build" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Registry** | \`cr.yandex/${{ secrets.YC_REGISTRY_ID }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Image** | \`${{ env.IMAGE_NAME }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Tag** | \`${{ steps.meta.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2. Deploy to Yandex Serverless Containers ─────────────────────────────
+  deploy:
+    name: Deploy to Serverless Containers
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: read
+
+    steps:
+      - name: Authenticate to Yandex Cloud
+        uses: yc-actions/yc-login@v3
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      # ── Create or update the Serverless Container ─────────────────────────
+      # On first deploy this creates the container.
+      # On subsequent deploys it creates a new revision with the latest image.
+      - name: Deploy container revision
+        uses: yc-actions/yc-sls-container-deploy@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          revision-image-url: ${{ needs.build-and-push.outputs.full-image }}
+          revision-service-account-id: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          # ── Runtime config ────────────────────────────────────────────────
+          # Memory: 256MB is sufficient for an nginx SPA container
+          # Concurrency: 16 requests per instance (nginx handles this easily)
+          # Timeout: 10s max per request
+          revision-memory: 256Mb
+          revision-cores: 1
+          revision-core-fraction: 100
+          revision-concurrency: 16
+          revision-timeout: 10s
+          # ── Public access ─────────────────────────────────────────────────
+          # Makes the container accessible via a public HTTPS URL
+          # without an API Gateway — simplest setup for free tier
+          revision-execution-timeout: 10s
+
+      # ── Summary ───────────────────────────────────────────────────────────
+      - name: Write deploy summary
+        run: |
+          echo "## 🚀 Yandex Serverless Container Deploy" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Container** | \`${{ env.CONTAINER_NAME }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Image** | \`${{ needs.build-and-push.outputs.full-image }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Folder** | \`${{ secrets.YC_FOLDER_ID }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Triggered by** | \`${{ github.actor }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Run** | \`#${{ github.run_number }}\` |" >> "$GITHUB_STEP_SUMMARY"
