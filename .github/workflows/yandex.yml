@@ -13,7 +13,7 @@
 #    YC_FOLDER_ID             Yandex Cloud folder ID (b1g...)
 #
 #  Actions used (verified):
-#    yc-actions/yc-cr-login@v3          — login to cr.yandex
+#    yc-actions/yc-cr-login@v3             — login to cr.yandex
 #    yc-actions/yc-sls-container-deploy@v4 — deploy serverless container
 # ============================================================
 
@@ -38,7 +38,6 @@ concurrency:
 env:
   IMAGE_NAME: multilingual-sentiment-bench
   CONTAINER_NAME: multilingual-sentiment-bench
-  REGISTRY: cr.yandex
 
 jobs:
   # ── 1. Build & Push to Yandex Container Registry ──────────────────────────
@@ -49,8 +48,7 @@ jobs:
       contents: read
 
     outputs:
-      image-tag: ${{ steps.meta.outputs.version }}
-      full-image: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/multilingual-sentiment-bench:${{ steps.meta.outputs.version }}
+      full-image: ${{ steps.image-url.outputs.full-image }}
 
     steps:
       - name: Checkout deploy branch
@@ -62,21 +60,20 @@ jobs:
 
       # ── Login to Yandex Container Registry ───────────────────────────────
       - name: Login to Yandex Container Registry
-        id: login-cr
         uses: yc-actions/yc-cr-login@v3
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 
-      # ── Image metadata ────────────────────────────────────────────────────
-      - name: Extract image metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,prefix=sha-,format=short
-            type=raw,value=${{ github.run_number }}
+      # ── Compute image URL once — used by both build and deploy ────────────
+      # We use the short SHA as the immutable tag and also push :latest.
+      # The deploy job always uses the short-SHA tag for exact traceability.
+      - name: Set image URL output
+        id: image-url
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          FULL="cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${SHORT_SHA}"
+          echo "full-image=${FULL}" >> "$GITHUB_OUTPUT"
+          echo "short-sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
       # ── Build & push ──────────────────────────────────────────────────────
       - name: Build and push image to YCR
@@ -87,8 +84,10 @@ jobs:
           file: docker/Dockerfile.prod
           platforms: linux/amd64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:latest
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${{ steps.image-url.outputs.short-sha }}
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ inputs.force_rebuild == true }}
@@ -103,9 +102,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Registry** | \`cr.yandex/${{ secrets.YC_REGISTRY_ID }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Image** | \`${{ env.IMAGE_NAME }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Tag** | \`${{ steps.meta.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Image** | \`${{ steps.image-url.outputs.full-image }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Commit** | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
