@@ -147,7 +147,28 @@ multilingual-sentiment-bench/
 
 Models are downloaded once from the HuggingFace Hub CDN and cached in the browser's `Cache API`. Subsequent loads are instant.
 
-**Model hot-swap**: Selecting a different model in the dropdown immediately re-enables the "Load model" button (which relabels to "↺ Switch Model"). Clicking it terminates the current worker, spawns a fresh one, resets load state to `idle`, and downloads the new model — no stale pipeline is left in memory.
+**Model hot-swap** flow when the user selects a different model:
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as ModelLoader
+    participant UC as useClassifier
+    participant W1 as Old Worker
+    participant W2 as New Worker
+    participant HF as HuggingFace CDN
+
+    U->>UI: select new model from dropdown
+    UI->>UC: loadModel(newModelId)
+    UC->>W1: worker.terminate()
+    UC->>W2: new Worker(classifier.worker.ts)
+    UC->>UI: loadState → idle
+    U->>UI: click "↺ Switch Model"
+    W2->>HF: fetch model weights
+    HF-->>W2: stream weights (cached in Cache API)
+    W2-->>UC: MODEL_READY
+    UC->>UI: loadState → ready · loadedModelId updated
+```
 
 To add a new model, append an entry to [`src/lib/models.ts`](src/lib/models.ts):
 
@@ -226,34 +247,37 @@ The file is validated immediately on upload using `parseDataset()`. Any shape mi
 
 ## 🏗 Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    React UI (Main Thread)             │
-│                                                      │
-│  ClassifierProvider (Context)                        │
-│  ├── useClassifier ──► Worker messages (postMessage) │
-│  │    └── loadedModelId (tracks last ready model)    │
-│  └── useBenchmark  ──► AbortController loop          │
-│       ├── runId (crypto.randomUUID per run)          │
-│       └── accepts BenchmarkDataset directly          │
-│                                                      │
-│  PlaygroundView  ◄──┐                                │
-│  BenchmarkView   ◄──┤── useClassifierContext()       │
-│    └── FileUpload (JSON drag-and-drop + validation)  │
-└────────────────────────┬────────────────────────────┘
-                         │ Web Worker boundary
-┌────────────────────────▼────────────────────────────┐
-│           classifier.worker.ts (Worker Thread)       │
-│                                                      │
-│  Pipeline cache (singleton per modelId)              │
-│  ├── LOAD_MODEL  → PROGRESS* → MODEL_READY           │
-│  └── CLASSIFY    → CLASSIFICATION_RESULT             │
-│       └── ERROR  (echoes requestId for per-promise   │
-│                   rejection in useClassifier)        │
-│                                                      │
-│  @huggingface/transformers pipeline()                │
-│  Models cached in browser Cache API                  │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph main["🖥️ React UI — Main Thread"]
+        direction TB
+        CP["ClassifierProvider (Context)<br>exposes loadState · loadedModelId · loadModel · classify"]
+        UC["useClassifier<br>Worker lifecycle · model hot-swap · AbortSignal-aware classify()"]
+        UB["useBenchmark<br>AbortController loop · crypto.randomUUID runId per run"]
+        PV["PlaygroundView"]
+        BV["BenchmarkView<br>└─ FileUpload (JSON drag-and-drop + validation)"]
+
+        CP --> UC
+        CP --> UB
+        PV -->|useClassifierContext| CP
+        BV -->|useClassifierContext| CP
+    end
+
+    main -->|"postMessage<br>── LOAD_MODEL<br>── CLASSIFY"| worker
+
+    subgraph worker["⚙️ classifier.worker.ts — Worker Thread"]
+        direction TB
+        PC["Pipeline cache (singleton per modelId)"]
+        LM["LOAD_MODEL → PROGRESS* → MODEL_READY"]
+        CL["CLASSIFY → CLASSIFICATION_RESULT<br>ERROR echoes requestId for per-promise rejection"]
+        HF["@huggingface/transformers pipeline()<br>Models cached in browser Cache API"]
+
+        PC --> LM
+        PC --> CL
+        HF --> PC
+    end
+
+    worker -->|"postMessage<br>── MODEL_READY<br>── CLASSIFICATION_RESULT<br>── ERROR"| main
 ```
 
 **Key design choices:**
@@ -372,7 +396,16 @@ docker run -p 8080:8080 multilingual-sentiment-bench
 # → http://localhost:8080
 ```
 
-Production deployments are fully automated via `.github/workflows/yandex.yml` — push to `main` or merge a PR and the image is built, pushed to YCR, and deployed automatically.
+Production deployments are fully automated via `.github/workflows/yandex.yml`:
+
+```mermaid
+flowchart LR
+    push["push to main<br>or PR merged to main"] --> ci["⚙️ GitHub Actions"]
+    ci --> build["🐳 Docker<br>3-stage build"]
+    build --> ycr["📦 Yandex Container Registry<br>:latest · :sha-XXXXXXX · :run-N"]
+    ycr --> sls["🚀 Yandex Serverless Containers<br>new revision · zero downtime"]
+    sls --> url["🌐 Live URL"]
+```
 
 ---
 
