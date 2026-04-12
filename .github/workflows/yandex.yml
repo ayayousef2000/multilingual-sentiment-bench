@@ -109,7 +109,6 @@ jobs:
           # Secrets ARE available inside step `with` blocks — only job `outputs`
           # cannot reference secrets. We construct the full URL here directly.
           revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.short-sha }}
-          revision-service-account-id: aje8p245hlaeg0l3q0s0
           revision-memory: 256Mb
           revision-cores: 1
           revision-core-fraction: 100
