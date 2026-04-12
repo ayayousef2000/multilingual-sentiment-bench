@@ -1,35 +1,43 @@
 {
   "output": {
+    "filePath": "multilingual-sentiment-bench-code.xml",
     "style": "xml",
+    "compress": true,
     "removeComments": true,
     "removeEmptyLines": true,
-    "compress": true,
-    "filePath": "react-template-code.xml"
+    "showLineNumbers": false,
+    "copyToClipboard": false,
+    "parsableStyle": true,
+    "git": {
+      "sortByChanges": true,
+      "sortByChangesMaxCommits": 100
+    }
   },
-  "include": [
-    "**/*",
-    "**/*.mjs",
-    ".github/**/*"
-  ],
-  "security": {
-    "enableSecurityCheck": false
-  },
+  "include": ["src/**/*"],
   "ignore": {
-    "useGitignore": false,
-    "useDefaultPatterns": false,
+    "useGitignore": true,
+    "useDefaultPatterns": true,
     "customPatterns": [
-      ".git",
-      "node_modules",
-      ".venv",
-      "__pycache__",
-      "*.pyc",
-      "dist",
-      "build",
-      "*.log",
-      ".env",
-      "package-lock.json",
-      "react-template-code.xml",
-      "repomix.config.json"
+      "repomix.config.json",
+      "src/**/*.test.*",
+      "src/**/*.spec.*",
+      "src/**/*.stories.*",
+      "src/**/__tests__/**",
+      "src/**/__mocks__/**",
+      "**/.devcontainer/**",
+      "**/.github/**",
+      "**/.husky/**",
+      "**/docker/**",
+      "**/public/**",
+      "**/scripts/**",
+      "**/assets/**",
+      "**/README.md",
+      "**/.dockerignore",
+      "**/.gitignore",
+      "**/docker-compose.yml"
     ]
+  },
+  "security": {
+    "enableSecurityCheck": true
   }
 }

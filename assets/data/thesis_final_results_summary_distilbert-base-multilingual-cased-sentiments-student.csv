@@ -1,0 +1,4 @@
+model,quantization,language,Samples (N),Avg_Latency_ms,Avg_Memory_MB,Avg_Throughput_SPS,Cold_Load_Time_ms,Model_Size_MB,Accuracy,Macro_F1,Size_Efficiency_Score
+DistilBERT Multilingual,q8,ar,150.0,41.01,0.0,52.14,7382.0,66.0,0.3933,0.3462,0.596
+DistilBERT Multilingual,q8,en,150.0,50.53,0.0,31.66,7382.0,66.0,0.5733,0.4956,0.8687
+DistilBERT Multilingual,q8,ru,150.0,42.97,0.0,63.32,7382.0,66.0,0.4933,0.4236,0.7475

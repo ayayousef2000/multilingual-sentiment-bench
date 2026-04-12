@@ -27,6 +27,8 @@ key.json
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 node_modules/
 .pnpm-store/
+package-lock.json
+pnpm-lock.yaml
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
@@ -84,8 +86,9 @@ logs/
 .vscode/history/
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  JETBRAINS
+#  Editor
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.vscode/settings.json
 .idea/
 *.iws
 *.iml
@@ -127,4 +130,7 @@ $RECYCLE.BIN/
 .Trash-*
 .nfs*
 
-react-template-code.xml
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Repomix
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+multilingual-sentiment-bench-code.xml

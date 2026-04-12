@@ -1,6 +1,6 @@
-name: react-template
+name: multilingual-sentiment-bench
 services:
-  app:
+  react_app:
     image: ${DOCKERHUB_USERNAME:-ayayousef7}/react-devcontainer:latest
     container_name: react_app
     # "no" is correct for a dev container — VS Code manages the lifecycle.

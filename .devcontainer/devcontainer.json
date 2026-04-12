@@ -5,7 +5,7 @@
   // Pulls the pre-built dev image from Docker Hub — no local Dockerfile.
   // Image source: github.com/ayayousef2000/react-devcontainer
   "dockerComposeFile": ["../docker-compose.yml"],
-  "service": "app",
+  "service": "react_app",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
 
@@ -123,14 +123,16 @@
         "terminal.integrated.scrollback": 5000,
 
         // ── Formatter per language ────────────────────────────────────────────
-        "[typescript]":     { "editor.defaultFormatter": "biomejs.biome" },
-        "[typescriptreact]":{ "editor.defaultFormatter": "biomejs.biome" },
-        "[javascript]":     { "editor.defaultFormatter": "biomejs.biome" },
-        "[javascriptreact]":{ "editor.defaultFormatter": "biomejs.biome" },
-        "[json]":           { "editor.defaultFormatter": "biomejs.biome" },
-        "[jsonc]":          { "editor.defaultFormatter": "biomejs.biome" },
-        "[css]":            { "editor.defaultFormatter": "biomejs.biome" },
-        "[html]":           { "editor.defaultFormatter": "vscode.html-language-features" },
+        "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[javascriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+        "[html]": {
+          "editor.defaultFormatter": "vscode.html-language-features"
+        },
         "[markdown]": {
           "editor.defaultFormatter": "vscode.markdown-language-features",
           "editor.formatOnSave": false,
@@ -143,8 +145,8 @@
         // Inactive until Tailwind is installed in the project.
         "tailwindCSS.experimental.classRegex": [
           ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-          ["cx\\(([^)]*)\\)",  "(?:'|\"|`)([^']*)(?:'|\"|`)"],
-          ["cn\\(([^)]*)\\)",  "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+          ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+          ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
         ],
         "tailwindCSS.includeLanguages": {
           "typescript": "javascript",
@@ -155,14 +157,14 @@
         "explorer.fileNesting.enabled": true,
         "explorer.fileNesting.expand": false,
         "explorer.fileNesting.patterns": {
-          "*.ts":          "${capture}.js, ${capture}.d.ts, ${capture}.test.ts, ${capture}.spec.ts",
-          "*.tsx":         "${capture}.test.tsx, ${capture}.spec.tsx, ${capture}.stories.tsx",
-          "package.json":  "package-lock.json, pnpm-lock.yaml, pnpm-workspace.yaml, .npmrc, bun.lockb",
+          "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.test.ts, ${capture}.spec.ts",
+          "*.tsx": "${capture}.test.tsx, ${capture}.spec.tsx, ${capture}.stories.tsx",
+          "package.json": "package-lock.json, pnpm-lock.yaml, pnpm-workspace.yaml, .npmrc, bun.lockb",
           "vite.config.*": "vitest.config.*, tsconfig.*.json",
           "tsconfig.json": "tsconfig.*.json",
-          ".env":          ".env.*, .envrc",
-          "biome.json":    ".eslintrc*, .prettierrc*, .editorconfig",
-          "README.md":     "CHANGELOG.md, CONTRIBUTING.md, LICENSE"
+          ".env": ".env.*, .envrc",
+          "biome.json": ".eslintrc*, .prettierrc*, .editorconfig",
+          "README.md": "CHANGELOG.md, CONTRIBUTING.md, LICENSE"
         },
 
         // ── Git ───────────────────────────────────────────────────────────────

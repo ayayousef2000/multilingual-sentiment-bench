@@ -1,259 +1,366 @@
-# react-template
+# ⚗ Multilingual Sentiment Bench
 
-GitHub Template repository. Every new React project starts from here.
+> A **browser-native NLP evaluation platform** for sentiment analysis across English, Arabic, and Russian — zero backend, zero latency, full reproducibility.
 
-> **This is a blank canvas.** No `src/`, no framework files, no React code.
-> The template provides the developer toolchain only. You scaffold the project yourself.
-
----
-
-## How to use
-
-1. Click **"Use this template"** on GitHub → creates your new project repo
-2. Clone it to your machine
-3. Open in VS Code → **"Reopen in Container"**
-4. The container pulls `ayayousef7/react-devcontainer:latest` from Docker Hub
-5. Your entire project folder is mounted at `/workspace` — full two-way sync
-6. Run `pnpm install` to activate Husky + commitlint git hooks
-7. Scaffold your framework, then start coding
+All inference runs entirely **in your browser** via a dedicated Web Worker powered by [`@huggingface/transformers`](https://huggingface.co/docs/transformers.js). No server. No API key. No data leaves your machine.
 
 ---
 
-## Architecture
+## ✨ Features
 
-```mermaid
-graph TB
-    subgraph WIN["🖥️ Windows 11 Machine"]
-        VSC["VS Code"]
-        DOCKER["Docker Desktop"]
-        SSH["Windows SSH Agent"]
-        GIT["Git for Windows"]
-    end
-
-    subgraph CONTAINER["🐳 Dev Container (Linux)"]
-        NODE["Node 24 LTS"]
-        PNPM["pnpm 10"]
-        BUN["Bun 1.2"]
-        GH["GitHub CLI"]
-        STAR["Starship Shell"]
-        WORKSPACE["/workspace ← your project files"]
-    end
-
-    subgraph GITHUB["🐙 GitHub"]
-        REPO["react-template"]
-        CI["ci.yml"]
-        DOCKER_WF["docker.yml"]
-        DBOT["Dependabot"]
-    end
-
-    subgraph DOCKERHUB["🐳 Docker Hub"]
-        DEV_IMG["react-devcontainer:latest"]
-        PROD_IMG["your-app:latest"]
-    end
-
-    VSC -->|"Reopen in Container"| CONTAINER
-    WIN -->|"Volume mount .:/workspace"| WORKSPACE
-    SSH -->|"~/.ssh mounted read-only"| CONTAINER
-    GIT -->|"~/.gitconfig mounted read-only"| CONTAINER
-    DOCKER -->|"docker pull"| DEV_IMG
-    DEV_IMG -->|"runs as"| CONTAINER
-    REPO -->|"push / PR"| CI
-    CI -->|"passes on main"| DOCKER_WF
-    DOCKER_WF -->|"build & push"| PROD_IMG
-    DBOT -->|"Monday 09:00 UTC"| REPO
-```
+| Feature | Details |
+|---|---|
+| **Interactive Playground** | Classify any text in real time with a character-counted textarea (⌘ Enter to run) |
+| **Benchmark Lab** | Upload any JSON dataset and run it through any model; collect latency, memory delta, label distribution, and accuracy |
+| **JSON Dataset Upload** | Drag-and-drop or click-to-upload your own `.json` dataset; validated at load time with descriptive errors. Accepts both envelope format and flat array format. |
+| **Recharts Visualisation** | Scatter plot of latency vs. input length, colour-coded by predicted label |
+| **Google Colab-ready CSV** | One-click export with 19 columns including `run_id`, `app_version`, raw text, expected label, accuracy flag, and ISO datetime |
+| **Model Registry** | 2 pre-configured HuggingFace models (small → medium, multilingual) |
+| **Model Hot-swap** | Changing the model dropdown re-enables "Load model" and cleanly terminates the prior model worker before spawning a new one |
+| **Runtime Validation** | All dataset shapes validated at upload time with descriptive `Invariant violation` errors |
+| **Fully Typed** | Strict TypeScript 5.8, discriminated union worker message protocol, exhaustive switch guards, zero `any` |
 
 ---
 
-## What's included
+## 🚀 Getting Started
 
-| Path | Purpose |
-|------|---------|
-| `.devcontainer/devcontainer.json` | VS Code dev container config — pulls the pre-built image |
-| `.github/workflows/ci.yml` | Three-tier CI pipeline (skips gracefully on a fresh template) |
-| `.github/workflows/docker.yml` | Production image build — triggers after CI passes on `main` |
-| `.github/workflows/dockerhub-description.yml` | Syncs README to Docker Hub on push to `main` |
-| `.github/workflows/labels.yml` | Syncs GitHub labels from `.github/labels.yml` on push to `main` |
-| `.github/dependabot.yml` | Auto-updates: Actions + Docker (LTS only) + npm (weekly, Monday 09:00 UTC) |
-| `.github/labels.yml` | Label definitions for issues and pull requests |
-| `.github/CODEOWNERS` | Auto-requests reviewer on every PR |
-| `.husky/commit-msg` | Enforces Conventional Commits format via commitlint |
-| `.husky/pre-commit` | Biome + TypeScript check + secret guard (skips if not scaffolded) |
-| `.husky/pre-push` | Blocks direct push to `main` |
-| `.vscode/extensions.json` | Windows-side extension recommendations (includes Dev Containers) |
-| `.vscode/launch.json` | Debug configs — Chrome, Vitest, Playwright |
-| `.vscode/tasks.json` | Task runner shortcuts |
-| `docker/Dockerfile.prod` | Production image (Vite → Nginx, non-root) — placeholder, activates after scaffolding |
-| `docker/nginx.conf` | SPA routing + caching + security headers — listens on port 8080 |
-| `scripts/entrypoint.dev.sh` | SSH permission fixer + VS Code devcontainer sleep-infinity fallback |
-| `scripts/welcome.sh` | Context-aware getting-started banner shown on container start |
-| `commitlint.config.mjs` | Conventional Commits rules (ESM, Node 24 compatible) |
-| `pnpm-workspace.yaml` | pnpm v10 settings (engineStrict, nodeLinker, supply-chain notes) |
-| `.npmrc` | Auth and registry settings (engine-strict) |
-| `.env.example` | Environment variable template |
-| `.dockerignore` | Excludes dev-only files from the production image |
-| `.gitignore` | Node · Docker · Windows · macOS · Linux |
-| `docker-compose.yml` | Pulls dev image, mounts project, exposes `:5173` |
-| `package.json` | Husky + commitlint only — no framework code |
+### Prerequisites
 
----
-
-## CI pipeline
-
-Three-tier model — never fails on a fresh template.
-
-| Tier | Condition | Active checks |
-|------|-----------|---------------|
-| 1 — Fresh template | No `pnpm-lock.yaml` | All skipped |
-| 2 — Hooks only | `pnpm-lock.yaml` present, no `vite.config.ts` | `pnpm audit` |
-| 3 — Full project | `pnpm-lock.yaml` + `vite.config.ts` present | typecheck + lint → test → build → e2e → dockerfile-check → audit |
-
-### Job graph
-
-```mermaid
-flowchart LR
-    detect --> typecheck
-    detect --> lint
-    detect --> security
-
-    typecheck --> test
-    lint      --> test
-
-    test --> build
-    build --> e2e
-    build --> dockerfile-check
-
-    typecheck & lint & test & build & e2e & dockerfile-check & security --> ci-passed
-
-    style detect         fill:#E6F1FB,stroke:#185FA5,color:#042C53
-    style typecheck      fill:#EAF3DE,stroke:#3B6D11,color:#173404
-    style lint           fill:#EAF3DE,stroke:#3B6D11,color:#173404
-    style test           fill:#EAF3DE,stroke:#3B6D11,color:#173404
-    style build          fill:#EAF3DE,stroke:#3B6D11,color:#173404
-    style e2e            fill:#FAEEDA,stroke:#854F0B,color:#412402
-    style dockerfile-check fill:#FAEEDA,stroke:#854F0B,color:#412402
-    style security       fill:#FAEEDA,stroke:#854F0B,color:#412402
-    style ci-passed      fill:#E1F5EE,stroke:#0F6E56,color:#04342C
-```
-
-`typecheck` and `lint` run in parallel after `detect`. The `test` job fans them both in — it only proceeds when both pass. This avoids the GitHub Actions "skipped needs" trap where a skipped optional job causes all downstream jobs to be skipped too.
-
-The `ci-passed` job is the single required status check for branch protection. It evaluates all upstream results and exits correctly whether jobs ran or were skipped.
-
-### Optional tool detection
-
-The CI probes `pnpm-lock.yaml` for optional tools and skips gracefully if they are not yet installed:
-
-| Output | Controls |
-|--------|---------|
-| `has-vitest` | Unit Tests job — skips with install hint if vitest absent |
-| `has-playwright` | E2E Tests job — skips if `@playwright/test` absent |
-
-### Production image
-
-`docker.yml` triggers via `workflow_run` — only after CI passes on `main`. It guards on `vite.config.ts` presence before building, so it skips gracefully on a fresh template.
-
-**Required GitHub Secrets:**
-
-| Secret | Where to get it |
-|--------|----------------|
-| `DOCKERHUB_USERNAME` | Your Docker Hub username |
-| `DOCKERHUB_TOKEN` | Docker Hub → Account Settings → Personal access tokens → Read & Write |
-| `CODECOV_TOKEN` | [codecov.io](https://codecov.io) → your repo → Settings → token (optional) |
-
----
-
-## Git hooks
-
-Managed by [Husky v9](https://typicode.github.io/husky/). Run once after cloning:
+| Tool | Version |
+|---|---|
+| Node.js | ≥ 22.0.0 |
+| pnpm | ≥ 10.0.0 |
 
 ```bash
-pnpm install   # installs husky + commitlint and registers all git hooks
+# 1. Clone
+git clone https://github.com/your-org/multilingual-sentiment-bench.git
+cd multilingual-sentiment-bench
+
+# 2. Copy env
+cp .env.example .env
+
+# 3. Install
+pnpm install
+
+# 4. Run dev server
+pnpm dev
+# → http://localhost:5173
 ```
 
-| Hook | Trigger | Purpose |
-|------|---------|---------|
-| `commit-msg` | Every `git commit` | Enforces Conventional Commits format |
-| `pre-commit` | Every `git commit` | Biome + TypeScript check + secret guard |
-| `pre-push` | Every `git push` | Blocks direct push to `main` |
+### Available Scripts
 
-**Valid commit types:** `feat` `fix` `docs` `style` `refactor` `perf` `test` `build` `ci` `chore` `revert` `wip`
-
----
-
-## Git workflow
-
-```mermaid
-gitGraph
-    commit id: "chore: initial template setup"
-    branch develop
-    checkout develop
-    commit id: "chore: scaffold project"
-    branch feature/auth
-    checkout feature/auth
-    commit id: "feat: add login page"
-    commit id: "feat: add auth hook"
-    checkout develop
-    merge feature/auth id: "merge feature/auth"
-    branch fix/token-expiry
-    checkout fix/token-expiry
-    commit id: "fix: handle token expiry"
-    checkout develop
-    merge fix/token-expiry id: "merge fix/token-expiry"
-    checkout main
-    merge develop id: "release: v1.0.0"
+```bash
+pnpm dev             # Vite dev server with HMR
+pnpm build           # TypeScript check + production build
+pnpm preview         # Preview production build locally
+pnpm typecheck       # tsc --noEmit strict check
+pnpm lint            # Biome linter
+pnpm lint:fix        # Biome linter with auto-fix
+pnpm format          # Biome formatter
+pnpm test            # Vitest unit suite (run once)
+pnpm test:watch      # Vitest in watch mode
+pnpm test:coverage   # Coverage report (v8)
 ```
 
-Direct push to `main` is blocked by the `pre-push` hook. Always use `feature/name` → `develop` → PR → `main`.
+---
+
+## 🗂 Project Structure
+
+```
+multilingual-sentiment-bench/
+├── public/
+│   └── favicon.svg
+├── src/
+│   ├── types/
+│   │   └── index.ts                  # All shared TypeScript types & interfaces (readonly, branded)
+│   ├── utils/
+│   │   └── assert.ts                 # assertNever · invariant · defined — runtime safety utilities
+│   ├── context/
+│   │   └── ClassifierContext.tsx     # React context wrapping useClassifier — eliminates prop drilling
+│   ├── lib/
+│   │   ├── models.ts                 # Model registry + normalizeLabel() (EN · AR · RU scope)
+│   │   ├── parseDataset.ts           # Runtime JSON file validator — supports envelope & flat array formats
+│   │   ├── export.ts                 # CSV serialisation (19-col Colab-ready schema) + stats + formatters
+│   ├── workers/
+│   │   └── classifier.worker.ts      # HF Transformers pipeline (singleton cache, echoes requestId on error)
+│   ├── hooks/
+│   │   ├── useClassifier.ts          # Worker lifecycle, model hot-swap, AbortSignal-aware classify()
+│   │   └── useBenchmark.ts           # AbortController benchmark loop, runId per run, accepts BenchmarkDataset
+│   ├── components/
+│   │   ├── ui/
+│   │   │   └── index.tsx             # Button · Badge · Card · Select · ProgressBar · Stat · ErrorBoundary
+│   │   ├── layout/
+│   │   │   ├── Header.tsx            # Sticky nav with accessible role=tablist tab switcher
+│   │   │   ├── PlaygroundView.tsx    # Interactive single-text classification view
+│   │   │   └── BenchmarkView.tsx     # Benchmark lab — file upload state, export, results layout
+│   │   ├── playground/
+│   │   │   ├── ModelLoader.tsx       # Model selector + load progress — re-enables on model change
+│   │   │   ├── TextInput.tsx         # Textarea with char counter, ⌘ Enter shortcut
+│   │   │   └── ResultCard.tsx        # Result card with aria-live, confidence bar, perf metrics
+│   │   └── benchmark/
+│   │       ├── FileUpload.tsx        # Drag-and-drop JSON dataset picker (idle/loaded/error states)
+│   │       ├── BenchmarkControls.tsx # File picker + model picker + run / stop / export controls
+│   │       ├── BenchmarkStats.tsx    # Latency stats + accuracy + label distribution
+│   │       ├── BenchmarkChart.tsx    # Recharts scatter: latency vs input length
+│   │       └── ResultsTable.tsx      # Results table with maxRows cap
+│   ├── styles/
+│   │   └── globals.css               # CSS custom property design tokens, dark mode, DM Sans + DM Mono
+│   ├── test/
+│   │   ├── setup.ts                  # Vitest globals, MockWorker, ResizeObserver stub
+│   │   ├── export.test.ts            # computeStats · formatMs · resultsToCSV · buildExportRow tests
+│   │   └── models.test.ts            # normalizeLabel · getModelById · MODELS tests (EN/AR/RU scope)
+│   ├── App.tsx                       # Root — ClassifierProvider, tab router, tabpanel aria wiring
+│   └── main.tsx                      # createRoot entry point (guarded root element lookup)
+├── index.html
+├── vite.config.ts                    # Path aliases (@/*), ES worker format
+├── tsconfig.*.json                   # Strict mode, bundler resolution
+├── biome.json                        # Linter + formatter (v1.9.4)
+├── commitlint.config.mjs
+├── docker-compose.yml
+└── package.json
+```
 
 ---
 
-## Dependabot
+## 🤖 Supported Models
 
-Automated dependency updates run every Monday at 09:00 UTC targeting `main`.
+| Model | HuggingFace ID | Languages | Size |
+|---|---|---|---|
+| DistilBERT Multilingual | `Xenova/distilbert-base-multilingual-cased-sentiments-student` | EN · AR · RU | Small |
+| BERT Multilingual (uncased) | `Xenova/bert-base-multilingual-uncased-sentiment` | EN · AR · RU | Medium |
 
-| Ecosystem | Scope | Notes |
-|-----------|-------|-------|
-| `github-actions` | All Actions versions | Grouped into one PR |
-| `docker` | Base images in `/docker` | Node bumps: LTS only (even-numbered releases) |
-| `npm` | `/` — husky + commitlint | `@commitlint/*` grouped separately |
+Models are downloaded once from the HuggingFace Hub CDN and cached in the browser's `Cache API`. Subsequent loads are instant.
 
-Node odd-numbered releases (21, 23, 25 …) are explicitly ignored — they have no long-term support and EOL in ~6 months. Bump Node manually when the next LTS drops.
+**Model hot-swap**: Selecting a different model in the dropdown immediately re-enables the "Load model" button (which relabels to "↺ Switch Model"). Clicking it terminates the current worker, spawns a fresh one, resets load state to `idle`, and downloads the new model — no stale pipeline is left in memory.
 
----
+To add a new model, append an entry to [`src/lib/models.ts`](src/lib/models.ts):
 
-## Dev image
-
-| | |
-|--|--|
-| **Image** | `ayayousef7/react-devcontainer:latest` |
-| **Source** | [`github.com/ayayousef2000/react-devcontainer`](https://github.com/ayayousef2000/react-devcontainer) |
-| **Platforms** | `linux/amd64` · `linux/arm64` |
-| **Contents** | Node 24 · pnpm · Bun · GitHub CLI · TypeScript · Starship |
-
----
-
-## Deployment
-
-Not included — add per project depending on your target:
-
-| Target | Add to `.github/workflows/` |
-|--------|----------------------------|
-| Netlify | `deploy-netlify.yml` + `netlify.toml` |
-| Vercel | `deploy-vercel.yml` |
-| GCP Cloud Run | `deploy-cloudrun.yml` |
-| AWS | `deploy-aws.yml` |
-| Cloudflare Pages | `deploy-cloudflare.yml` |
+```ts
+{
+  id: "Xenova/your-model-id",
+  name: "Display Name",
+  description: "Short description",
+  languages: ["en", "ar", "ru"],
+  size: "small",
+  task: "sentiment-analysis",
+}
+```
 
 ---
 
-## Related repositories
+## 📂 Benchmark Datasets
 
-| Repo | Purpose |
-|------|---------|
-| [`react-devcontainer`](https://github.com/ayayousef2000/react-devcontainer) | Builds and publishes the base dev Docker image |
-| [`react-template`](https://github.com/ayayousef2000/react-template) | ← You are here |
+The Benchmark Lab accepts any `.json` file. **There are no pre-bundled datasets** — upload your own from your local machine using the drag-and-drop area or the file picker in the Benchmark Lab tab.
+
+Two JSON shapes are accepted:
+
+### 1 — Flat array format *(matches `test_set_en.json` / `test_set_ar.json` / `test_set_ru.json`)*
+
+```json
+[
+  {
+    "id": "en_000",
+    "text": "This product is absolutely fantastic!",
+    "language": "en",
+    "ground_truth": "POSITIVE"
+  },
+  {
+    "id": "en_001",
+    "text": "Terrible experience, never again.",
+    "language": "en",
+    "ground_truth": "NEGATIVE"
+  }
+]
+```
+
+Flat arrays are automatically wrapped into a `BenchmarkDataset` envelope at parse time. The dataset `id` is auto-generated and the `name` is set to `"Uploaded Dataset"`.
+
+### 2 — Envelope format *(explicit metadata)*
+
+```json
+{
+  "id": "my-en-dataset",
+  "name": "My English Dataset",
+  "description": "Optional description",
+  "language": "en",
+  "samples": [
+    {
+      "id": "s1",
+      "text": "This product is absolutely fantastic!",
+      "language": "en",
+      "expected": "POSITIVE"
+    }
+  ]
+}
+```
+
+### Field reference
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `id` | string | ✅ | Unique sample identifier |
+| `text` | string | ✅ | Raw text to classify |
+| `language` | string | ✅ | Must be `en`, `ar`, or `ru` |
+| `expected` | string | — | Envelope format: `POSITIVE`, `NEGATIVE`, or `NEUTRAL` |
+| `ground_truth` | string | — | Flat array format: same values as `expected` |
+
+The file is validated immediately on upload using `parseDataset()`. Any shape mismatch or unsupported language throws a descriptive error shown inline — no silent failures.
 
 ---
 
-*Node 24 · pnpm 10 · Husky 9 · commitlint 20 · Biome 2 · 2026*
+## 🏗 Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    React UI (Main Thread)             │
+│                                                      │
+│  ClassifierProvider (Context)                        │
+│  ├── useClassifier ──► Worker messages (postMessage) │
+│  │    └── loadedModelId (tracks last ready model)    │
+│  └── useBenchmark  ──► AbortController loop          │
+│       ├── runId (crypto.randomUUID per run)          │
+│       └── accepts BenchmarkDataset directly          │
+│                                                      │
+│  PlaygroundView  ◄──┐                                │
+│  BenchmarkView   ◄──┤── useClassifierContext()       │
+│    └── FileUpload (JSON drag-and-drop + validation)  │
+└────────────────────────┬────────────────────────────┘
+                         │ Web Worker boundary
+┌────────────────────────▼────────────────────────────┐
+│           classifier.worker.ts (Worker Thread)       │
+│                                                      │
+│  Pipeline cache (singleton per modelId)              │
+│  ├── LOAD_MODEL  → PROGRESS* → MODEL_READY           │
+│  └── CLASSIFY    → CLASSIFICATION_RESULT             │
+│       └── ERROR  (echoes requestId for per-promise   │
+│                   rejection in useClassifier)        │
+│                                                      │
+│  @huggingface/transformers pipeline()                │
+│  Models cached in browser Cache API                  │
+└─────────────────────────────────────────────────────┘
+```
+
+**Key design choices:**
+
+- **Context-provided classifier** — `ClassifierProvider` wraps the app root and exposes `loadState`, `loadedModelId`, `loadModel`, and `classify` via `useClassifierContext()`.
+- **Model hot-swap** — `loadModel` compares the requested ID against `loadedModelIdRef`. On a switch it terminates the existing worker, spawns a fresh one, rejects all pending promises, and resets load state to `idle`. The "Load model" button re-enables (and relabels to "↺ Switch Model") whenever `selectedModelId !== loadedModelId`.
+- **File-based datasets** — `parseDataset()` in `src/lib/parseDataset.ts` validates every field with `invariant()` at upload time. Supports both flat array (with `ground_truth`) and envelope (with `expected`) formats. Language is locked to `en`, `ar`, `ru`.
+- **Run-scoped export** — `useBenchmark` generates a `crypto.randomUUID()` at the start of every `start()` call. This `runId` flows through to every result row so Colab can group and compare runs with `df.groupby("run_id")`.
+- **Worker cleanup on unmount** — `useClassifier` terminates the worker in its `useEffect` cleanup, preventing Strict Mode double-spawn and memory leaks.
+- **AbortController benchmark loop** — `useBenchmark` creates a fresh `AbortController` on each `start()` call. `classify()` receives the signal directly; in-flight responses are ignored after abort.
+- **Per-request error rejection** — the worker echoes a `requestId` in `ERROR` messages so only the affected promise is rejected.
+- **`useTransition` for bulk appends** — result appends during benchmark runs are wrapped in `startTransition`.
+- **Exhaustive switch guards** — all worker message `switch` statements use `assertNever()` on the default branch.
+
+---
+
+## 🧪 Testing
+
+```bash
+pnpm test             # Run all unit tests
+pnpm test:coverage    # Generate coverage report → ./coverage/
+```
+
+Test coverage targets pure utility functions in `src/lib/` and `src/utils/`. Component tests mock `useClassifierContext` to avoid spawning real workers.
+
+When updating tests after these changes:
+- `src/test/export.test.ts` — `buildExportRow` now requires a `runId` string (4th argument); `resultsToCSV` accepts an optional 3rd `runId` argument. Update all call sites.
+- `src/test/models.test.ts` — verify `SUPPORTED_LANGUAGES` is `["en", "ar", "ru"]` only.
+
+---
+
+## 📦 Export Format
+
+Benchmark results export as UTF-8 CSV ready for import into Google Colab or any pandas-based analysis pipeline.
+
+```
+run_id,app_version,model_id,model_name,dataset_id,dataset_name,sample_id,language,input_text,input_len,expected,label,is_correct,score,score_pct,time_ms,memory_mb,timestamp,iso_datetime
+```
+
+| Column | Type | Description |
+|---|---|---|
+| `run_id` | string | UUID generated once per benchmark run — use `df.groupby("run_id")` to compare runs |
+| `app_version` | string | Application version (`1.1.0`) — lets you detect schema changes in Colab |
+| `model_id` | string | HuggingFace model ID |
+| `model_name` | string | Human-readable model display name |
+| `dataset_id` | string | Dataset `id` from the uploaded JSON |
+| `dataset_name` | string | Dataset `name` from the uploaded JSON |
+| `sample_id` | string | Sample identifier within the dataset |
+| `language` | string | ISO 639-1 language code (`en`, `ar`, `ru`) |
+| `input_text` | string | Full raw input text (quoted if contains commas or newlines) |
+| `input_len` | integer | Character count of input text |
+| `expected` | string \| empty | Expected label if provided (`POSITIVE` / `NEGATIVE` / `NEUTRAL`) |
+| `label` | string | Predicted label |
+| `is_correct` | `TRUE` / `FALSE` / empty | Whether predicted label matches expected; empty if no expected label |
+| `score` | float | Model confidence 0–1 |
+| `score_pct` | float | `score × 100`, 2 decimal places |
+| `time_ms` | float | Inference wall-clock time in milliseconds |
+| `memory_mb` | float \| empty | JS heap delta in MB (Chrome only, empty elsewhere) |
+| `timestamp` | integer | Unix timestamp in milliseconds |
+| `iso_datetime` | string | ISO 8601 datetime string |
+
+### Example Colab snippet
+
+```python
+import pandas as pd
+
+df = pd.read_csv("sentiment-bench-2026-04-11T12-00-00.csv")
+
+# Overall accuracy (only rows with expected label)
+accuracy = df[df["expected"].notna()]["is_correct"].map({"TRUE": True, "FALSE": False}).mean()
+print(f"Accuracy: {accuracy:.1%}")
+
+# Latency by model
+df.groupby("model_id")["time_ms"].describe()
+
+# Confusion matrix
+pd.crosstab(df["expected"], df["label"])
+
+# Compare multiple runs
+df.groupby(["run_id", "model_id"])["is_correct"].apply(
+    lambda x: x.map({"TRUE": True, "FALSE": False}).mean()
+).rename("accuracy")
+
+# Latency by language
+df.groupby("language")["time_ms"].mean()
+
+# Filter to a specific app version
+df_v1 = df[df["app_version"] == "1.1.0"]
+```
+
+---
+
+## 🐳 Docker Dev Container
+
+```bash
+cp .env.example .env
+# Set DOCKERHUB_USERNAME in .env
+
+docker compose up -d
+docker compose exec react_app pnpm install
+docker compose exec react_app pnpm dev
+```
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology | Version |
+|---|---|---|
+| UI Framework | React | 19.1 |
+| Language | TypeScript | 5.8 |
+| Bundler | Vite | 6.3 |
+| NLP Runtime | @huggingface/transformers | 3.5 |
+| Charts | Recharts | 2.15 |
+| Linter/Formatter | Biome | 1.9 |
+| Test Runner | Vitest | 3.1 |
+| Test Utilities | @testing-library/react | 16.3 |
+| Package Manager | pnpm | 10.33 |
+| Commit Linting | commitlint (conventional) | 19.8 |
+| Git Hooks | Husky | 9.1 |
+
+---
+
+<p align="center">
+  Built with <a href="https://huggingface.co/docs/transformers.js">Transformers.js</a> · All inference runs locally in your browser · EN · AR · RU
+</p>

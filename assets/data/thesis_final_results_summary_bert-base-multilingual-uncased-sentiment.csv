@@ -1,0 +1,4 @@
+model,quantization,language,Samples (N),Avg_Latency_ms,Avg_Memory_MB,Avg_Throughput_SPS,Cold_Load_Time_ms,Model_Size_MB,Accuracy,Macro_F1,Size_Efficiency_Score
+BERT Multilingual,fp32,ar,150.0,73.82,0.0,27.98,15786.0,650.0,0.48,0.4519,0.0738
+BERT Multilingual,fp32,en,150.0,93.82,0.0,16.73,15786.0,650.0,0.7467,0.7375,0.1149
+BERT Multilingual,fp32,ru,150.0,79.99,0.0,33.17,15786.0,650.0,0.6267,0.6029,0.0964

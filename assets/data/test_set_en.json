@@ -1,0 +1,902 @@
+[
+  {
+    "id": "en_000",
+    "text": "I have an absolute passion for deep, dark hot chocolate. I want chocolate which tastes like *chocolate*, rich and flavorful, with a hint of a bite. You can savor chocolate like that.<br />What I have an aversion to is hot sugar. And, most hot mixes taste just like that; you might as well suck on a cube of sugar with a sprinkling of coca on top than drink a cup.<br />Regrettably, McSteven's Dark Chocolate European Coca Mix fell into the latter category. It had a bit more chocolate than, say, Nestles mini marshmallow or Swiss Miss Yodel, but all in all...sugar cube. Nicht goot.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_001",
+    "text": "This drink is so \"super energy\" it's almost frightening.  Several members of my family tasted it and the consensus was that it might, indeed, give you a boost but the taste...some even compared it to grapefruit juice...was  definitely not good.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_002",
+    "text": "I'm sticking with what used to be carnation, now nestles malt. this stuff tastes like powdered milk with a hint of soy.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_003",
+    "text": "Aspertame causes alot of problems including preventing weight loss<br />It gives me a headache and causes my Mom's blood pressure to go up<br />I would rather get it with out any sweetner added or have honey in it.<br /><br />The FDA knows it's poison and denies it.<br /><br />I don't like to see people being hurt by the lies concerning what they eat and drink.<br /><br />We should get in the habit of researching all ingredients in what we eat the less ingredients the better.<br />I hope this helps someone, if you drink sugar substitute and feel bad it could be the culprit.<br /><br />msg is another bad one.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_004",
+    "text": "I ordered these because my local pet store stopped selling the product.  I bought 2 pkgs.  One Pumpkin & one Blueberry.  Never again.  Upon opening the bags, the contents were all broken & crushed.  There was barely a whole treat inside either bag.  I'll switch to another brand.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_005",
+    "text": "Generally speaking, I love mussels and was hoping these mussels might substitute for those times when I couldn't get fresh ones. The smell was unpleasant, reminiscent of cheap cat food. The texture was mushy. Perhaps being packed in water is not helpful; I would not order them again. Have been very pleased by almost everything else I have ordered from Roland, however.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_006",
+    "text": "The price is too high compared to our local costco store. The local costco store's price is $14.99 for 24oz. It is about $0.62/oz. And the produce quality of amazon is worse than costco. I would never buy this produce from amazon again.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_007",
+    "text": "I don't want to say these are awful but I won't ever get them again. The praise in other reviews, especially for the hickory strips, convinced me to try them. I now suspect the praise was \"planted\" by vested interests.<br /><br />The weaknesses of the product are legion. First, it's so hard to get the package open I had to get out the scissors; thinking you could get it open while hiking is delusional. You'll have to stop along the trail and get out a tool. I recommend a hatchet.<br /><br />Finally opened, the first realization is that slugs are less slimy. This in no way resembles a jerky if that's what you were hoping for. It's more like a piece of fruit leather that got left in the bathtub over night. Or just a mashed slug.<br /><br />Then there's the taste.  It basically tastes like sugar. Very unhealthy treat for diabetics certainly; you'll need an electron microscope to read the molecular fine print, but basically it provides a heavy load of cane sugar.<br /><br />At best this is like slimy candy, not jerky at all, not even close. For a vegetarian jerky product that is both tasty and relatively healthy and won't leave your fingers covered in pancake syrup, I recommend Stonewall's Jerqee.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_008",
+    "text": "My picky eater of a dog likes most of the Smokehouse brand dog treats but these?  Not so much....in fact when he got a whiff of them, he quickly turned the other way...same reaction I had when I unscrewed the top...they DO smell awful.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_009",
+    "text": "I was so excited to try this after the reviews. Sadly, I wasn't too happy with this cocoa. I had purchased it to make a hot cocoa powder to gift to people for the holidays, however, this just tasted HORRIBLE as a hot chocolate. It was only ok in a chocolate cookie when I did a half and half mix with another (good) cocoa.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_010",
+    "text": "44 dollars for one can of corned beef.... are you crazy this is not a bad price for corned beef... but 40 dollars for postage....  you have got to be kidding.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_011",
+    "text": "If you make your own baby food and have been avoiding added sugar and salt - this snack is not for your baby.  It is un-naturally sweet!  Make your own... It will be nicer on your pocketbook and you can control the amount of sugar!!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_012",
+    "text": "This item does not come with pots and no instructions. I wish 5 out of 6 photos didn't have a picture of a pot. It was not clearl whether it came with a pot or no, they tricked me. This was a gift too :-(. My son had no idea what to do with them when he got them, there were no instructions. He basically got 3 green sticks in a box...I'm not a happy camper :-(.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_013",
+    "text": "Although this item did taste okay, the real fact is one 8 ounce package is only 18 cookies.  I thought this was overpriced and not a good value.  I will not be purchasing this again.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_014",
+    "text": "has to be quit possibly the single most terrible food product I've ever placed into my mouth, I can not believe this company makes a profit, more proof that you could sell dog turds as long as you market them properly. I have seen dog treats that blew this jerky out of the water, my dog wont even touch it, it;s that bad!<br /><br />I suggest anyone who gets suckered into purchasing this product immediately demand a refund from amazon, they should not be carrying products like this.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_015",
+    "text": "Coffee is a very subjective thing.  Some people like coffee that borders on tea, others like the stuff that a certain national chain named after a famous Battlestar Galactica pilot serves.  For the record, I love the slightly-sour taste of Dunkin Donuts coffee and I find the stuff made by \"that other chain\" to be akin to re-hydrated cigarette ash.  For many years, we still percolated coffee...with most big-name brands of pre-ground coffee, you needed a percolator to bring out the flavor in it, but again, your tastes may vary.<br /><br />With my Keurig, my favorite coffee was Paul Neumans Extra Bold....because it didn't seem Extra Bold.  Until you buy 80 of them and get tired of the flavor.  Then, my favorites were the Caribu's....but something happened to that brand (see reviews) and I agree, they did something...either they don't put as much in the cups or they changed the blend, the sourcing of the beans, etc......wasted money on Caribu and wont go back to the brand.<br /><br />So Wolfgang Puck got the nod, tried 4 different flavors.  This one, Sorrento, is not my favorite of the bunch (currently Colombian Chef's Reserve).  It has a bolder strength (which I believe hard core coffee drinkers would consider Medium), but to me it has a simple burnt flavor to it.  Cream and Sweetener don't correct for this, and thus I'm a bit disappointed....but again it was a stab in the dark.<br /><br />I think if you prefer a slightly bolder, slightly more burnt flavor in your coffee...this may be for you.  I like the character of the Colombian Chef's Reserve, but it is not as strong, and perhaps that is just what my taste is slanted towards.  I don't believe you can get a bad cup of coffee in the Wolfgang Puck line however.  Can't say the same for some other K-cup brands.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_016",
+    "text": "My husband and I were excited to try these and put them in Christmas gifts for all our family before trying any. Turns out they are absolutely terrible. They should not be sold as food. My husband was nauseous for about 24 hours after tasting it. Last night I had to open up all the gifts and take them back out so as not to destroy Christmas. I hope someone pulls this product soon.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_017",
+    "text": "After reading the 9 other reviewers talk about the taste and the heat, I decided to order this instead of the hotter sauce from the same maker.  Note that I also bought Blair's After Death.  That i know is good.<br />As i stated in subject heading, this product was a disappointment.  I tasted more vinegar than the heat.  I had to dispensed a lot of the sauce to get any heat, but then it ruined the taste because of the vinegar tastes.<br /><br />I'm sticking to Blair's.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_018",
+    "text": "Awful, awful packaging. As soon as my mother opened the box the powder spilled all over the place because the bag was ripped opened. Flimsy piece of thin thin foil.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_019",
+    "text": "I don't much care for this Stash Premium Loose Green Tea.  I'm no tea expert, but I've got several problems with it.  Flavor-wise, I find this tea to be bitter with a grassy taste (that's not a good flavor, to me).  Texture-wise, the tea \"leaves\" range from almost half-inch long thin shards of leaves down to 1/16th of an inch sized remnants (I've uploaded a picture so you can see for yourself).  The mishmash of textures makes it difficult to portion out the leaves and results in a lot of the small stuff making its way through the infuser of my <a href=\"http://www.amazon.com/gp/product/B0010NR7C0\">Bodum YoYo Personal Tea Set with Infuser and 12-Ounce Glass</a> (admittedly, a finer meshed infuser might not have as much of an issue here).  Also, the wide range of textures indicates (to me) that these tea leaves might not necessarily have been chosen for inclusion.  Instead, it feels like they might just have been leftovers from other processes (that's merely my non-knowledgeable feelings and not based on any hard facts).  On a positive note, I will say that the steeped beverage does have a very nice yellowish green color.  Overall, though, I have to rate this tea at a not-very-good 2 stars out of 5.  A green tea that I do like is <a href=\"http://www.amazon.com/gp/product/B000F4H5FE\">Twinings Green Gunpowder Tea, Loose Tea, 3.53-Ounce Tins (Pack of 6)</a>.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_020",
+    "text": "I tasted these and thought they were the just as good as the sugar ones, THEN,,, about an hour later I was running to a bathroom.  My stomach started cramping and making all sorts of noises. I'll leave the rest out.  I only want to say, try a sample before you buy a big bag of these.  You may or may not have the digestive system to handle this.  Oh, by the way, I only ate about 10 bears...",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_021",
+    "text": "I've been excitedly trying every type of K cup I can get my hands on since I got my Keurig for christmas and, until now, have not encountered any that I truly hate. Until I discovered this one. I would have though it pretty difficult to ruin hot chocolate but the people at Grove Square certainly did a good job. Not only was the hot chocolate watery, but it had a horrible plastic aftertaste also. Yuck!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_022",
+    "text": "I love most of the hint waters, but this one was too flowery/perfumey for my tastes. It tasted kind of artificial. I won't be purchasing this flavor again",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_023",
+    "text": "I bought this for my finicky old cat in hopes that he could be persuaded to eat something healthier than grocery store crunchies.  He did try them at first and managed to chew them just fine, but he didn't eat them for long...now he just roots around in the bowl for his regular stuff and spits out any of the Newman's that he accidentally gets ahold of.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_024",
+    "text": "Like the caramel dip, I would give this no stars if it were an option.  It is so bad, I took one taste and tossed it in the trash!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_025",
+    "text": "I bought these cashews thinking they were premium nuts and my wife and I both agreed they were old and stale and flavorless. If your smart stick with the standard Planter's cashews they have more flavor and are fresher.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_026",
+    "text": "Bought the Original flavor from the store and just tried them tonight. They were very greasy and salty. I did not like them a lot. I will not purchase this original flavor again. However I can't complain because I got the 3 ounce bag for only $1.00 at the store while they were on sale. I tried the BBq flavor and they are delicious. I bought the sea salt & vinegar, and cheddar but haven't tried those yet.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_027",
+    "text": "I went to their website yesterday, where I found information about a settlement for a class action lawsuit against this company.  You can read about it on their own website.  Apparently, since then, they have cleaned up their act and their food.  I bought four cans of the duck out of desperation because the shipment of Blue Buffalo Wilderness Wild Duck that I usually feed my cats hasn't arrived yet and I'm all out. I can't find it anywhere locally, so I gave in and bought four cans of EVO at a local pet supply store.  My cats ate it up immediately.  It smells ok, looks fresh, but I notice that the phosphorus level is three times higher than Blue's wild duck.  So as soon as Blue arrives, my cats will be going back to that.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_028",
+    "text": "Beware.. there are warnings to NOT feed your dogs chicken treats made in China.  They are causing kidney failure and DEATH.  I use to give my pets these and they loved them.. but I'm not going to risk my babies health with a product made in China. [...]",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_029",
+    "text": "It was smaller than I thought and one of the bamboos was yellow and died.  I was disappointed and did not feel luck.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_030",
+    "text": "Love these cookies. They taste wonderful. No trans fat, vegan, Kosher, healthy ingredients. So what's my gripe? If you look at the nutrition label on the back of the cookie package carefully, notice that a serving is 1/2 a cookie. And, 1/2 a cookie is 210 calories (different from the info on the Amazon site, but I'm looking at the package right now -- same product, current package). So, if you eat the whole cookie (I dare you to stop at 1/2. I know I can't! I tried.), you've eaten a 420-calorie cookie. Wow. That's a lot. Sorry to burst the bubble. I take one of these to work every once in awhile to eat for lunch (and 420 calories is a large lunch for me), but that's the only way I can eat them. I bought these not realizing they'd counted the cookie as two servings (which is pretty sneaky, IMO), and relied on the Amazon site info, which needs to be updated to reflect current package count. Great cookies, but if calories factor in for you, beware.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_031",
+    "text": "I just ate half of a 4.25 ounce Hershey's Milk Chocolate with Almonds Bar and found ZERO, ZIP, -0- WHOLE ALMONDS.  In fact, I found nothing close to an entire almond...the biggest was maybe a third of one half of a single nut! REALLY?! That is nuts!  I am sick of companies cheaping out on consumers.  For my entire 58 yr. life, my favorite chocolate, without exception, and including the likes of other crowd favorites like Godiva, has been Hershey's.  But this cost-cutting stuff by Hershey's?  How can this be true?  Okay, maybe it's acceptable to put \"pieces\" (taste like stale floor sweepings) into Halloween-sized very small bars, but, please, NOT into the larger candy bars that earned Hershey's such a great brand name!  Keep it up and you will lose customers like me who know quality from crap.  Charge more but don't listen to the corporate idiots telling you it's okay to sub almond pieces for almonds.  Please chime in if you know what I am talking about!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_032",
+    "text": "I purchased this product thinking that it would be a good alternative to Senseo pods that are hard to find at a good price. They DO NOT fit a Senseo machine. I was not concerned since I have a nice Krups expresso machine and the pods fit perfectly into the coffee receptical. Expecting a nice Starbucks shot, all that came out was slightly colored water. The pods were expired for nearly 8 months, so there was no way I would keep them. I returned the product, but had to pay $12.00 to ship it back, after paying for shipping to get it to me! I have bought many things from Amazon, but this is by far the worst. Do not buy this terrible product.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_033",
+    "text": "I had bought Nestle Dark Chocolate in a single box at local store and loved it.  Then on Amazon, I saw the 50-count, 2-pack size and the outside of the box in the picture also said \"Dark Chocolate\" so I ordered it.  Much to my surprised, it was awful, and the ingredients were different too.  It showed up as \"Dark Hot\" when I ordered it but I went by the picture online and thought it was just a different name for differentiating it from the regular single boxes of Dark Chocolate.  Nope.  Tasted awful and I ended up embarrassingly giving one box to the needy Food Bin and gave the other opened box to some people at work.  Not the same thing at all even though it says \"Dark Chocolate\" (still does), it is NOT the same as the single box of Dark Chocolate with 8 envelopes sold in pack of 12.  I will not buy the actual one I like at Amazon as the price is about the same as my local store.  But if you like the Dark Chocolate generally sold as 8 packets in a box, be aware it is NOT the same thing as the 50-count box labelled Dark Chocolate on the outside.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_034",
+    "text": "This has to be the worst tasting coffee I have ever had in a k-cup. I buy a lot of k-cups this is the by far the worst. Don't waste your money on this product.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_035",
+    "text": "I unfortunately don't have a food critic's particular vocabulary or understanding of the dimensions on which to evaluate food.  However you articulate it, this product isn't so good.  Its bland, dry and boring.  I'm sure its particularly healthy, but I won't be buying it again.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_036",
+    "text": "Wow this vinaigrette is probably the most disgusting thing i ever ate!<br /><br />I just came back from Japan after staying there for more than a year i saw this a the local supermarket and bought it at 5$ which i pretty expensive for the quantity.<br /><br />I thought that for 5$ i was betting on quality...<br /><br />Wow was i wrong when i open the bottle an awful smell came out of it!<br /><br />I currently live in canada and japanese steakhouse and real japanese salad dressing are two different thing. Wafu is not even in between!<br /><br />My review?<br /><br />Do not buy this product it is not worth it.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_037",
+    "text": "This is my second time buying Goji juice from this account. The 1st 2 bottles I bought were red, sweet, and tasted fruity. The 2nd time I bought 2 bottles the juice was orange, tasted like a smokey rotten fruit, and the lable was different. I'm very disappointed because I thought if I bought from the same company, I would get the same product. How do I get my money back for this trash I was sent? I will never buy Goji online again. It's a great product but being stored wrong and sent to the buyer wrong. I'm very upset with my purchase. SUCH a waste of money. DO NOT BUY GOJI ON AMAZON!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_038",
+    "text": "is that the correct price 23.00 dollars for a 16 count of T disc when they cost 8.99 normally.. are you serious????",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_039",
+    "text": "As others have said, this is REALLY MILD in flavor!  The instructions call for 1 packet per 16 oz. of water.  There are 6 packets per box.<br /><br />I decided to give it a try as I am basically lazy and wanted some (unsweetened; unlemoned) iced tea that I could make on a moment's whim.<br /><br />I started with 1 packet per 16 oz of water; then 2 packets per 16 oz of water and got SOME flavor.  Now I'm using 3 packets per 16 oz. of water.  (I placed a fairly large order so I could experiment with it AND have it throughout the fall and winter.)<br /><br />Since I'm using triple the amount of product in order to get some flavor, I will probably not order this item again.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_040",
+    "text": "Having purchased a package of this tea and one of Stash's Pinhead Gunpowder Green, I can safely say that the Gunpowder is much better tea. The \"Organic Premium\" is unacceptably heavy on stems and twigs, with an unpleasantly mulchy taste. The Gunpowder, on the other hand, is much lighter and more delicate. Same price, same distributer, both organic. Stash Gunpowder is simply better.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_041",
+    "text": "This was one of my favorite cereals as a child.  Probably should have been a treat to have once in a while rather than breakfast if you consider many of the ingredients that have always been a part of this cereal.  However, since the mid-1990s, our food supply has contained progressively more and more genetically modified foods (unbenounced to the public), and this cereal more than likely contains a fair amount of something that is arguably much harder on our bodies than food colors and preservatives, genetically modified corn.  The U.S. produces and consumes the majority of GMOs worldwide.  Europe banned them from their food supply in 2001.  We do not hear much about them because many of the big U.S. food conglomerates such as General Mills do not source organic or non-gmo ingredients and they sponsor our media, t.v., newspapers and magazines.  Please read about GMOs, the studies that have been done, and the health risks for you and your family.  Here is a great article from Natural News:<br /><br />[...]",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_042",
+    "text": "I LOVE tamarind balls, sweet and tart like other's have described. HOWEVER DO NOT GET THESE FROM IMPORTFOODS. I wouldn't get these type at all no matter what company. Importfoods is bad because they did not bother to return my emails until I was forced to leave them a bad review on Amazon. And even then they ignored my request for a partial refund. I had FOOLISHLY decided to order this product in bulk and had paid them a lot of money.<br /><br />I did this because I had tried so many brands of tamarind balls and loved them all. Some more than others but all that I tried were good.<br /><br />These were the sad exception. They tasted EXTREMELY stale and salty, YUCK! The ones that Importfoods sent were covered in dust. So I'm sure they were stale. But the seller is only part of the problem. This BRAND really is inferior. It's full of stale sugar and salt and quite gritty. Barely any tamarind at all. So no wonder it tasted gritty, stale, with barely any fruit.<br /><br />It also had a weird burnt/molasses- like aftertaste. More just burnt than molasses.<br /><br />I'm leaving this review because there were no negative reviews,to warn me when I purchased these. Buyer Beware!!!",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_043",
+    "text": "This tea does have a good blend of caffine and herbs which wake you up, but seriously... It is disgusting... It smells terrible (and I love the smell of tea) and tastes just as bad...",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_044",
+    "text": "These are awful....very dry and barely edible. Expected something much better!<br />Hope the birds like them!!! Hope they revamp these brownies.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_045",
+    "text": "In all of the groceries that I've been to in my area, these new \"Pop-Up Bowls\" of popcorn are replacing the traditional bags.  But the price for the new bowls is always the same as the price for the old bags, and there was 13% more popcorn in the older bags (3.3 oz bags, vs. 2.9 oz bowls).  This seems to be another in a series of sly moves by food retailers to disguise significant price hikes by subtle quantity reductions, like Tropicana did when they reduced their cartons from 64 oz to 59 oz.  The old bags were fine, and I'd much rather have 13% more popcorn than the new bowl.  If Redenbacher had been honest about the price hike, and charged 13% more but kept the quantity the same; or if they offered a choice between the old larger bags and the new smaller bowls instead of outright replacing the bags with the bowls, then I could respect this change.  But given how they've made this change, I'm shopping for a new brand (Central Market, mabye?).",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_046",
+    "text": "Seriously, this is the worst tasting grape juice I've ever ingested.  Tastes like it's 2/3 water and 1/3 grape juice.  Talk about a misleading label!  Says 100% juice.  I would beg to differ.  For reference, I've drank many brands of grape juice from the obvious Welch's to any old store brand.  The kicker is on the label there's a gold medal this was awarded for superior taste.<br /><br />Don't waste you money on this.  Would never buy again.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_047",
+    "text": "OK, I am very health concious and watch calories, carbs and fat content. I like regular PB very much but it has a lot of calories so I thought I would try this. Immediately after opening kind of a greenish brown color and pudding consistency. When I first looked at it my thoughts definitely were not of PB but something much worse. Then I tasted it. I would have to say that the taste and texture were the same as that much worse item that comes in about the same color. This stuff is totally GROSS. Do not waste your money. Save the calories and have the real thing. At least with real PB you get some nutritional value. I do think Walden Farms could market this as an appetite suppresant.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_048",
+    "text": "I received 3 months of Ice Cream from this Club as a gift. I was very disappointed with the Ice Cream I received and the giver was unhappy after seeing the choices I was sent each month. The first 2 months included a duplication of black walnut, a very bland vanilla frozen yogurt, some type of caramel,that didn't taste at all like caramel(I tried,but couldn't give it away), also 2 peppermint in one month. I emailed them after the 2nd month with my complaint,thinking they might want to take a second look at what was being sent. I did receive an immediate response, with an apology and an offer of an extra month of ice cream. They also told me they spoke with their shipper and was told my 3rd month was really going to be scrumptous. I just received it. May be somewhat better, but there is only one pint with higher butterfat then the average grocery store brand, 2 frozen custards, and 1 \"neopolitan\"(how exciting)in a square cardboard carton and from a company not even mentioned in their ad. We have a number of Ice Cream stores in our city and thus far I have only received 1 pint each month that might compare. I felt I should write this review because the person who sent this gift had no reviews to read and had no idea that I might receive duplicates, along with the vanilla custard and neopolitan.",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_049",
+    "text": "I could not believe the tiny, tiny bag of chocolate covered coffee beans in a large parcel post box.  Find someplace else to buy these!!!! JP",
+    "ground_truth": "NEGATIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_050",
+    "text": "These were a great price that's why I gobbled some up [lemon, toffee, chocolate & strawberry].  I've tried the lemon in some of the WuLong tea [ick..guess I should try a better tasting tea?] noticed the after taste, as usual.  I've also tried the strawberry in some carbonated water [suggestion from the 101 Recipes for the HCG protocol] and that's not too bad.  Definitely something you gotta get use to...because of the after taste. [I know this product and other Stevia products are natural so this taste doesn't mentally affect me as does the Aspartame, Splenda and other man-made sweeteners - those are just plain bad for us but the after taste of these Stevita products remind me of those man-made sweeteners - ICK].  I've actually had a little better luck with the Nu-Stevia powder, as long as I am careful on the amount [for example I use it in my smoothies, i.e. 1 packet for a 16-20oz smoothie].  So the '3' rating is for the taste...and after-taste.  :-(",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_051",
+    "text": "These don't taste like cardboard, thankfully; they have a pleasant, subtle almost nutty flavor, as if peanut butter is in them. However, the texture, even in the center of the cookie, is not moist at all!! I was hoping the outside would be slightly crunchy while the inside was softer and moist. They also crumble easily. They are alright but nothing I'd purchase again.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_052",
+    "text": "After having initially sampled the LESTER'S FIXINS <a href=\"http://www.amazon.com/gp/product/B0079KZ9AK\">Sweet Corn Soda</a> and the <a href=\"http://www.amazon.com/gp/product/B0079KWXKY\">Buffalo Wing Soda</a>, and now this \"bacon flavored\" concoction, I've come to the conclusion that this a rather creepy line of beverages.  However, I love the novelty idea of these weirdo sodas - for me, this helps to mitigate what would otherwise be a poor rating of these items.<br />All of this being said, I shared a bottle of this dubious beverage with three co-workers.  The first thing I noticed when I opened the bottle was a smell that is best described as an amalgamation of <a href=\"http://www.amazon.com/gp/product/B000EFBM4O\">Baco's</a> imitation bacon bits and garbage!  In all seriousness, it was a somewhat fetid smell that, had I not known what this drink was, I probably wouldn't have tasted it.  Fortunately, the smell of this beverage was the worst part; if you can actually avoid the scent of this soda, it's marginally palatable.  In essence, it tasted like imitation bacon bits and cane sugar, with a faint, lingering aftertaste of liquid smoke.  It wasn't good, but out of the three \"Lester's Fixins\" sodas that I've sampled so far, this one was the least problematic to drink... But then again, that's not saying very much!<br />Lester's Fixins Bacon Soda is great as a novelty or as a gag gift, but that's about it.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_053",
+    "text": "As usual the biscuits is very good. Normally we get couple of biscuits that are totally crumble once we get it. This time a whole packet (out of 7) is totally worthless. Expect not to get similar again.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_054",
+    "text": "I'll start with a confession: I make my own margaritas, the basic recipe with lime juice, triple sec, and tequila, plus salt.  That means I'm not expecting other flavors and I'm really not expecting it to be sweet.<br /><br />Take away the alcohol and what's left is lime, and that's what I was expecting when I tasted this.  It's not what I got.  There's lime, of course, plus what seems to be lemon for some reason, but no detectable orange or bitter orange (which would replace the triple sec).  It's fairly sweet.<br /><br />It's also a startling neon green-yellow, a great color for a kids' drink.<br /><br />If you like sweet margarita mixes, this might be for you.  After the kids have gone to bed you can add some tequila and triple sec and make it a bit more interesting, and from there you could throw it into a blender with some ice for a frozen drink.  If your margaritas are lime juice with a kick, you'll probably find this to be too sweet.<br /><br />Update: I mixed this in a bottle with a narrow neck, and left it for a couple of days.  When I poured myself a glass tonight, I noticed a white residue stuck on the bottom of the bottle.  I've poured out the Crystal Light and tried everything I can think of, but I can't clean the residue off.  You might want to keep this in a bottle or pitcher with a wide mouth that you can fit your hand into, to be able to clean it properly.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_055",
+    "text": "I LOVE ginger. It is so good for you. It's supposed to calm a sour stomach. There are lots of good health benefits. But this herbal root also gives you such a hot zing that you feel a little more awake along with bringing joy to your taste buds. That being said, my taste buds found the level of ginger in this beverage to be a little bit much. This would be great for the diehard ginger lover OR fantastic if mixed with fruit or other fruity herbs in hot water. This product could also add zing to your conventional iced tea in the summer. So I would recommend trying it. The fact that it is a powdered compounded product adds ease to mixing it for an instant cuppa lift! Enjoy!<a href=\"http://www.amazon.com/gp/product/B000PWTCBQ\">Ginger Drink -Gold Kili 40 Sachets Packed in 2 Bags</a><a href=\"http://www.amazon.com/gp/product/B001EPPLWM\">Gold Kili All Natural Instant Caffeine-free Ginger Drink, 20-Count Bags (Pack of 3)</a>",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_056",
+    "text": "I love Land O Lakes Cocoa.  I love shopping via the internet, especially on Amazon.com.  This seemed like a good deal, especially since I am willing to pay a little extra for the convenience of shopping at home. (Don't tell me that a product is cheaper at Costco - it takes me an hour travel time and another half hour just standing in line at that store.)  However, I got no Chocolate Mint and no Dark chocolate in my variety.  I enjoy all the flavors I received, so I see no need to return anything.  But I won't order from this seller again.  If they ship one order different than what was advertised, what might I get next time?",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_057",
+    "text": "To start, I'm a big fan of Blue Diamond brand Almonds. I really like the bold flavors, Habanero BBQ and Lime & Chili. I had never seen the Blazin' Buffalo Wing flavor at the local grocery store so I ordered them here on Amazon.<br /><br />When you first put an almond in your mouth you get the initial hint of buffalo wing flavor but it quickly goes away and then just tastes kind of strange.<br /><br />They aren't bad but they aren't my favorite. Every bodies taste buds are different so you might like them but I don't think I'll buy this flavor again.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_058",
+    "text": "I don't think these are good or bad.  They are edible, not disgusting but not tasty either.  The texture is the worst thing about them.  It is not really like pasta.  No one in a blind tast test would guess that it is noodles.  There is a smell that is associated with opening the package but this was definitely exaggerated in some reviews.<br /><br />I Ate them and felt satisfied and full (I did not vomit or gag while attempting this).  This is obviously a huge plus as they have no calories.  I used Hungry girl's recipe for alfredo with these noodles.  I also added some canned asparagus for bulk.<br /><br />If you are looking for a zero calorie substitute that tastes just like real pasta, then you are going to be dissapointed.  If you are looking for something that is edible and will fill you up, you may want to consider it.<br /><br />My conclusion:  ehhh. I'll eat it, but it's nothing to write home about.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_059",
+    "text": "Nice taste, but too tough to chew for me. It has a good smell of coconut skin & not too sweet, but I prefer the Kind Bar Almond & Apricot (without yogurt) since the bar is softer.  It's not too sweet.  If you like sweeter, choose the one with yogurt.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_060",
+    "text": "Shipping was prompt.  Packaging was good.  However, the 'bulk' product was actually more expensive (~$1 or 13% more) and not as good as available locally 'by-the-piece' in downtown Chicago.<br /><br />In addition, we were hoping that there would be nutritional information.  There was not.  Instead, there were 76 pieces in a plain plastic bag weighing 16.1 ounces.<br /><br />So, overall the vendor performed well but there was no value added.<br /><br />Quality Comparison<br />-----------------------<br />The wrapping was similar but the candy is less sweet like it contains HFCS instead of honey and the texture is noticeably coarser and seems to stick to our teeth a lot more.  This made us miss the nutritional disclosures even more.<br /><br />Cost Comparison<br />--------------------<br />Bayside Candy on Amazon = $8.59 / 76 pieces = $0.113<br /><br />Downtown Chicago at Kramer's Health Foods = $7.60 / 76 pieces = $0.10 or about $1 less for the same quantity and we have the flexibility to buy as many or few as we like.<br /><br />In short, we found no advantage and will continue to drop at in the local health food shop and get our sesame treats along with a friendly smile and without the extra packaging waste or wait for delivery.  Amazon's great, but you can't win 'em all.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_061",
+    "text": "These should be amazing.  Really, just look at that picture!  A chocolate chip cookie that is chewy on the outside and full of creamy fudge.  Good glory, I could go into a happy coma just thinking about it.<br /><br />Unfortunately, they are not so good.  The fudgey middle is actually just a bigger chocolate chip, and the cookie is more crumbly and dry than chewy.  The taste is heavily dominated by all of that chocolate, and the chocolate, while not bad, is not good enough to stand on its own.<br /><br />Don't break your heart by buying these.  Just look at the picture and dream.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_062",
+    "text": "I love blueberries but the ones in this pouch remind me of burnt crumbs. I pick them out and eat the rest.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_063",
+    "text": "We are huge Green Mountain fans and excitedly ordered this coffee earlier this month, but I must admit that it doesn't have a true, what I would call, \"pumpkin spice\" flavor.  It's more like nutmeg and cinnamon flavored water.  I tend to like bolder coffee (I'm a Double Black Diamond gal), and was thinking that this is why I was let down, but my husband (who is a Breakfast Blend guy) didn't like it either.  I compared the flavor of this coffee to some coffee that we purchased in a local store, which was also entitled, \"Pumpkin Spice,\" and the other coffee was way more rich with pumpkiny flavor than this one.  I will most likely finish the box but I'm not clamoring for it every morning.  Hey maybe I'll offer it to unsuspecting guests!  If you're just looking for something seasonal, it might be a good buy.  But if you're a purist and expect the flavors to run deep, you might want to look elsewhere.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_064",
+    "text": "It pops into large kernels, but the flavor and texture of this popcorn just isn't as good as the Baby White from Amish. If you're looking for the perfect movie theater style popcorn, get the Baby White and skip this one. However, this popcorn isn't bad and I would prefer it over the grocery store Orville crap. I didn't have many unpopped kernels but this popcorn has fairly large hulls.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_065",
+    "text": "The formula is wonderful - I haven't had a single problem since I started using it when my baby was 3 months old.  He's now 9mths and is still doing great on this stuff...I'm just glad he's almost near the end of his formula days since it's the price (specifically the Amazon price) I'm not happy with.<br /><br />I've been buying this formula from Amazon since March 2012 - and at that time it was the best price out there - $36.70 for a 6pk ($6.12/bottle).<br /><br />Then by August the price had jumped to $38.16 ($6.36/bottle) - but still the cheapest price out there, so I wasn't complaining.<br /><br />Now - October - the price has jumped yet again to $41.94 ($6.99/bottle)  - making it more expensive than Walmart or Target.<br /><br />The seller has always been Amazon (not another seller through Amazon) - so it's not a change in seller causing the price changes.  I just hope the price raises were out of necessity...and I guess I'll have to take my $180 a month elsewhere from now on.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_066",
+    "text": "I drink several cups of tea a day. I like Earl Gray but the Bigalow doesn't have the intensity and spunk I expect from tea. Leaving it steep longer makes it nasty and bitter, of course. I won't order it again. It isn't bad, it just isn't my cup of tea.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_067",
+    "text": "I thought these were going to be sliced sweet potato's, but they are not part of the ingredients. It's actually sweet potato flour. In addition, there is rice flour and corn flour mixed in. I think the taste of the corn flour overpowers the sweet potato flavor. Overall, the chips taste like salty corn flakes with a hint of sweet potato.  Overall, probably fairly healthy for what they are (low in fat), but short on taste. If you are not expecting a strong sweet potato flavor, then these may be a good choice for you.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_068",
+    "text": "We luved original Zico, but now its taste totally different.<br />When introduced it was pure coconut water which was just pasteurized.  Now it says its from concentrate.<br /><br />Taste little different now!",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_069",
+    "text": "This product isn't bad but it doesn't hit the sweet sweet spot for me.<br />I cannot remember where or what brand of popcorn it was so the search continues.<br />If I find it again - I'll update and modify the review...",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_070",
+    "text": "Well, when I ordered this I wasn't quite sure what to expect, but it sure wasn't a roll on deodorant container filled with stinky liver flavored liquid.  For me personally, I've always stood by the belief that while the dogs are the one enjoying the dog toys and treats, the are more made for the humans than anything else and there is something totally repugnant about a dog eating from a deodorant container.<br /><br />Jilly, my puppy, loved it.  She kept on trying to take it out of my hand and bite at the container until she realized she had to lick but she did love the flavor.  The only real negative is that Jilly got \"liver breath.\"  Also the ball in the container didn't spin and I had to squeeze and I got a drip or two on the floor.  I have wood floors so no harm no foul, but if you have carpeting you might get a stain, but Jilly helped with the clean up.<br /><br />But I couldn't quite get over the container and even though Jilly loved it the doggy breath and the fact I didn't like her licking a deodorant container was a big turn off.  Plus, if I used roll on deodorant I won't want my dog to associate it with treats, in case she got in the bathroom and ate the real deodorant which I'm sure could make her very sick.<br /><br />3 Stars.<br /><br />UPDATE:  The cat found this on the table and started pawing at it, so I opened it for her so she could have a lick and she loves it more than the dog!",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_071",
+    "text": "Product came all bent out of shape, probably due to shipping. Big enough to fit 2 dishes. If I place the water dish on the warped side it holds the mat down. It's OK",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_072",
+    "text": "My one complaint is the package clearly indicates the pasta cooks quickly...in 8-9 minutes. Well, I've prepared it twice now and both times took a minimum of 20 minutes to get the middle to soften up. Keep that in mind when making dinner because it definitely is not going to cook nearly as fast as the bag indicates.<br /><br />On a positive note, the product tastes fairly good. It also works well as a cold pasta for salads and, of course, the fact that it is gluten-free is a healthy choice for those with gluten intolerance.<br /><br />I gave the product 3 stars because it's a middle-of-the-road review for me. Good points and bad...so it's about average.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_073",
+    "text": "I ordered the vanilla coffee for my college age children.  Unfortunately, there were shipping delays and it did not arrive until the kids had returned to college for the Fall semester.  Update to come when they finally come home for a break -- it may be a while.  The other coffees I have ordered have all been tasty and a very good value, I have no reason to believe this will be any different. I can say that the k cups and the Keurig have been delightful.  I enjoy having a freshly brewed cup every time and like that I save a bunch of money by brewing at home into a travel mug rather than stopping to drop $2.00 for a cup on the way to work.  Saves all those styrofoam cups too!",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_074",
+    "text": "This was my first matcha and then i worked my way up to uji matcha manten which is the most expensive best matcha in the world 60 dolalrs for 40 grams.<br /><br />then i came back to this. it was great at first but after getting spoiled by uji matcha, ippodo and hibiki-an the bitterness after taste is too strong for me.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_075",
+    "text": "<span class=\"tiny\"> Length:: 1:01 Mins<br /><br /></span>Lickety Stik is a lickable (vs. edible) dog treat that comes in a variety of flavors, such as bacon, liver and chicken.  The container looks something like an old-style stick of deordorant with a plastic ball under the cap that LOOKS like it would roll around, but is actually stationary.  You squeeze the bottle until the gravy-like liquid treat starts to ooze out AROUND the ball and the dog licks it off. If you're not careful (i.e., if you squeeze too hard, esp. if you are treating a small dog like mine), you could end up with a mess on the floor.  That said, it is not difficult to master how hard to squeeze to treat the dog...just be forewarned to squeeze gently until you find the right pressure to use.<br /><br />As you will see in the accompanying video, my dog adores the flavor (I was using the liver flavor Lickety Split in the video).  She whines for it sometimes several times a day (she knows where I keep it).  However, she has a sensitive stomach and I have had to switch over to predominantly allergy-formula food and treats to reduce (and almost eliminate) the frequency of her spit-ups.  The day after I gave her the first taste of Lickety Stik, she spit up for the first time in a few months.  Perhaps that had nothing to do with it and it was something else, but it did make me wary of treating her with this product too often.<br /><br />Note that the packaging says this product is \"All-Natural with Vitamins,\" that there is only \"1 calorie in every 10 licks\" and that there are \"over 500 licks per bottle.\"  The product is made in the USA.<br /><br />I can see where this product would be an excellent one to use for training purposes or on car trips, when you don't want to have to carry a lot of treats with you.<br /><br />Edited 10/11/11 to add that, after reviewing a couple of other reviews, it appears that the rollerball is SUPPOSED to roll, which was my assumption, but it did not on either of the ones I have used (bacon and liver flavors).  I just opened them up and tried to forcibly roll the ball.  I was able to on one but not the other.  Perhaps it varies by container or perhaps it takes a good while of use before the ball starts rolling.  I've been using it about a week.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_076",
+    "text": "This is no more than a finely ground garlic powder.  Good, but able to buy in a store.  No magic about it.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_077",
+    "text": "I usually drink Twinnings earl grey.  I opted to try something new and i love bergamont so i figured DOUBLE BERGAMONT would be amazing. Well this tea smells amazing but it is very very weak. I have to use 2 teabags vs 1 twinnings tea bag and seep it for 7+ min in order to get the equal flavor i would get from twinnings. I wish this tea was stronger in flavor not just in smell.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_078",
+    "text": "This looks like a \"good for you\" product, what with the honey and green tea and acai and all, but I was disappointed to find sucralose (artificial sweetener) on the ingredients list. I love the convenience of having a tube of powder to pour into my water bottle and shake... and I did like the taste, but I probably won't be buying more because of the sucralose.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_079",
+    "text": "We've been purchasing direct from retail stores, either PetSmart or Felix & Oscar's in Springfield, VA.  The condition of the cans shipped was not as good as I would have hoped.  Several cans were dented in each shipment.  Quality of the cat food is very good; cost savings may outweigh the shipping issues and the convenience of not going to the pet store.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_080",
+    "text": "I was a little disappointed with this product. When I use it it imparts a flavor to the food that I don't like. It's slight but noticeable. Since the flavor of food is very important to me I stopped using it. Others might not notice this difference.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_081",
+    "text": "I really enjoy flavored coffees, and like how mild Melitta coffees are. (I am not a fan of French roast (i.e., Starbucks) - it's too bitter and burnt tasting for me.) Melitta's French vanilla flavor, however, is my least favorite of the Melitta flavored coffees (behind hazelnut and morning decadence). I find that the flavor is too overwhelming and cloying. For those who like strong flavor, this will be a hit, but I find that I have to mix it (1 spoon of flavored to 2 spoons of regular) in order to enjoy it.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_082",
+    "text": "I haven't had any American junk food in so long, so I found this snack a bit too salty for my taste, and oily as well.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_083",
+    "text": "Because it's easily available, this is my go-to mix when I need to make something. Because it only makes one layer, I use it to make cupcakes, muffins or a layer I can split and fill (such as Boston cream pie).<br /><br />The mix is rather lackluster by itself; it needs help. Because it has plenty of xanthan gum in it, it's easy to doctor this mix. Recommended additions are blueberries + lemon peel, or peanut butter, or a mashed banana and a dash of cinnamon. Vanilla always helps too.<br /><br />By itself the texture is rather dry and coarse. I coax the most out of this mix by using buttermilk, vanilla, and the two-stage mixing method.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_084",
+    "text": "I bought these for my child who struggles with constipation and has to eat a lot of fiber. He loves the taste of them and we to too.BUT...<br /><br />I sat down and read the ingredients on the wrapper today and was shocked. The fiber content IS good but there are also BHT and hydrogenated oils in the bar.<br /><br />I am not a foodie by any means. I don't always eat organic. I am just shocked that for a \"healthy\" snack this bar has these ingredients.<br /><br />There is also a fair amount of sugar in the bar. Don't get me wrong, sugar is fine in reasonable amounts but for diabetics it may not be good to eat this bar.<br /><br />Also.... be prepared...these can cause BAD gas. Start out slow !",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_085",
+    "text": "Flavor is so-so (not entirely worth the calories). Without the massive introductory discount, I would not buy this product from Amazon again. Too expensive. I've found it significantly cheaper at my local grocery store.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_086",
+    "text": "Nice chew alternative to rawhide when they are allergic to beef.  I have to say the beagle likes them a lot more than the lab, he tends to let them lay there til last resort.  They both like the really thin pork ties so maybe the rolls are just too thick for the lab.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_087",
+    "text": "Received the tart cherry juice and noted too much bubbles and foam at the top of the bottle. Was it suppose to be this foamy and is it safe to drink it.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_088",
+    "text": "When I purchased the product there was no nutritional information.  There was none at the Omaha Steak web site either.  I bought it expecting fish to be a healthy product.  I requested the company to send out nutritional information after my purchase.  It has 8g of transfat.  The sole almondine tastes fine but I would not purchase it again because of the transfat.  I baked it in a drip pan to remove as much of the fat as possible.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_089",
+    "text": "The CytoSport energy drink is a helpful sports supplement. It does give a noticeable boost to help power through intense hour long cardio classes such as Spinning, Cardio Kickboxing and Zumba. There has been overall improvement in fitness, performance and an ability to increase workout frequency & time from using this supplement. It definitely helps in post workout recovery, little to no muscle soreness. Beats the muscle burn from Spinning and Kickboxing.<br /><br />I have previously used the Pomegranate flavored powder and it tastes more like 1980's Red Kool Aid punch than Pomegranate.<br /><br />The Fresh Apple flavored Cytomax is supposed to be a green apple flavor. Unfortunately, it tastes strongly of plastic with a hint of green apple. I would return it if I could.<br /><br />Also, if you use a sports bottle that holds 24 oz. count on using two scoops of the powder per bottle fill.<br /><br />The Cytomax works better if you drink a small amount 15 minutes before your workout, as directed.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_090",
+    "text": "I have a Boston Terrier, who likes to chew, but won't just chew on anything.  After a bad experience with a tennis ball (that he got hold to) and his intestinal tract, I've been very selective about the toys I give him. A lot of the other pet owners that reviewed here had pets on the upper end of that 50lb scale and my Boston (at adult development) is only around 20lbs, if that. So, I thought I'd give this a try and watch out for complete destruction of the toy. Well, from day 1 when we received this he took to it immediately. I don't know if this has a flavor, but he didn't touch any of the other toys we received the same day... only this one. And, he's chewed on it every day now for about 4 months.  Only recently did I begin to notice that he'd finally broken through a corner and I tossed the toy. That white plastic can kill his intestinal organs if it gets in there.  So, for the price vs. the length of time it lasted and he enjoyed it without cause, it's an \"ok\" toy. I'm going to buy him another one, but I think the key is to stay vigilant and be sure that once your pet seems to start puncturing through this, it needs to be thrown out immediately. Since he is quite literally never alone, this is not as big an issue as it may be for other pet owners.  Please keep this in mind before buying!",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_091",
+    "text": "These chips were good but I just wish there was more of the cheddar chasse kind because they're my favorite. They give you all them plain. But overall it was at a great price. I've never had any problem buying things from here.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_092",
+    "text": "We had a lego birthday party for my sons seventh birthday.  These candy blocks were fun, as you can build with them. however they were very hard.  I overheard more than one adult guest make a comment about not breaking a tooth.  Maybe they need to be that hard in order to build with them?",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_093",
+    "text": "When I first ordered Switch, I was looking forward to something that was light, refreshing and tasted like black cherry.  Perhaps I am use to the taste of black cherry soda?  I am not sure about that, but I am sure that it didn't taste like black cherry.  It was just \"okay\".  I wasn't thrilled about the product, but I also wouldn't go out of my way to tell people that I don't like it.  Bottom line, I would not order it again, but I would try another flavor. The idea is there!  I'm curious to see if the flavor is!",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_094",
+    "text": "I can't give more than a 3 star average for this item, when considering the flavor and taste of this \"organic chocolate\" bar.<br /><br />Like some other Newman's Own food products that I've tasted, it doesn't offer any special quality, other than that the ingredients are virtually all \"organic\".  Unfortunately, our local, state and Federal requirements for \"organic\" foods, are severely flawed, and this product potentially  illustrates this problem quite well.<br /><br />The ingredients in these chocolate bars may meet most standards for organic foodstuffs, but there is an important element missing in the case of chocolate, that most people don't understand.<br /><br />I have read several articles recently about the high lead content of much of the chocolate that we consume, and for a period of time this problem was presumed to be that the cocoa beans themselves were (are) contaminated with lead, due to the leaded gasoline  in the engines of the farming equipment used in those countries that grow cocoa beans.<br /><br />However, some articles mention that lab analyses show that raw cocoa beans themselves have a relatively low amount of lead in them, compared to the final, processed chocolate products (and compared to other similar food products).  Some observant writers have then suggested that the high lead concentrations in cocoa products, are probably due to lead in the air near and over the drying beds, where the beans themselves are dried.  The reason for this contamination would be similar to the original theories, since there is likely high lead content in the air around these drying beds, for the prior reasoning (the lead in the gasoline used on the cocoa bean farms is emitted by tractor and other vehicle exhaust,  and then these contaminants attach themselves to the drying cocoa beans).<br /><br />At any rate, if the price of Newman's Own organic dark chocolate is as high as I suspect it is,  I would recommend buying a cheaper brand of chocolate bar (\"organic\" or not), since there's no way to know whether Newman's Own chocolate has less (or more) lead in it, than other brands do.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_095",
+    "text": "Walkers shortbread thins are a favorite at my house but hard to find. I was thrilled to find them on Amazon even though the price was more than a retail store. But the shipping was free in this case so I bought them. The cookies arrived bundled in a set of 4 boxes as expected. However, every cookie in each box was broken. This does not change the quality taste of these cookies (butter, lemon and raspberry choices) but it definitely limits serving options. I will not likely serve broken cookies at a party or special occasion. I was very disappointed that all the cookies were broken, none were intact. I will be highly hesitant to buy them through Amazon again.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_096",
+    "text": "We are from the southwest, as a family we don't eat Thai, but I bought this to expose my daughter to other flavors.  I don't know if it tastes like Thai, but the smell is strong and I pair it with bananas.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_097",
+    "text": "We have been big fans of these Altoids for a long time. They are a great breath freshener and cough suppressant. It makes a suitable replacement for preserved ginger candy. However, the old Altoids made in England were much better than the new ones made in the US. The English version was not as sweet and tasted more like real ginger. We still have some of the old version and the differences are very evident. Still, the new ones are the best mass produced mints out there in the market - and the only place we could find to buy them is through Amazon. They are not on retail racks.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_098",
+    "text": "The Kind bars are just too sweet for me. But I love the fruit and nut ratio and crunch with every bite. I was hoping this would work because it's gluten and wheat free, all natural, has a low glycemic index and a decent amount of fiber, no trans fats and the price is great on Amazon and with \"subscribe and save\" it's even cheaper.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_099",
+    "text": "I must say that my dog and all at the dog park LOVE these treats. Even the very fussy boxer sniffs at my pocket waiting for them. The sizes are quite variable which is ok.<br /><br />The product arrived with no protective covering on either the outside of the tub or under the lid which bothered me a bit (not sure if they had been open, returned by someone, then sent to us) so that is why I rated 3 stars.<br /><br />The amount of product for the price is great!<br />I would most likely purchase again.",
+    "ground_truth": "NEUTRAL",
+    "language": "en"
+  },
+  {
+    "id": "en_100",
+    "text": "I have started every morning for the last 7 months with a cup of Ganocafe Classic coffee. In my opinion it must be providing some benefits, I haven't had even one cold or any flu in that time. At age 71 years my blood pressure is lower than my doctor's nurse. I actually generally just feel better all around than I have in years. A daily 1 mile walk and an hour exercising in the pool could have some bearing on my general health. I recommend trying Ganocafe Classic, you will probably see a difference.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_101",
+    "text": "Thank goodness this pasta makes life for a gluten-free lifestyle so much more enjoyable.  It cooks with enough firm texture, unlike other gluten-free items that become too soggy or a mush.  The pasta goes well in Greek tomato-based dishes, in a pasta dish with only olive oil, sardines, garlic, and chili pepper flakes, as well as in casseroles and normal pasta dishes.  I'm glad I bought the five box package too.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_102",
+    "text": "I am the type of person who gets tired and starts yawning when I am out at a bar... that is untill I discovered Rock Star.  This one is my favorite flavor, but they all get the job done.  I am a much more fun person with half a rockstar in me, and I would recommend it to anyone who needs to keep themselves a bit more awake late at night.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_103",
+    "text": "The flavor of these is just amazing. They are really addicting. They are slightly spicy, but they shouldn't be too spicy for anyone's palette. My 6 year old son really enjoys these, too. My suggestion is to open the 1 pound bag and pour a serving or two into separate containers for snacking. If you eat directly from the 1 pound bag, you are likely to eat the entire thing in one sitting because they are so addicting. I've also tried the Jalepeno Smokehouse and the Salt & Vinegar flavors from Blue Diamond. The Jalepeno Smokehouse are actually a little spicier than the Habanero BBQ if you're wondering. Compare the price per ounce on these and you will see they are the most affordable.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_104",
+    "text": "I have been using Coffee People Donut Shop for over a year and have no complaints, so I was hesitant to try something new.  I like a decent cup of Joe, but I am no expert.  I prefer a medium roast, something that tastes like coffee without knocking me over.  After reading all the reviews I picked this variety and I really like it.<br /><br />The non-cup kcup looks weird but it works just the same.  I keep the extra ones in a plastic ziptop bag that has been configured to fit in my kcup  drawer.  Even after a week of being open an resealed , the coffee still tastes great.<br /><br />This product is significantly cheaper, but it is not because of the taste or quality.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_105",
+    "text": "There's no other word for this jelly!  Spread some on your croissant or toast, close your eyes, and off you go to Paris.  Beautiful, delicate fragrance and taste.<br />Too bad about the exchange rate.  Buy it anyway.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_106",
+    "text": "At room temperature, this is a hard, almost wax-like substance. You pretty much end up shaving the top with a spoon, resulting in a crumbly mess. I really didn't want to stick it in the microwave, but I'm far too lazy to heat it any other way. So I did. 30 seconds in the microwave pretty much tranformed it into something far creamier and more pleasant. Kind of like grainy almond butter....only better because it tastes like coconut, and I adore coconut. Yes, it is grainy, which is to be expected from a product made from dried coconut....some say floury, which I can see. It doesn't bother me, and I eat a whole lot of it on apple slices, or drizzled over sliced bananas with shaved dark chocolate.<br />The thing that really irritates me about this product is the HYPE. Good god. It's pureed coconut. It's a nice treat, but it is certainly not worth the effort of finding it (for me anyways...near impossible) or the money it costs. I feel like a bit of a sucker for believing half the people on here saying it tastes like the nectar of the gods or something. Artisana does not throw magical fairy dust in their product. You could easily make your own with a decent food processor and a bag of organic coconut flakes.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_107",
+    "text": "I once ordered an entire pot of coffee at a cafe in Munich. I was studying abroad in Europe and was in Munich for the weekend. I had the morning and decided to take it easy. There's nothing better than spending a morning outdoors in early spring in a cafe, watching the world go by, with a newspaper or three. In Europe, they never rush you along in a cafe. Anyways, the coffee they served was Dallmayr. I was hooked from that day on. I coworker recently brought a bag of Jacobs for the breakroom coffee maker. It's his favorite. I told him Dallmayr's better. Now, thanks to Amazon, I have a chance to prove it. Maybe I'll convince him, maybe not, but now I know where to find this lovely coffee regardless. :)",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_108",
+    "text": "<span class=\"tiny\"> Length:: 6:16 Mins<br /><br /></span>The soda is clear, with gentle carbonation. It has a faint citrus scent, with mellow lemon undertones. The drink itself is very cool and refreshing, and reminds me of the clear rock candy that is sold in most candy stores. It's flavor can be likened to a very softened down version of a Sprite or a Mountain Dew in terms of flavor, carbonation, acidity, and sweetness. Overall, this is a fun drink to try, at least for the experience of opening up the bottle.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_109",
+    "text": "It's always wonderful to be able to give chocolates as a gift and to receive them.  It's great to know that you can send someone  some chocolates with the guarantee that they don't arrive all melted.  Good Service and Excellent chocolates!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_110",
+    "text": "A pleasant surprise awaited me when I first ordered Grove Square milk chocolate Hot Cocoa cups. Not a coffee drinker,<br />I use our Keurig K-cup brewer mostly to make cocoa, and a few other brands I tried simply did not hit the mark. Grove Square cocoa tasted full-flavored, with just enough chocolate essence to make it a perfect drink. The first experience made me anticipate (with pleasure) the next time I popped a Grove Square K-cup into the machine!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_111",
+    "text": "Almost identical to Ghiradeli's great chocolate taste...but raw!organic! The best!!! I also whip it into whipped up sprouted almonds with Strvia and make ball/snacks from it, yummmm",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_112",
+    "text": "I like the convenience of tea bags.  This is one of the better premium brands in terms of freshness and flavor.  Great value compared to supermarket price!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_113",
+    "text": "these are crisper (almost never find a soft or mushy olive), and have a better flavor than any others i've been able to get in a can in either new jersey or florida. the larger ones are crisper than the mediums.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_114",
+    "text": "These tomatoes are unlike any tomatoes I have ever tried.  San Marzano tomatoes are known for low acidity and high sweetness due to being grown ONLY in the fertile volcanic soil at the base of Mt. Vesuvius.  These tomatoes make the BEST sauce and these are a great price and amazing flavor.  They must be tasted to be believed!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_115",
+    "text": "I got this for my father for his birthday, he and I used to go deep sea fishing before I moved across the country. He loved it, and the salmon was the first to go(as to be expected). He also told me that he loved the spreading knife with a fish for a handle, which I didn't even know the bag came with. There was much more than expected, so I'm very glad I got it for him.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_116",
+    "text": "I love the flavor! I make it like a hot tea and use it every night. It is the only thing that helps me sleep!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_117",
+    "text": "These treats occupy my dogs (quietly!) while they clean their teeth at the same time. The first time I tried them, I bought the large ones to cut in half so I'd get more for my money, but believe me, it was definitely NOT worth the hassle. They are very hard and hard to cut. The \"Regular\" size is perfect for my 50-65 lb. dogs.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_118",
+    "text": "I am normally not a great fan of such bars, because despite all the healthy ingredients they contain hydrogentated corn syrup.  Horray,this product contains no such awful ingredient.  And they are very delicious. Crunchy oat with a lovely honey taste - not overtly sweet - just right.  there are two servings per packet totalling 180 calories.  This is a great little snack and quite filling.  Although it is very moorish- so you have better have great self-control!<br /><br />PS: we now order it on a regular basis, which does make it cheaper by at least $1 savings per box.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_119",
+    "text": "I have been enjoying drinking Senseo coffee for a few years now, and having recently tried their new flovor Vienna Hazelnut Waltz, I have a newfound favorite. It is absolutely delicous and uniquely Senseo coffee. I deffinately recommend trying this product!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_120",
+    "text": "this is the only cereal both my 4 year old used to have and my 2 year old has in the morning. with milk it is a nutritious beginning to their day. the price at which we get it at amazon with the free super saving shipping makes it the best deal!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_121",
+    "text": "My cat does not gorge on food and when I introduced her to Whiskas, I'm glad that her eating habits did not change. The nuggets look a bit larg to be cat food, but that did not seem to bother my cat. She really seems to like Whiskas. I'm glad because I bought 18 lbs. of it. eek!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_122",
+    "text": "I love glutino's bread mixes.  this one was tasty.  I prepared it as recommended on the box.  However, it did not last as long as the everyday sandwich bread.  i store mine uncut in the fridge for a few days, and cut slices as I need it.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_123",
+    "text": "These Popchips are my absolute favorite. I love Popchips because they are super-crispy and light. They're air-popped instead of fried or baked and all-natural. You can pronounce all the ingredients on the list. Vegan, kosher, gluten-free, no cholesterol, no saturated fat, no trans-fats, low sodium (220mg or 6% USRDA), no preservatives or artificial flavors and colors, there's nothing in here for me to complain about.<br /><br />1 bag is only 100 calories (30 from fat), which is about 1/3 less than regular potato chips. I could eat the whole thing without feeling guilty. The salt and pepper taste is very pronounced and adds a really nice bite to the chips. When I was done, I found myself running my finger through the inside to pick up the remaining seasoning bits and crumbs.<br /><br />I've tried the BBQ flavor as well as several of the others. This one is my favorite. Highly highly recommended.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_124",
+    "text": "This is one of the most delicious coffees i have ever had. i have tried many different brands and this one get my thumbs up. If you love caramel you will love this coffee.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_125",
+    "text": "I often buy Costo's Lamb & Rice dog food; Costco used to carry Purina One and I bought Purina from Costco; now they no longer carry Purina. The ingredients of Costo's and Purina's appear to be much the same. However, my Siberian Husky prefers Purina; so, whenever I run out of dog food and going out to Costco is a hassle, I will spend more and get Purina.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_126",
+    "text": "It takes a little over an once to match what 15 frozen/microwaved sherries do, but the effect seems prompt.  Easier to take, though, and great for travel.  I put it into seltzer water and stir for a fairly tasty drink.  It isn't  too sour or anything...it's just right as is.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_127",
+    "text": "Love the aroma and the taste. Orange honey goes great with it. I drink it daily. Seems to work great when I get any stomach issues... would highly recommend this product.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_128",
+    "text": "I love the Chai tea it is the best flavor so far of any other ones I have tried.  It is one for any Chai tea lovers to try.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_129",
+    "text": "great taste, good price, no complaints.  The rest of this message is to fill in the 20 character requirement, sorry.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_130",
+    "text": "I got my bag o matcha about 5 days after ordering it. I am happy with the product-- it tastes good and dissolves more quickly and easily than more expensive alternatives. It is also more concentrated than other more expensive matcha powders I've had. You only need to use a little bit. Good deal. Thanks!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_131",
+    "text": "All the other Herbs de Provence are imposters.  This is the only TRUE product that should bear the label, because as with all great French Epicurean items, there is a story with the Originale Recipe behind it.  If anyone using this product doesn't know the Story, it's definitely worth reading.  Thank you for carrying this product in the original crock in the large size.  I use it in almost everything; sometimes a very tiny pinch, others several large pinches, and Voila, Aux Anysetiers Du Roy!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_132",
+    "text": "Same food as in the store, but delivered right to your door.  This came in handy when we were nearly out of baby food and didn't have time to go to the store.  Two days later, a package of food arrived.  Very convenient.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_133",
+    "text": "I tried this with beef and added broccoli and added extra noodles. I'm glad I added extra noodles because w/o it, it would've been tooo spicy for me..and I like it spicy! Definitely would reccomend if you can handle the spiciness!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_134",
+    "text": "This stollen was moist and loaded with raisins.  It had powdered sugar on top, sweetening it up for modern taste buds.  The tin is quite nice, the lid is hinged.  Would make a nice gift.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_135",
+    "text": "My picky dog even likes these. They are easy to break up for training purposes. I will order them again.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_136",
+    "text": "I love this product.  Awesome flavor, packaging, and price (if you buy the 4 pack).<br /><br />This product helped me cut soda completely out of my diet.  Now all I drink is water or coffee sweetened with one tab.  I am feeling better than I ever have.<br /><br />I cut as much wheat and sugar out of my diet as physically possible while eating as many fruits/vegetables, dairy products, eggs, meat & fish as I want.  Animal fat is your friend, not your enemy!<br /><br />Lose weight and never feel hungry following this simple bit of advice.  Weight training is a necessity if you also want to build muscle tone and look fit as a 20 year old.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_137",
+    "text": "My Morning Mate is a mix of mate, black tea, and red rooibos. Listed under ingredients are sweet cocoa, chocolate and almond bits, pistachio nuts, macadamia nuts and coriander with warm hazelnut and cinnamon.<br /><br />Some of the reviews on the Teavana site state that they think this tastes like coffee.  It does not taste like coffee but mate has a very distinct taste.  Although the ingredient list is extensive, I think it mostly tastes nutty.<br /><br />I gave it 4 stars because it is not my favorite mate tea-it is a little bitter to be 5 stars.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_138",
+    "text": "The thing that caught my eye about this was the words whole grain.<br />There's a lack of whole grain snacks out there and I'm always excited to try anything new.<br /><br />These goldfish crackers are basically the same as the original with a slightly less cheesy flavor, which I actually prefer.  I'm so happy I found these.  The \"whole grain\" makes me less guilty about eating handfuls of this thing at a time ;)",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_139",
+    "text": "This is a delicious pie crust mix. Really a no fail recipe. Just add the  water, stir and roll out. No problems at all. Finally, an easy way to make a pie crust that is light, flaky,delicious  and tender.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_140",
+    "text": "Great snack<br />Very good taste<br />My baby is very like snack<br />Omg! &#45208;&#45716; &#50689;&#50612;&#44032; &#55192;&#46308;&#50612;<br />&#44536;&#45285; &#45208;&#51032; &#50500;&#44592;&#44032; &#45320;&#47924; &#51339;&#50500;&#54644;",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_141",
+    "text": "If you are a person that eats a \"clean\" healthy food but you just a craving a healthy salty snack, this find from MOM's (My Organic Market)fits the bill. My husband loves them too!  Crunchy tasty,and the single serving bags by the case are always on top of the fridge to grab on the run!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_142",
+    "text": "I find it is very easy to buy from Amazon.com. This product in not found in most stores, not even costco carrys it. As for the product, It is the same Liquorice Altoids that you get in the store. It you like Liquorice and you want your breath to smell good, then this is for you",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_143",
+    "text": "Eight O'Clock Columbian has, after much sampling over the past year, become my regular brew. I usually wake up wanting a medium roast and I don't make it strong, but I still expect a good flavor and this one has it! For a change of pace I'll brew a French Roast or a flavored coffee, but this Columbian roast is what I wake up to 4-5 days/week.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_144",
+    "text": "Pepper adds a nice kick to beef jerky, and Jack Link makes a nice line of beef jerky. Some of the slices are a bit thin and tough, so personally I like the peppered jerky that is sold at Aldi's grocery stores, but if you don't have an Aldi's in your area, Jack Link's makes a good product, with a nice jerky/peppery taste. Yum.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_145",
+    "text": "Although this is marketed for kids, I'm an adult and buy it all of the time. If you want to eat and drink healthier, this juice has no added sugar, so is lower in calories and carbohydrates than regular adult apple juice. Even though it has no added sugar, it's as sweet as sweet can be. Try it, you'll love it.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_146",
+    "text": "Creme Brulee Almonds make a great snack to have on hand.  Taste Great too.  We always have them in a beautiful covered candy dish whenever we have house guest staying over.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_147",
+    "text": "I have to drink coconut water for medical reasons and I despised some other brands. But I'm glad to say that the Vita coconut water brand is levels above the others. I love it...especially ice cold.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_148",
+    "text": "Great tasting, good value. Keep in the fridge after opening and be sure to take it out at least 1/2 hour before using for better pour flowing.",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  },
+  {
+    "id": "en_149",
+    "text": "It is certainly worth the price, imho.  Not only does it have a seriously good taste, but it is goo-ier  than most other teriyaki sauces, and this results in restaurant quality asian dishes made at home, whether they are vegetable/meat medleys a la chinese food, or if you are teriyaki-ing meats like beef or chicken. Enjoy!",
+    "ground_truth": "POSITIVE",
+    "language": "en"
+  }
+]
