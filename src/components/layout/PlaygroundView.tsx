@@ -8,14 +8,11 @@ import { TextInput } from "../playground/TextInput";
 import { ErrorBoundary } from "../ui";
 
 export function PlaygroundView() {
-  const { loadState, loadModel, classify } = useClassifierContext();
+  const { loadState, loadedModelId, loadModel, classify } = useClassifierContext();
+
   const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
   const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
-
-  const handleModelChange = useCallback((id: string) => {
-    setSelectedModelId(id);
-  }, []);
 
   const handleLoad = useCallback(() => {
     loadModel(selectedModelId);
@@ -23,58 +20,56 @@ export function PlaygroundView() {
 
   const handleClassify = useCallback(
     async (text: string) => {
+      if (!loadedModelId) return;
       setIsClassifying(true);
       try {
-        const res = await classify(text, selectedModelId);
-        setResult(res);
+        const r = await classify(text, loadedModelId);
+        setResult(r);
+      } catch {
+        // error surfaced via loadState.error
       } finally {
         setIsClassifying(false);
       }
     },
-    [classify, selectedModelId]
+    [classify, loadedModelId]
   );
 
-  const isModelReady = loadState.status === "ready";
-
   return (
-    <div className="page-body">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <ErrorBoundary label="ModelLoader">
-          <ModelLoader
-            selectedModelId={selectedModelId}
-            loadState={loadState}
-            onModelChange={handleModelChange}
-            onLoad={handleLoad}
-          />
-        </ErrorBoundary>
-      </aside>
+    <ErrorBoundary label="PlaygroundView">
+      <div className="page-body">
+        {/* ── Sidebar ─────────────────────────────────────────── */}
+        <aside className="sidebar">
+          <div className="sidebar-card">
+            <ModelLoader
+              selectedModelId={selectedModelId}
+              loadState={loadState}
+              onModelChange={setSelectedModelId}
+              onLoad={handleLoad}
+            />
+          </div>
+        </aside>
 
-      {/* Main */}
-      <main className="main-content">
-        {/* Heading */}
-        <div className="page-heading">
-          <h1>
-            Interactive <span>Playground</span>
-          </h1>
-          <p>
-            Classify sentiment across 100+ languages directly in your browser. Zero server latency —
-            all inference runs in a Web Worker.
-          </p>
-        </div>
+        {/* ── Main content ─────────────────────────────────────── */}
+        <main className="main-content">
+          <div className="page-heading">
+            <h1>
+              Interactive <span>Playground</span>
+            </h1>
+            <p>
+              Classify sentiment in English, Arabic, and Russian directly in your browser. Zero
+              server latency — all inference runs in a Web Worker.
+            </p>
+          </div>
 
-        <ErrorBoundary label="TextInput">
           <TextInput
             onClassify={handleClassify}
             isLoading={isClassifying}
-            isModelReady={isModelReady}
+            isModelReady={loadState.status === "ready"}
           />
-        </ErrorBoundary>
 
-        <ErrorBoundary label="ResultCard">
           <ResultCard result={result} isLoading={isClassifying} />
-        </ErrorBoundary>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 }

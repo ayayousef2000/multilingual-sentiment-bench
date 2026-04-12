@@ -1,14 +1,15 @@
 import { useClassifierContext } from "@/context/ClassifierContext";
-import { DATASETS } from "@/lib/datasets";
 import { MODELS } from "@/lib/models";
-import type { BenchmarkRunState } from "@/types";
+import type { BenchmarkDataset, BenchmarkRunState } from "@/types";
 import { Button, ProgressBar, Select } from "../ui";
+import { FileUpload } from "./FileUpload";
 
 interface BenchmarkControlsProps {
-  selectedDatasetId: string;
+  loadedDataset: BenchmarkDataset | null;
   selectedModelId: string;
   runState: BenchmarkRunState;
-  onDatasetChange: (id: string) => void;
+  onDatasetLoad: (dataset: BenchmarkDataset) => void;
+  onDatasetError: (msg: string) => void;
   onModelChange: (id: string) => void;
   onLoadModel: () => void;
   onStart: () => void;
@@ -19,10 +20,11 @@ interface BenchmarkControlsProps {
 }
 
 export function BenchmarkControls({
-  selectedDatasetId,
+  loadedDataset,
   selectedModelId,
   runState,
-  onDatasetChange,
+  onDatasetLoad,
+  onDatasetError,
   onModelChange,
   onLoadModel,
   onStart,
@@ -31,94 +33,216 @@ export function BenchmarkControls({
   onExport,
   hasResults,
 }: BenchmarkControlsProps) {
-  const { loadState } = useClassifierContext();
+  const { loadState, loadedModelId, modelLoadTimeMs } = useClassifierContext();
 
-  const modelOptions = MODELS.map((m) => ({ value: m.id, label: m.name }));
-  const datasetOptions = DATASETS.map((d) => ({ value: d.id, label: d.name }));
+  const modelOptions = MODELS.map((m) => ({
+    value: m.id,
+    label: `${m.name} (${m.size})`,
+  }));
 
-  const isModelReady = loadState.status === "ready";
-  const isModelLoading = loadState.status === "loading";
-  const isRunning = runState.isRunning;
+  const selectedModel = MODELS.find((m) => m.id === selectedModelId);
 
-  const progress = runState.total > 0 ? runState.currentIdx / runState.total : 0;
+  const isLoadInProgress = loadState.status === "loading";
+  const isNewModelSelected = selectedModelId !== loadedModelId;
+  const canLoad = isNewModelSelected && !isLoadInProgress;
+  const canRun = !!loadedDataset && loadState.status === "ready" && !runState.isRunning;
+
+  const progress =
+    runState.total > 0 ? Math.round((runState.currentIdx / runState.total) * 100) : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* ── Dataset ─────────────────────────────────────────── */}
       <div>
-        <span className="sidebar-section-title">Benchmark Configuration</span>
-        <p className="sidebar-section-desc">
-          Run a full dataset through any model and collect latency &amp; accuracy metrics
+        <div className="sidebar-section-title" style={{ marginBottom: 6 }}>
+          DATASET
+        </div>
+        <p className="sidebar-section-desc" style={{ marginBottom: 8 }}>
+          Upload a JSON file containing benchmark samples
         </p>
+        <FileUpload
+          onDatasetLoad={onDatasetLoad}
+          onError={onDatasetError}
+          loadedDataset={loadedDataset}
+        />
       </div>
 
-      {/* Model */}
+      <div className="divider" />
+
+      {/* ── Model ────────────────────────────────────────────── */}
       <div>
-        <span className="sidebar-label">Model</span>
+        <div className="sidebar-section-title" style={{ marginBottom: 6 }}>
+          MODEL
+        </div>
+
+        <div className="sidebar-label" style={{ marginBottom: 4 }}>
+          Model
+        </div>
         <Select
-          options={modelOptions}
           value={selectedModelId}
           onChange={onModelChange}
-          disabled={isRunning || isModelLoading}
+          options={modelOptions}
+          disabled={isLoadInProgress || runState.isRunning}
+          aria-label="Select model"
         />
-      </div>
 
-      {/* Dataset */}
-      <div>
-        <span className="sidebar-label">Dataset</span>
-        <Select
-          options={datasetOptions}
-          value={selectedDatasetId}
-          onChange={onDatasetChange}
-          disabled={isRunning}
-        />
-      </div>
+        {selectedModel && (
+          <div className="model-desc-card" style={{ marginTop: 8 }}>
+            <p className="model-desc-text">{selectedModel.description}</p>
+            <div className="model-tags">
+              <span className="model-tag model-tag-size">{selectedModel.size}</span>
+              {selectedModel.languages.map((lang) => (
+                <span key={lang} className="model-tag model-tag-lang">
+                  {lang.toUpperCase()}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-      {/* Load model */}
-      <Button
-        variant="ghost"
-        className="btn-full"
-        onClick={onLoadModel}
-        loading={isModelLoading}
-        disabled={isModelReady || isModelLoading || isRunning}
-      >
-        {isModelReady ? "✓ Model Ready" : isModelLoading ? "Loading…" : "Load Model First"}
-      </Button>
-
-      {isModelLoading && (
-        <ProgressBar
-          value={loadState.progress}
-          label="Loading model"
-          statusText={loadState.statusText}
-        />
-      )}
-
-      {/* Run / Stop */}
-      {isRunning ? (
-        <>
-          <ProgressBar
-            value={progress}
-            label={`${runState.currentIdx} / ${runState.total} samples`}
-          />
-          <Button variant="danger" className="btn-full" onClick={onStop}>
-            ■ Stop
-          </Button>
-        </>
-      ) : (
-        <Button variant="primary" className="btn-full" onClick={onStart} disabled={!isModelReady}>
-          ▶ Run Benchmark
-        </Button>
-      )}
-
-      {/* Export / Clear */}
-      {hasResults && !isRunning && (
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
-          <Button variant="ghost" style={{ flex: 1 }} onClick={onExport}>
-            Export CSV
-          </Button>
-          <Button variant="danger" style={{ flex: 1 }} onClick={onClear}>
-            Clear
+        {/* Load model button — full width within card */}
+        <div style={{ marginTop: 10 }}>
+          <Button
+            variant="primary"
+            size="md"
+            style={{ width: "100%", boxSizing: "border-box" }}
+            onClick={onLoadModel}
+            disabled={!canLoad}
+            loading={isLoadInProgress}
+          >
+            {isLoadInProgress
+              ? "Loading…"
+              : isNewModelSelected && loadedModelId !== null
+                ? "↺ Switch Model"
+                : "Load Model"}
           </Button>
         </div>
+
+        {(loadState.status === "loading" || loadState.status === "ready") && (
+          <div style={{ marginTop: 8 }}>
+            <ProgressBar
+              value={loadState.progress}
+              label={loadState.status === "ready" ? "Model ready" : "Loading model"}
+              statusText={loadState.statusText}
+            />
+          </div>
+        )}
+
+        {/* Model load time */}
+        {loadState.status === "ready" && modelLoadTimeMs !== null && (
+          <p
+            style={{
+              marginTop: 6,
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+              color: "var(--color-accent)",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <span style={{ opacity: 0.6 }}>⏱</span>
+            Loaded in{" "}
+            {modelLoadTimeMs >= 1000
+              ? `${(modelLoadTimeMs / 1000).toFixed(2)}s`
+              : `${modelLoadTimeMs}ms`}
+          </p>
+        )}
+
+        {loadState.status === "error" && (
+          <p className="error-message" style={{ marginTop: 6 }} role="alert">
+            {loadState.error ?? "Failed to load model."}
+          </p>
+        )}
+      </div>
+
+      <div className="divider" />
+
+      {/* ── Run ──────────────────────────────────────────────── */}
+      <div>
+        <div className="sidebar-section-title" style={{ marginBottom: 8 }}>
+          RUN
+        </div>
+
+        {runState.isRunning ? (
+          <>
+            <div style={{ marginBottom: 8 }}>
+              <ProgressBar
+                value={progress}
+                label={`Running ${runState.currentIdx} / ${runState.total}`}
+                statusText={`${runState.currentIdx} of ${runState.total} samples`}
+              />
+            </div>
+            <Button
+              variant="danger"
+              size="md"
+              style={{ width: "100%", boxSizing: "border-box" }}
+              onClick={onStop}
+            >
+              Stop
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="primary"
+            size="md"
+            style={{ width: "100%", boxSizing: "border-box" }}
+            onClick={onStart}
+            disabled={!canRun}
+          >
+            Run Benchmark
+          </Button>
+        )}
+
+        {!loadedDataset && !runState.isRunning && (
+          <p
+            style={{
+              marginTop: 6,
+              fontSize: 12,
+              color: "var(--color-text-tertiary)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            Upload a dataset to run.
+          </p>
+        )}
+        {loadedDataset && loadState.status !== "ready" && !runState.isRunning && (
+          <p
+            style={{
+              marginTop: 6,
+              fontSize: 12,
+              color: "var(--color-text-tertiary)",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            Load a model to run.
+          </p>
+        )}
+      </div>
+
+      {/* ── Actions ──────────────────────────────────────────── */}
+      {hasResults && (
+        <>
+          <div className="divider" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <Button
+              variant="primary"
+              size="sm"
+              style={{ width: "100%", boxSizing: "border-box" }}
+              onClick={onExport}
+            >
+              Export CSV
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              style={{ width: "100%", boxSizing: "border-box" }}
+              onClick={onClear}
+            >
+              Clear Results
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

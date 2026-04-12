@@ -1,6 +1,7 @@
+import { useClassifierContext } from "@/context/ClassifierContext";
 import { MODELS } from "@/lib/models";
 import type { ModelLoadState } from "@/types";
-import { Button, ProgressBar } from "../ui";
+import { Button, ProgressBar, Select } from "../ui";
 
 interface ModelLoaderProps {
   selectedModelId: string;
@@ -15,59 +16,42 @@ export function ModelLoader({
   onModelChange,
   onLoad,
 }: ModelLoaderProps) {
-  const model = MODELS.find((m) => m.id === selectedModelId);
-  const isLoading = loadState.status === "loading";
-  const isReady = loadState.status === "ready";
+  const { loadedModelId, modelLoadTimeMs } = useClassifierContext();
 
-  const modelOptions = MODELS.map((m) => ({ value: m.id, label: m.name }));
+  const isLoading = loadState.status === "loading";
+  const isNewModelSelected = selectedModelId !== loadedModelId;
+
+  const options = MODELS.map((m) => ({ value: m.id, label: `${m.name} (${m.size})` }));
+  const selectedModel = MODELS.find((m) => m.id === selectedModelId);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-      <div>
-        <span className="sidebar-section-title">Model Selection</span>
-        <p className="sidebar-section-desc">
-          All inference runs locally in a Web Worker via{" "}
-          <code style={{ fontSize: 11 }}>@huggingface/transformers</code>
-        </p>
-      </div>
+    <div className="sidebar-section">
+      <div className="sidebar-section-title">MODEL</div>
+      <p className="sidebar-section-desc">
+        Select a multilingual model. Supports English, Arabic, and Russian.
+      </p>
 
-      <div>
-        <label htmlFor="model-select" className="sidebar-label">
-          Model
-        </label>
-        <div className="select-wrap">
-          <select
-            id="model-select"
-            value={selectedModelId}
-            onChange={(e) => onModelChange(e.target.value)}
-            disabled={isLoading}
-            aria-disabled={isLoading}
-          >
-            {modelOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <span className="select-chevron" aria-hidden="true">
-            ▾
-          </span>
-        </div>
-      </div>
+      {/* FIX: pass label="Model" so Select renders <label htmlFor={id}>Model</label>
+          This wires the visible label text to the <select> via htmlFor/id,
+          making getByLabelText("Model") resolve in tests and improving a11y. */}
+      <Select
+        label="Model"
+        options={options}
+        value={selectedModelId}
+        onChange={onModelChange}
+        disabled={isLoading}
+      />
 
-      {model && (
+      {selectedModel && (
         <div className="model-desc-card">
-          <p className="model-desc-text">{model.description}</p>
+          <p className="model-desc-text">{selectedModel.description}</p>
           <div className="model-tags">
-            <span className="model-tag model-tag-size">{model.size}</span>
-            {model.languages.slice(0, 3).map((lang) => (
+            <span className="model-tag model-tag-size">{selectedModel.size}</span>
+            {selectedModel.languages.map((lang) => (
               <span key={lang} className="model-tag model-tag-lang">
                 {lang.toUpperCase()}
               </span>
             ))}
-            {model.languages.length > 3 && (
-              <span className="model-tag model-tag-lang">+{model.languages.length - 3}</span>
-            )}
           </div>
         </div>
       )}
@@ -75,28 +59,42 @@ export function ModelLoader({
       {isLoading && (
         <ProgressBar
           value={loadState.progress}
-          label="Loading model…"
+          label={isNewModelSelected ? "Load selected model" : "Model already loaded"}
           statusText={loadState.statusText}
         />
       )}
 
-      {loadState.status === "error" && (
-        <div
-          style={{ fontSize: 12, color: "var(--color-negative)", fontFamily: "var(--font-mono)" }}
-        >
-          ⚠ {loadState.error}
-        </div>
-      )}
-
       <Button
-        variant={isReady ? "ghost" : "primary"}
+        variant="primary"
+        size="md"
         className="btn-full"
         onClick={onLoad}
-        loading={isLoading}
         disabled={isLoading}
+        loading={isLoading}
+        aria-label="Load selected model"
+        style={{ width: "100%" }}
       >
-        {isReady ? "✓ Model Loaded" : "Load Model"}
+        {isLoading
+          ? "Loading…"
+          : isNewModelSelected && loadedModelId !== null
+            ? "↺ Switch Model"
+            : "Load Model"}
       </Button>
+
+      {!isLoading && modelLoadTimeMs !== null && (
+        <p
+          style={{
+            fontSize: 11,
+            fontFamily: "var(--font-mono)",
+            color: "var(--color-text-tertiary)",
+          }}
+        >
+          <span style={{ opacity: 0.6 }}>⏱</span> Loaded in{" "}
+          {modelLoadTimeMs >= 1000
+            ? `${(modelLoadTimeMs / 1000).toFixed(2)}s`
+            : `${modelLoadTimeMs}ms`}
+        </p>
+      )}
     </div>
   );
 }

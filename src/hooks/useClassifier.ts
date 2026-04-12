@@ -11,170 +11,175 @@ interface PendingRequest {
   signal?: AbortSignal;
 }
 
-const INITIAL_LOAD_STATE: ModelLoadState = {
+export interface UseClassifierReturn {
+  loadState: ModelLoadState;
+  loadedModelId: string | null;
+  loadModel: (modelId: string) => void;
+  classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
+}
+
+const IDLE_STATE: ModelLoadState = {
   status: "idle",
   progress: 0,
   statusText: "",
 };
 
-export interface UseClassifierReturn {
-  loadState: ModelLoadState;
-  loadModel: (modelId: string) => void;
-  classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
+function spawnWorker(): Worker {
+  return new Worker(new URL("../workers/classifier.worker.ts", import.meta.url), {
+    type: "module",
+  });
 }
 
 export function useClassifier(): UseClassifierReturn {
-  const [loadState, setLoadState] = useState<ModelLoadState>(INITIAL_LOAD_STATE);
+  const [loadState, setLoadState] = useState<ModelLoadState>(IDLE_STATE);
 
-  // Worker ref — stable across renders, terminated on unmount
+  // The model ID that has been successfully loaded and is ready in the worker
+  const loadedModelIdRef = useRef<string | null>(null);
+  const [loadedModelId, setLoadedModelId] = useState<string | null>(null);
+
+  // Worker ref — stable, replaced on model switch
   const workerRef = useRef<Worker | null>(null);
 
   // Map of in-flight classify requests keyed by request id
   const pendingRef = useRef<Map<string, PendingRequest>>(new Map());
 
-  // ── Spawn worker once, clean up on unmount ────────────────────────────────
-  useEffect(() => {
-    const worker = new Worker(new URL("../workers/classifier.worker.ts", import.meta.url), {
-      type: "module",
-    });
+  // ── Message handler (defined once, re-used across worker instances) ─────────
+  const handleMessage = useCallback((event: MessageEvent<WorkerOutbound>) => {
+    const msg = event.data;
 
-    worker.onmessage = (event: MessageEvent<WorkerOutbound>) => {
-      const msg = event.data;
-
-      switch (msg.type) {
-        case "MODEL_READY":
-          setLoadState({ status: "ready", progress: 100, statusText: "Ready" });
-          break;
-
-        case "PROGRESS":
-          setLoadState({
-            status: "loading",
-            progress: Math.round(msg.progress * 100),
-            statusText: msg.status,
-          });
-          break;
-
-        case "CLASSIFICATION_RESULT": {
-          const pending = pendingRef.current.get(msg.id);
-          if (!pending) break;
-          pendingRef.current.delete(msg.id);
-
-          // Ignore if the caller already aborted
-          if (pending.signal?.aborted) {
-            pending.reject(new DOMException("Aborted", "AbortError"));
-            break;
-          }
-
+    switch (msg.type) {
+      case "MODEL_READY": {
+        loadedModelIdRef.current = msg.modelId;
+        setLoadedModelId(msg.modelId);
+        setLoadState({ status: "ready", progress: 100, statusText: "Model ready" });
+        break;
+      }
+      case "PROGRESS": {
+        setLoadState({
+          status: "loading",
+          progress: msg.progress,
+          statusText: msg.status,
+        });
+        break;
+      }
+      case "CLASSIFICATION_RESULT": {
+        const pending = pendingRef.current.get(msg.id);
+        if (!pending) break;
+        pendingRef.current.delete(msg.id);
+        if (pending.signal?.aborted) {
+          pending.reject(new DOMException("Aborted", "AbortError"));
+        } else {
           pending.resolve({
             label: msg.label,
             score: msg.score,
             time_ms: msg.time_ms,
             memory_mb: msg.memory_mb,
           });
-          break;
         }
-
-        case "ERROR": {
-          const errorMsg = new Error(msg.message);
-
-          // If a specific request errored, reject only that promise
-          if (msg.requestId) {
-            const pending = pendingRef.current.get(msg.requestId);
-            if (pending) {
-              pendingRef.current.delete(msg.requestId);
-              pending.reject(errorMsg);
-            }
-          } else {
-            // Global model error — reject all pending requests and mark as errored
-            for (const p of pendingRef.current.values()) p.reject(errorMsg);
-            pendingRef.current.clear();
-            setLoadState((prev) => ({
-              ...prev,
-              status: "error",
-              statusText: msg.message,
-              error: msg.message,
-            }));
-          }
-          break;
-        }
-
-        default:
-          assertNever(msg);
+        break;
       }
-    };
+      case "ERROR": {
+        if (msg.requestId) {
+          // Per-request error — reject only the affected promise
+          const pending = pendingRef.current.get(msg.requestId);
+          if (pending) {
+            pendingRef.current.delete(msg.requestId);
+            pending.reject(new Error(msg.message));
+          }
+        } else {
+          // Model-level error
+          setLoadState({
+            status: "error",
+            progress: 0,
+            statusText: msg.message,
+            error: msg.message,
+          });
+          // Reject all pending requests
+          for (const [id, req] of pendingRef.current) {
+            req.reject(new Error(msg.message));
+            pendingRef.current.delete(id);
+          }
+        }
+        break;
+      }
+      default:
+        assertNever(msg);
+    }
+  }, []);
 
-    worker.onerror = (e) => {
-      const errorMsg = new Error(e.message ?? "Worker crashed");
-      for (const p of pendingRef.current.values()) p.reject(errorMsg);
-      pendingRef.current.clear();
-      setLoadState({
-        status: "error",
-        progress: 0,
-        statusText: "Worker crashed",
-        error: e.message,
-      });
-    };
-
+  // ── Spawn worker once, clean up on unmount ────────────────────────────────
+  useEffect(() => {
+    const worker = spawnWorker();
+    worker.addEventListener("message", handleMessage);
     workerRef.current = worker;
 
     return () => {
-      // Reject all in-flight requests before terminating
-      for (const p of pendingRef.current.values()) {
-        p.reject(new DOMException("Worker terminated", "AbortError"));
-      }
-      pendingRef.current.clear();
+      worker.removeEventListener("message", handleMessage);
       worker.terminate();
       workerRef.current = null;
+      // Reject any pending requests on unmount
+      for (const [, req] of pendingRef.current) {
+        req.reject(new DOMException("Component unmounted", "AbortError"));
+      }
+      pendingRef.current.clear();
     };
-  }, []);
+  }, [handleMessage]);
 
   // ── Load model ────────────────────────────────────────────────────────────
-  const loadModel = useCallback((modelId: string) => {
-    const worker = workerRef.current;
-    if (!worker) return;
+  const loadModel = useCallback(
+    (modelId: string) => {
+      // If switching to a different model, terminate the current worker and spawn a fresh one
+      if (loadedModelIdRef.current !== null && loadedModelIdRef.current !== modelId) {
+        workerRef.current?.removeEventListener("message", handleMessage);
+        workerRef.current?.terminate();
 
-    setLoadState({ status: "loading", progress: 0, statusText: "Initialising…" });
+        // Reject all pending requests from the previous model
+        for (const [, req] of pendingRef.current) {
+          req.reject(new DOMException("Model switched", "AbortError"));
+        }
+        pendingRef.current.clear();
 
-    const msg: WorkerInbound = { type: "LOAD_MODEL", modelId };
-    worker.postMessage(msg);
-  }, []);
+        const fresh = spawnWorker();
+        fresh.addEventListener("message", handleMessage);
+        workerRef.current = fresh;
+      }
+
+      loadedModelIdRef.current = null;
+      setLoadedModelId(null);
+      setLoadState({ status: "loading", progress: 0, statusText: "Initialising…" });
+
+      const msg: WorkerInbound = { type: "LOAD_MODEL", modelId };
+      workerRef.current?.postMessage(msg);
+    },
+    [handleMessage]
+  );
 
   // ── Classify ──────────────────────────────────────────────────────────────
   const classify = useCallback(
     (text: string, modelId: string, signal?: AbortSignal): Promise<PlaygroundResult> => {
       return new Promise<PlaygroundResult>((resolve, reject) => {
-        const worker = workerRef.current;
-        if (!worker) {
-          reject(new Error("Worker not available"));
-          return;
-        }
-
         if (signal?.aborted) {
           reject(new DOMException("Aborted", "AbortError"));
           return;
         }
 
-        const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const id = `req-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         pendingRef.current.set(id, { resolve, reject, signal });
 
-        // Auto-reject if the caller aborts before the worker responds
-        signal?.addEventListener(
-          "abort",
-          () => {
-            if (pendingRef.current.has(id)) {
-              pendingRef.current.delete(id);
-              reject(new DOMException("Aborted", "AbortError"));
-            }
-          },
-          { once: true }
-        );
+        signal?.addEventListener("abort", () => {
+          const pending = pendingRef.current.get(id);
+          if (pending) {
+            pendingRef.current.delete(id);
+            reject(new DOMException("Aborted", "AbortError"));
+          }
+        });
 
         const msg: WorkerInbound = { type: "CLASSIFY", id, text, modelId };
-        worker.postMessage(msg);
+        workerRef.current?.postMessage(msg);
       });
     },
     []
   );
 
-  return { loadState, loadModel, classify };
+  return { loadState, loadedModelId, loadModel, classify };
 }

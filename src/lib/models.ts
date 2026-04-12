@@ -1,23 +1,29 @@
 import type { ModelConfig, SentimentLabel } from "@/types";
 
+// ─── Language scope ───────────────────────────────────────────────────────────
+
+/** The only three languages this application evaluates. */
+export const SUPPORTED_LANGUAGES = ["en", "ar", "ru"] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+
 // ─── Model registry ───────────────────────────────────────────────────────────
 
-export const MODELS: ReadonlyArray<ModelConfig> = [
+export const MODELS: readonly ModelConfig[] = [
   {
     id: "Xenova/distilbert-base-multilingual-cased-sentiments-student",
-    name: "DistilBERT multilingual",
+    name: "DistilBERT Multilingual",
     description:
-      "Compact multilingual sentiment model distilled from a larger teacher. Supports 6 languages: English, French, German, Spanish, Italian, Dutch.",
-    languages: ["en", "fr", "de", "es", "it", "nl"],
+      "Lightweight student model distilled from a multilingual sentiment teacher. Fast inference with solid accuracy across EN, AR, and RU.",
+    languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
   },
   {
     id: "Xenova/bert-base-multilingual-uncased-sentiment",
-    name: "BERT multilingual (uncased)",
+    name: "BERT Multilingual (uncased)",
     description:
-      "Fine-tuned multilingual BERT for 5-class sentiment (1–5 stars). Mapped to POSITIVE / NEGATIVE / NEUTRAL for this benchmark.",
-    languages: ["en", "fr", "de", "es", "it", "nl", "pt", "ru", "ar", "zh"],
+      "Full BERT base trained on multilingual product reviews. Higher accuracy at the cost of slower inference. Supports EN, AR, and RU.",
+    languages: ["en", "ar", "ru"],
     size: "medium",
     task: "sentiment-analysis",
   },
@@ -25,47 +31,27 @@ export const MODELS: ReadonlyArray<ModelConfig> = [
 
 export const DEFAULT_MODEL_ID = MODELS[0].id;
 
-// ─── Lookup ───────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getModelById(id: string): ModelConfig | undefined {
   return MODELS.find((m) => m.id === id);
 }
 
-// ─── Label normalisation ──────────────────────────────────────────────────────
-
 /**
- * Normalises the raw label string returned by the Transformers.js pipeline
- * to the canonical SentimentLabel union.
- *
- * Handles common variants:
- *   - "LABEL_0" / "LABEL_1" / "LABEL_2" → star-based heuristics
- *   - "1 star" … "5 stars" → mapped to NEG / NEU / POS
- *   - "positive" / "negative" / "neutral" → upper-cased
+ * Normalises a raw pipeline output label to one of the three canonical
+ * SentimentLabel values. Handles the various label formats emitted by
+ * HuggingFace models (e.g. "1 star" → NEGATIVE, "LABEL_2" → NEUTRAL, etc.).
  */
 export function normalizeLabel(rawLabel: string): SentimentLabel {
   const upper = rawLabel.toUpperCase().trim();
 
-  // Already canonical
-  if (upper === "POSITIVE" || upper === "NEGATIVE" || upper === "NEUTRAL") {
-    return upper as SentimentLabel;
-  }
+  // Direct matches
+  if (upper === "POSITIVE") return "POSITIVE";
+  if (upper === "NEGATIVE") return "NEGATIVE";
+  if (upper === "NEUTRAL") return "NEUTRAL";
 
-  // "POS" / "NEG" / "NEU" shorthands
-  if (upper.startsWith("POS")) return "POSITIVE";
-  if (upper.startsWith("NEG")) return "NEGATIVE";
-  if (upper.startsWith("NEU")) return "NEUTRAL";
-
-  // LABEL_X from generic classifiers (0 = lowest / most negative)
-  const labelMatch = upper.match(/^LABEL_(\d+)$/);
-  if (labelMatch) {
-    const n = parseInt(labelMatch[1], 10);
-    if (n === 0) return "NEGATIVE";
-    if (n === 1) return "NEUTRAL";
-    return "POSITIVE";
-  }
-
-  // "N STAR(S)" pattern from BERT multilingual (1–5)
-  const starMatch = upper.match(/^(\d)\s+STARS?$/);
+  // Star-rating labels (1–2 stars = negative, 3 = neutral, 4–5 = positive)
+  const starMatch = upper.match(/^(\d)\s*STAR/);
   if (starMatch) {
     const stars = parseInt(starMatch[1], 10);
     if (stars <= 2) return "NEGATIVE";
@@ -73,7 +59,19 @@ export function normalizeLabel(rawLabel: string): SentimentLabel {
     return "POSITIVE";
   }
 
-  // Unknown label — default to NEUTRAL and log a warning
-  console.warn(`normalizeLabel: unrecognised label "${rawLabel}", defaulting to NEUTRAL`);
+  // Generic LABEL_N where N is 0-based index
+  const labelMatch = upper.match(/^LABEL_(\d+)$/);
+  if (labelMatch) {
+    const idx = parseInt(labelMatch[1], 10);
+    if (idx === 0) return "NEGATIVE";
+    if (idx === 1) return "NEUTRAL";
+    return "POSITIVE";
+  }
+
+  // Partial keyword matches
+  if (upper.includes("POS")) return "POSITIVE";
+  if (upper.includes("NEG")) return "NEGATIVE";
+
+  // Default fallback
   return "NEUTRAL";
 }

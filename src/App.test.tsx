@@ -5,12 +5,27 @@ import App from "./App";
 describe("App", () => {
   it("renders the header", () => {
     render(<App />);
-    expect(screen.getByText("Sentiment Bench")).toBeInTheDocument();
+
+    // "Sentiment Bench" is split across two nodes:
+    //   "Sentiment" (text node) + <span>Bench</span>
+    // Use a function matcher so RTL concatenates all text content
+    // within the element before comparing.
+    expect(
+      screen.getByText((_, element) => {
+        if (!element) return false;
+        // Only match on the brand-name container itself, not its children individually
+        return (
+          element.className === "header-brand-name" &&
+          (element.textContent ?? "").replace(/\s+/g, " ").trim().startsWith("SentimentBench")
+        );
+      })
+    ).toBeInTheDocument();
   });
 
   it("shows playground tab by default", () => {
     render(<App />);
-    // The playground panel is active by default — the model selector is visible
+    // ModelLoader passes label="Model" to <Select>, which renders a real
+    // <label htmlFor={id}>Model</label> associated with the <select>.
     expect(screen.getByLabelText("Model")).toBeInTheDocument();
   });
 });

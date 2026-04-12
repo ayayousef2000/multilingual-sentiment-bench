@@ -1,9 +1,4 @@
-// ─── Sentiment ───────────────────────────────────────────────────────────────
-
 export type SentimentLabel = "POSITIVE" | "NEGATIVE" | "NEUTRAL";
-
-// ─── Models ──────────────────────────────────────────────────────────────────
-
 export type ModelSize = "small" | "medium" | "large";
 export type ModelTask = "sentiment-analysis" | "text-classification";
 export type ModelLoadStatus = "idle" | "loading" | "ready" | "error";
@@ -23,8 +18,6 @@ export interface ModelLoadState {
   readonly statusText: string;
   readonly error?: string;
 }
-
-// ─── Worker messages (discriminated unions) ──────────────────────────────────
 
 export interface WorkerInboundLoad {
   readonly type: "LOAD_MODEL";
@@ -65,7 +58,6 @@ export interface WorkerOutboundError {
   readonly type: "ERROR";
   readonly message: string;
   readonly modelId?: string;
-  /** If present, the pending classify request that should be rejected */
   readonly requestId?: string;
 }
 
@@ -77,12 +69,14 @@ export type WorkerOutbound =
 
 export type WorkerMessageType = WorkerOutbound["type"];
 
-// ─── Datasets ────────────────────────────────────────────────────────────────
-
 export interface BenchmarkSample {
   readonly id: string;
   readonly text: string;
   readonly language: string;
+  /**
+   * Expected sentiment label. Accepted from both the canonical "expected"
+   * field and the flat-array "ground_truth" field used in uploaded datasets.
+   */
   readonly expected?: SentimentLabel;
 }
 
@@ -94,8 +88,6 @@ export interface BenchmarkDataset {
   readonly samples: readonly BenchmarkSample[];
 }
 
-// ─── Results ─────────────────────────────────────────────────────────────────
-
 export interface BenchmarkResult {
   readonly id: string;
   readonly sample_id: string;
@@ -106,8 +98,10 @@ export interface BenchmarkResult {
   readonly time_ms: number;
   readonly memory_mb: number | null;
   readonly input_len: number;
+  readonly input_text: string;
   readonly language: string;
   readonly timestamp: number;
+  readonly expected: SentimentLabel | null;
 }
 
 export interface BenchmarkRunState {
@@ -115,7 +109,10 @@ export interface BenchmarkRunState {
   readonly currentIdx: number;
   readonly total: number;
   readonly datasetId: string | null;
+  readonly datasetName: string | null;
   readonly modelId: string | null;
+  /** UUID generated once per benchmark run — used to group rows in CSV export. */
+  readonly runId: string | null;
 }
 
 export interface BenchmarkStats {
@@ -137,21 +134,28 @@ export interface PlaygroundResult {
   readonly memory_mb: number | null;
 }
 
-// ─── Export ──────────────────────────────────────────────────────────────────
-
 export interface ExportRow {
+  /** UUID that groups all rows from the same benchmark run. */
+  readonly run_id: string;
+  /** Application version string for downstream tracking. */
+  readonly app_version: string;
   readonly model_id: string;
+  readonly model_name: string;
   readonly dataset_id: string;
+  readonly dataset_name: string;
   readonly sample_id: string;
   readonly language: string;
+  readonly input_text: string;
   readonly input_len: number;
+  readonly expected: string | null;
   readonly label: string;
+  readonly is_correct: boolean | null;
   readonly score: number;
+  readonly score_pct: number;
   readonly time_ms: number;
   readonly memory_mb: number | null;
   readonly timestamp: number;
+  readonly iso_datetime: string;
 }
-
-// ─── Tab routing ─────────────────────────────────────────────────────────────
 
 export type AppTab = "playground" | "benchmark";

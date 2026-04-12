@@ -1,6 +1,10 @@
 import { useCallback, useRef, useState, useTransition } from "react";
-import { getDatasetById } from "@/lib/datasets";
-import type { BenchmarkResult, BenchmarkRunState, PlaygroundResult } from "@/types";
+import type {
+  BenchmarkDataset,
+  BenchmarkResult,
+  BenchmarkRunState,
+  PlaygroundResult,
+} from "@/types";
 
 interface UseBenchmarkOptions {
   classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
@@ -9,104 +13,109 @@ interface UseBenchmarkOptions {
 interface UseBenchmarkReturn {
   results: BenchmarkResult[];
   runState: BenchmarkRunState;
+  runId: string | null;
   isPending: boolean;
-  start: (datasetId: string, modelId: string) => Promise<void>;
+  start: (dataset: BenchmarkDataset, modelId: string) => Promise<void>;
   stop: () => void;
   clear: () => void;
 }
 
-const INITIAL_RUN_STATE: BenchmarkRunState = {
+const IDLE_RUN_STATE: BenchmarkRunState = {
   isRunning: false,
   currentIdx: 0,
   total: 0,
   datasetId: null,
+  datasetName: null,
   modelId: null,
+  runId: null,
 };
 
 export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkReturn {
   const [results, setResults] = useState<BenchmarkResult[]>([]);
-  const [runState, setRunState] = useState<BenchmarkRunState>(INITIAL_RUN_STATE);
+  const [runState, setRunState] = useState<BenchmarkRunState>(IDLE_RUN_STATE);
+  const [runId, setRunId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // AbortController for the current run — replaced on each start()
-  const abortRef = useRef<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // ── Start ─────────────────────────────────────────────────────────────────
+  const stop = useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  const clear = useCallback(() => {
+    abortControllerRef.current?.abort();
+    setResults([]);
+    setRunId(null);
+    setRunState(IDLE_RUN_STATE);
+  }, []);
+
   const start = useCallback(
-    async (datasetId: string, modelId: string) => {
-      const dataset = getDatasetById(datasetId);
-      if (!dataset) {
-        console.warn(`useBenchmark: unknown dataset "${datasetId}"`);
-        return;
-      }
-
-      // Cancel any previous run
-      abortRef.current?.abort();
+    async (dataset: BenchmarkDataset, modelId: string) => {
+      // Abort any in-progress run
+      abortControllerRef.current?.abort();
       const controller = new AbortController();
-      abortRef.current = controller;
+      abortControllerRef.current = controller;
+
+      // Generate a fresh UUID for this run — used to group CSV rows in Colab
+      const thisRunId = crypto.randomUUID();
+      setRunId(thisRunId);
+      setResults([]);
+
+      setRunState({
+        isRunning: true,
+        currentIdx: 0,
+        total: dataset.samples.length,
+        datasetId: dataset.id,
+        datasetName: dataset.name,
+        modelId,
+        runId: thisRunId,
+      });
 
       const { signal } = controller;
-      const total = dataset.samples.length;
 
-      setRunState({ isRunning: true, currentIdx: 0, total, datasetId, modelId });
-
-      for (let i = 0; i < total; i++) {
+      for (let i = 0; i < dataset.samples.length; i++) {
         if (signal.aborted) break;
 
         const sample = dataset.samples[i];
-        const started = performance.now();
+
+        setRunState((prev) => ({ ...prev, currentIdx: i + 1 }));
 
         try {
-          const output = await classify(sample.text, modelId, signal);
+          const playgroundResult = await classify(sample.text, modelId, signal);
 
           if (signal.aborted) break;
 
           const result: BenchmarkResult = {
-            id: `${datasetId}-${modelId}-${sample.id}`,
+            id: `${thisRunId}-${i}`,
             sample_id: sample.id,
             model_id: modelId,
-            dataset_id: datasetId,
-            label: output.label,
-            score: output.score,
-            time_ms: output.time_ms ?? performance.now() - started,
-            memory_mb: output.memory_mb,
+            dataset_id: dataset.id,
+            label: playgroundResult.label,
+            score: playgroundResult.score,
+            time_ms: playgroundResult.time_ms,
+            memory_mb: playgroundResult.memory_mb,
             input_len: sample.text.length,
+            input_text: sample.text,
             language: sample.language,
             timestamp: Date.now(),
+            expected: sample.expected ?? null,
           };
 
-          // useTransition keeps the UI responsive during bulk appends
           startTransition(() => {
             setResults((prev) => [...prev, result]);
           });
-
-          setRunState((prev) => ({ ...prev, currentIdx: i + 1 }));
         } catch (err) {
-          if ((err as DOMException).name === "AbortError") break;
-          console.error(`useBenchmark: sample ${sample.id} failed`, err);
-          // Continue with next sample on non-abort errors
+          // Ignore AbortError — it means stop() was called intentionally
+          if (err instanceof Error && err.name === "AbortError") break;
+          // Other errors are silently skipped to allow the run to continue
+          console.warn(`[useBenchmark] sample ${sample.id} failed:`, err);
         }
       }
 
-      if (!signal.aborted) {
-        setRunState((prev) => ({ ...prev, isRunning: false }));
-      }
+      setRunState((prev) => ({ ...prev, isRunning: false }));
     },
     [classify]
   );
 
-  // ── Stop ──────────────────────────────────────────────────────────────────
-  const stop = useCallback(() => {
-    abortRef.current?.abort();
-    setRunState((prev) => ({ ...prev, isRunning: false }));
-  }, []);
-
-  // ── Clear ─────────────────────────────────────────────────────────────────
-  const clear = useCallback(() => {
-    abortRef.current?.abort();
-    setResults([]);
-    setRunState(INITIAL_RUN_STATE);
-  }, []);
-
-  return { results, runState, isPending, start, stop, clear };
+  return { results, runState, runId, isPending, start, stop, clear };
 }
