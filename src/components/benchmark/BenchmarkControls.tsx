@@ -75,15 +75,12 @@ export function BenchmarkControls({
           MODEL
         </div>
 
-        <div className="sidebar-label" style={{ marginBottom: 4 }}>
-          Model
-        </div>
         <Select
+          label="Model"
           value={selectedModelId}
           onChange={onModelChange}
           options={modelOptions}
           disabled={isLoadInProgress || runState.isRunning}
-          aria-label="Select model"
         />
 
         {selectedModel && (

@@ -20,7 +20,16 @@ class MockWorker implements Worker {
 
   private _listeners: Map<string, EventListenerOrEventListenerObject[]> = new Map();
 
-  postMessage(_data: unknown, _transfer?: Transferable[]): void {
+  // TypeScript 6 tightened the Worker.postMessage overload to require both:
+  //   postMessage(message: any, transfer: Transferable[]): void
+  //   postMessage(message: any, options?: StructuredSerializeOptions): void
+  // We satisfy both signatures with a single implementation using the union type.
+  postMessage(
+    message: unknown,
+    transferOrOptions?: Transferable[] | StructuredSerializeOptions
+  ): void {
+    void message;
+    void transferOrOptions;
     // No-op in tests — override per test with vi.spyOn or subclass
   }
 
