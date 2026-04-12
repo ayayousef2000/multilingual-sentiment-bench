@@ -12,8 +12,9 @@
 #    YC_REGISTRY_ID           Yandex Container Registry ID (crp...)
 #    YC_FOLDER_ID             Yandex Cloud folder ID (b1g...)
 #
-#  Image endpoint:
-#    cr.yandex/<YC_REGISTRY_ID>/multilingual-sentiment-bench:<tag>
+#  Actions used (verified):
+#    yc-actions/yc-cr-login@v3          — login to cr.yandex
+#    yc-actions/yc-sls-container-deploy@v4 — deploy serverless container
 # ============================================================
 
 name: Yandex Cloud Deploy
@@ -37,7 +38,7 @@ concurrency:
 env:
   IMAGE_NAME: multilingual-sentiment-bench
   CONTAINER_NAME: multilingual-sentiment-bench
-  YC_REGION: cr.yandex
+  REGISTRY: cr.yandex
 
 jobs:
   # ── 1. Build & Push to Yandex Container Registry ──────────────────────────
@@ -49,39 +50,29 @@ jobs:
 
     outputs:
       image-tag: ${{ steps.meta.outputs.version }}
-      image-digest: ${{ steps.build.outputs.digest }}
-      full-image: ${{ env.YC_REGION }}/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+      full-image: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/multilingual-sentiment-bench:${{ steps.meta.outputs.version }}
 
     steps:
       - name: Checkout deploy branch
         uses: actions/checkout@v4
 
-      # ── Auth ──────────────────────────────────────────────────────────────
-      - name: Authenticate to Yandex Cloud
-        uses: yc-actions/yc-login@v3
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
       # ── Docker setup ──────────────────────────────────────────────────────
-      - name: Set up QEMU (multi-arch)
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Yandex Container Registry
-        uses: docker/login-action@v3
+      # ── Login to Yandex Container Registry ───────────────────────────────
+      - name: Login to Yandex Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v3
         with:
-          registry: cr.yandex
-          username: json_key
-          password: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 
       # ── Image metadata ────────────────────────────────────────────────────
       - name: Extract image metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.YC_REGION }}/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+          images: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-,format=short
@@ -128,35 +119,20 @@ jobs:
       contents: read
 
     steps:
-      - name: Authenticate to Yandex Cloud
-        uses: yc-actions/yc-login@v3
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      # ── Create or update the Serverless Container ─────────────────────────
-      # On first deploy this creates the container.
-      # On subsequent deploys it creates a new revision with the latest image.
       - name: Deploy container revision
-        uses: yc-actions/yc-sls-container-deploy@v2
+        id: deploy-sls-container
+        uses: yc-actions/yc-sls-container-deploy@v4
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           container-name: ${{ env.CONTAINER_NAME }}
           folder-id: ${{ secrets.YC_FOLDER_ID }}
           revision-image-url: ${{ needs.build-and-push.outputs.full-image }}
-          revision-service-account-id: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          # ── Runtime config ────────────────────────────────────────────────
-          # Memory: 256MB is sufficient for an nginx SPA container
-          # Concurrency: 16 requests per instance (nginx handles this easily)
-          # Timeout: 10s max per request
+          revision-service-account-id: aje8p245hlaeg0l3q0s0
           revision-memory: 256Mb
           revision-cores: 1
           revision-core-fraction: 100
           revision-concurrency: 16
-          revision-timeout: 10s
-          # ── Public access ─────────────────────────────────────────────────
-          # Makes the container accessible via a public HTTPS URL
-          # without an API Gateway — simplest setup for free tier
-          revision-execution-timeout: 10s
+          revision-execution-timeout: 10
 
       # ── Summary ───────────────────────────────────────────────────────────
       - name: Write deploy summary
