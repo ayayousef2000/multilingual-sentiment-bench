@@ -3,30 +3,27 @@
 #
 #  Multi-stage production image for multilingual-sentiment-bench
 #  Stack : Node 24 (pnpm 10) → Vite build → nginx:alpine
-#  Target: linux/amd64 + linux/arm64
+#  Target: linux/amd64
 #  Final image size: ~25–30 MB
 #
 #  Stages:
-#    deps    – install production + dev dependencies (cached layer)
-#    builder – compile TypeScript + Vite production bundle
+#    deps    – install dependencies (cached unless lockfile changes)
+#    builder – TypeScript check + Vite production bundle
 #    runner  – minimal nginx:alpine, non-root, security-hardened
 # ============================================================
 
 # ── Stage 1: deps ─────────────────────────────────────────────────────────────
-# Separate deps stage so the install layer is only invalidated when
-# package.json or pnpm-lock.yaml change — not on every source edit.
 FROM node:24-slim AS deps
 
-# corepack ships with Node 24 — use it to pin the exact pnpm version
-# declared in package.json#packageManager (pnpm@10.33.0)
+# corepack ships with Node 24 — pin exact pnpm version from package.json#packageManager
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 WORKDIR /app
 
-# Copy only the manifests first → maximise layer cache hits
+# Copy manifests only → maximise Docker layer cache hits
 COPY package.json pnpm-lock.yaml ./
 
-# --frozen-lockfile  → fail if lockfile is out of sync (no silent mutations)
+# --frozen-lockfile  → fail if lockfile is out of sync
 # --prefer-offline   → use local store when layers are cached in CI
 RUN pnpm install --frozen-lockfile --prefer-offline
 
@@ -37,57 +34,60 @@ RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 WORKDIR /app
 
-# Bring in the installed node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy full source (respects .dockerignore — make sure dist/, node_modules/,
-# .git/ are listed there to avoid cache busting)
+# Full source copy (respects .dockerignore — dist/, node_modules/, .git/ excluded)
 COPY . .
 
-# Type-check + Vite production bundle
-# tsc -b catches type errors early; vite build emits to /app/dist
+# Optional cache-bust ARG (passed from CI via --build-arg)
 ARG CACHE_BUST
+
+# Type-check → Vite production bundle → output lands in /app/dist
 RUN pnpm exec tsc -b --noEmit && pnpm exec vite build
 
 # ── Stage 3: runner ───────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine AS runner
 
 LABEL org.opencontainers.image.title="multilingual-sentiment-bench" \
-      org.opencontainers.image.description="Multilingual sentiment analysis benchmark — React SPA" \
+      org.opencontainers.image.description="Multilingual sentiment analysis benchmark — React SPA served via nginx" \
       org.opencontainers.image.source="https://github.com/$GITHUB_REPOSITORY" \
       org.opencontainers.image.licenses="MIT"
 
-# Remove default Nginx content
+# Remove default nginx placeholder content
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy only the compiled assets — no source, no node_modules
+# ── Application assets ────────────────────────────────────────────────────────
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Custom Nginx config (SPA routing + security headers + gzip)
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# ── nginx config ──────────────────────────────────────────────────────────────
+# FIX: nginx.conf contains a top-level http{} block so it MUST replace the
+# main config — NOT be placed in conf.d/ (which is included inside nginx's
+# own http{} block, causing a forbidden nested http{} and exit status 1).
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# ── Create writable temp dirs for non-root nginx user ─────────────────────────
+# nginx:alpine's default temp paths (/var/cache/nginx/*) are owned by root.
+# We redirect them to /tmp (always writable) via nginx.conf temp path directives
+# and create the dirs here so they exist at startup.
+RUN mkdir -p /tmp/client_body /tmp/proxy /tmp/fastcgi /tmp/uwsgi /tmp/scgi
 
 # ── Security hardening ────────────────────────────────────────────────────────
 # nginx:alpine ships with a built-in 'nginx' user (uid 101).
-# Grant it ownership of every path it needs to read/write,
-# then drop to non-root before the process starts.
+# Grant it ownership of every runtime-writable path.
 RUN chown -R nginx:nginx /usr/share/nginx/html \
     && chown -R nginx:nginx /var/cache/nginx \
     && chown -R nginx:nginx /var/log/nginx \
-    && touch /var/run/nginx.pid \
-    && chown nginx:nginx /var/run/nginx.pid
+    && chown -R nginx:nginx /tmp/client_body /tmp/proxy /tmp/fastcgi /tmp/uwsgi /tmp/scgi \
+    && touch /tmp/nginx.pid \
+    && chown nginx:nginx /tmp/nginx.pid \
+    && chown nginx:nginx /etc/nginx/nginx.conf
 
 USER nginx
 
 # ── Health check ──────────────────────────────────────────────────────────────
-# Required by Yandex Serverless Containers readiness probe.
-# Hits nginx on port 8080 every 30 s; marks unhealthy after 3 failures.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:8080/healthz 2>/dev/null || \
-      wget -qO- http://localhost:8080/ > /dev/null 2>&1 || exit 1
+    CMD wget -qO- http://localhost:8080/healthz || exit 1
 
-# Non-root processes cannot bind below port 1024.
-# Map to host port 80 in docker-compose / Yandex Serverless Container config:
-#   ports: ["80:8080"]
 EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

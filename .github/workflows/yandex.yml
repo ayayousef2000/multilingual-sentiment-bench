@@ -2,15 +2,16 @@
 #  .github/workflows/yandex.yml
 #
 #  Builds the production Docker image, pushes it to
-#  Yandex Container Registry (YCR), and deploys it to
-#  Yandex Serverless Containers.
+#  Yandex Container Registry (YCR), and deploys a new revision
+#  to Yandex Serverless Containers.
 #
-#  Trigger: push to `deploy` branch only
+#  Trigger  : push to `deploy` branch, or manual dispatch
 #
 #  Required GitHub Secrets:
 #    YC_SA_JSON_CREDENTIALS   Yandex Cloud service account key (full JSON)
-#    YC_REGISTRY_ID           Yandex Container Registry ID (crp...)
-#    YC_FOLDER_ID             Yandex Cloud folder ID (b1g...)
+#    YC_REGISTRY_ID           Yandex Container Registry ID  (crp…)
+#    YC_FOLDER_ID             Yandex Cloud folder ID        (b1g…)
+#    YC_SERVICE_ACCOUNT_ID    Service account ID for the running container
 # ============================================================
 
 name: Yandex Cloud Deploy
@@ -27,6 +28,8 @@ on:
         type: boolean
         default: false
 
+# Prevent concurrent deployments to the same environment.
+# in-progress runs are NOT cancelled — a deploy must complete or fail cleanly.
 concurrency:
   group: yandex-deploy-${{ github.ref }}
   cancel-in-progress: false
@@ -45,6 +48,7 @@ jobs:
 
     outputs:
       short-sha: ${{ steps.slug.outputs.short-sha }}
+      image-tag: ${{ steps.slug.outputs.image-tag }}
 
     steps:
       - name: Checkout deploy branch
@@ -52,7 +56,10 @@ jobs:
 
       - name: Compute short SHA
         id: slug
-        run: echo "short-sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+        run: |
+          SHORT="${GITHUB_SHA::7}"
+          echo "short-sha=${SHORT}" >> "$GITHUB_OUTPUT"
+          echo "image-tag=sha-${SHORT}"  >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -72,8 +79,8 @@ jobs:
           push: true
           tags: |
             cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:latest
-            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${{ steps.slug.outputs.short-sha }}
-            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.slug.outputs.image-tag }}
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:run-${{ github.run_number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           no-cache: ${{ inputs.force_rebuild == true }}
@@ -83,12 +90,15 @@ jobs:
 
       - name: Write build summary
         run: |
-          echo "## 🐳 YCR Image Build" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Image** | \`cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${{ steps.slug.outputs.short-sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Commit** | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## 🐳 YCR Image Build"
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Image** | \`cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.slug.outputs.image-tag }}\` |"
+            echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |"
+            echo "| **Commit** | \`${{ github.sha }}\` |"
+            echo "| **Run** | \`#${{ github.run_number }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # ── 2. Deploy to Yandex Serverless Containers ─────────────────────────────
   deploy:
@@ -100,28 +110,28 @@ jobs:
 
     steps:
       - name: Deploy container revision
-        id: deploy-sls-container
+        id: deploy
         uses: yc-actions/yc-sls-container-deploy@v4
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           container-name: ${{ env.CONTAINER_NAME }}
           folder-id: ${{ secrets.YC_FOLDER_ID }}
-          # Secrets ARE available inside step `with` blocks — only job `outputs`
-          # cannot reference secrets. We construct the full URL here directly.
-          revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:sha-${{ needs.build-and-push.outputs.short-sha }}
+          revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-tag }}
           revision-memory: 256Mb
           revision-cores: 1
           revision-core-fraction: 100
-          revision-service-account-id: aje8p245hlaeg0l3q0s0
+          revision-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
           revision-concurrency: 16
           revision-execution-timeout: 10
 
       - name: Write deploy summary
         run: |
-          echo "## 🚀 Yandex Serverless Container Deploy" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Container** | \`${{ env.CONTAINER_NAME }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **SHA** | \`${{ needs.build-and-push.outputs.short-sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Triggered by** | \`${{ github.actor }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Run** | \`#${{ github.run_number }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## 🚀 Yandex Serverless Container Deploy"
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Container** | \`${{ env.CONTAINER_NAME }}\` |"
+            echo "| **Image tag** | \`${{ needs.build-and-push.outputs.image-tag }}\` |"
+            echo "| **Triggered by** | \`${{ github.actor }}\` |"
+            echo "| **Run** | \`#${{ github.run_number }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
