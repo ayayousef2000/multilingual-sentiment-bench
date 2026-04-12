@@ -1,0 +1,145 @@
+# ============================================================
+#  .github/workflows/yandex.yml
+#
+#  Builds the production Docker image, pushes it to
+#  Yandex Container Registry (YCR), and deploys a new revision
+#  to Yandex Serverless Containers.
+#
+#  Trigger  : push to main, PR targeting main, or manual dispatch
+#
+#  Required GitHub Secrets:
+#    YC_SA_JSON_CREDENTIALS   Yandex Cloud service account key (full JSON)
+#    YC_REGISTRY_ID           Yandex Container Registry ID  (crp…)
+#    YC_FOLDER_ID             Yandex Cloud folder ID        (b1g…)
+#    YC_SERVICE_ACCOUNT_ID    Service account ID for the running container
+# ============================================================
+
+name: Yandex Cloud Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed # only fires when PR is actually merged (check merged flag below)
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Bypass layer cache (full rebuild)"
+        required: false
+        type: boolean
+        default: false
+
+# Prevent concurrent deployments to the same environment.
+# in-progress runs are NOT cancelled — a deploy must complete or fail cleanly.
+concurrency:
+  group: yandex-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: multilingual-sentiment-bench
+  CONTAINER_NAME: multilingual-sentiment-bench
+
+jobs:
+  # ── 1. Build & Push to Yandex Container Registry ──────────────────────────
+  build-and-push:
+    name: Build & Push to YCR
+    runs-on: ubuntu-latest
+    # For pull_request events: only run when the PR was actually merged,
+    # not when it was simply closed/rejected.
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+    permissions:
+      contents: read
+
+    outputs:
+      short-sha: ${{ steps.slug.outputs.short-sha }}
+      image-tag: ${{ steps.slug.outputs.image-tag }}
+
+    steps:
+      - name: Checkout deploy branch
+        uses: actions/checkout@v4
+
+      - name: Compute short SHA
+        id: slug
+        run: |
+          SHORT="${GITHUB_SHA::7}"
+          echo "short-sha=${SHORT}" >> "$GITHUB_OUTPUT"
+          echo "image-tag=sha-${SHORT}"  >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Yandex Container Registry
+        uses: yc-actions/yc-cr-login@v3
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build and push image to YCR
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.prod
+          platforms: linux/amd64
+          push: true
+          tags: |
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:latest
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.slug.outputs.image-tag }}
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:run-${{ github.run_number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          no-cache: ${{ inputs.force_rebuild == true }}
+          provenance: false
+          build-args: |
+            CACHE_BUST=${{ hashFiles('docker/Dockerfile.prod', 'package.json', 'pnpm-lock.yaml') }}
+
+      - name: Write build summary
+        run: |
+          {
+            echo "## 🐳 YCR Image Build"
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Image** | \`cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ steps.slug.outputs.image-tag }}\` |"
+            echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |"
+            echo "| **Commit** | \`${{ github.sha }}\` |"
+            echo "| **Run** | \`#${{ github.run_number }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 2. Deploy to Yandex Serverless Containers ─────────────────────────────
+  deploy:
+    name: Deploy to Serverless Containers
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: read
+
+    steps:
+      - name: Deploy container revision
+        id: deploy
+        uses: yc-actions/yc-sls-container-deploy@v4
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          revision-image-url: cr.yandex/${{ secrets.YC_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-tag }}
+          revision-memory: 256Mb
+          revision-cores: 1
+          revision-core-fraction: 100
+          revision-service-account-id: aje8p245hlaeg0l3q0s0
+          revision-concurrency: 16
+          revision-execution-timeout: 10
+
+      - name: Write deploy summary
+        run: |
+          {
+            echo "## 🚀 Yandex Serverless Container Deploy"
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| **Container** | \`${{ env.CONTAINER_NAME }}\` |"
+            echo "| **Image tag** | \`${{ needs.build-and-push.outputs.image-tag }}\` |"
+            echo "| **Triggered by** | \`${{ github.actor }}\` |"
+            echo "| **Run** | \`#${{ github.run_number }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

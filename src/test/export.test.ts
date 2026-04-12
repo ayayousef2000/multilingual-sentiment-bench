@@ -13,8 +13,10 @@ const mockResults: BenchmarkResult[] = [
     time_ms: 120,
     memory_mb: 2.5,
     input_len: 50,
+    input_text: "This is a great product!",
     language: "en",
     timestamp: 1700000000000,
+    expected: "POSITIVE",
   },
   {
     id: "r2",
@@ -26,8 +28,10 @@ const mockResults: BenchmarkResult[] = [
     time_ms: 80,
     memory_mb: 1.2,
     input_len: 60,
+    input_text: "Terrible experience, would not recommend.",
     language: "en",
     timestamp: 1700000001000,
+    expected: "NEGATIVE",
   },
   {
     id: "r3",
@@ -39,8 +43,10 @@ const mockResults: BenchmarkResult[] = [
     time_ms: 100,
     memory_mb: null,
     input_len: 30,
+    input_text: "The package arrived on time.",
     language: "en",
     timestamp: 1700000002000,
+    expected: null,
   },
 ];
 

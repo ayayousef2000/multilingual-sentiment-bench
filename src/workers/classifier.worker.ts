@@ -1,4 +1,4 @@
-import { type Pipeline, pipeline } from "@huggingface/transformers";
+import { pipeline, type TextClassificationPipeline } from "@huggingface/transformers";
 import { normalizeLabel } from "@/lib/models";
 import type { WorkerInbound, WorkerOutbound } from "@/types";
 import { assertNever } from "@/utils/assert";
@@ -6,22 +6,26 @@ import { assertNever } from "@/utils/assert";
 // ── Pipeline cache ────────────────────────────────────────────────────────────
 
 let cachedModelId: string | null = null;
-let cachedPipeline: Pipeline | null = null;
+let cachedPipeline: TextClassificationPipeline | null = null;
 
 async function getPipelineInstance(
   modelId: string,
   onProgress: (progress: number, status: string) => void
-): Promise<Pipeline> {
+): Promise<TextClassificationPipeline> {
   if (cachedPipeline && cachedModelId === modelId) return cachedPipeline;
 
   cachedPipeline = null;
   cachedModelId = null;
 
-  const instance = await pipeline("sentiment-analysis", modelId, {
+  // pipeline() with task "sentiment-analysis" always returns TextClassificationPipeline.
+  // Double assertion (unknown → TextClassificationPipeline) is required because
+  // transformers.js v3 overloads resolve to an overly complex union type when the
+  // task is passed as a plain string, making a direct cast fail with ts(2590).
+  const instance = (await pipeline("sentiment-analysis", modelId, {
     progress_callback: (info: { progress?: number; status: string }) => {
       onProgress((info.progress ?? 0) / 100, info.status);
     },
-  });
+  })) as unknown as TextClassificationPipeline;
 
   cachedPipeline = instance;
   cachedModelId = modelId;
@@ -93,7 +97,7 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
         const error: WorkerOutbound = {
           type: "ERROR",
           message: err instanceof Error ? err.message : String(err),
-          requestId: id, // lets useClassifier reject only this promise
+          requestId: id,
         };
         self.postMessage(error);
       }
