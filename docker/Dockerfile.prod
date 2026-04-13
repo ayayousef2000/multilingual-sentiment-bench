@@ -48,9 +48,13 @@ RUN pnpm exec tsc -b --noEmit && pnpm exec vite build
 # ── Stage 3: runner ───────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine AS runner
 
+# Declare ARG before the LABEL that consumes it so Docker resolves the variable.
+# Passed from CI via: --build-arg GITHUB_REPOSITORY=${{ github.repository }}
+ARG GITHUB_REPOSITORY
+
 LABEL org.opencontainers.image.title="multilingual-sentiment-bench" \
       org.opencontainers.image.description="Multilingual sentiment analysis benchmark — React SPA served via nginx" \
-      org.opencontainers.image.source="https://github.com/$GITHUB_REPOSITORY" \
+      org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
       org.opencontainers.image.licenses="MIT"
 
 # Remove default nginx placeholder content
