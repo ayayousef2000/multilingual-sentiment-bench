@@ -19,7 +19,12 @@ export function ModelLoader({
   const { loadedModelId, modelLoadTimeMs } = useClassifierContext();
 
   const isLoading = loadState.status === "loading";
+  const isReady = loadState.status === "ready";
   const isNewModelSelected = selectedModelId !== loadedModelId;
+
+  // FIX: disable the button when the selected model is already loaded and ready,
+  // matching the Benchmark Lab behaviour where Load Model greys out after loading.
+  const isButtonDisabled = isLoading || (isReady && !isNewModelSelected);
 
   const options = MODELS.map((m) => ({ value: m.id, label: `${m.name} (${m.size})` }));
   const selectedModel = MODELS.find((m) => m.id === selectedModelId);
@@ -31,9 +36,6 @@ export function ModelLoader({
         Select a multilingual model. Supports English, Arabic, and Russian.
       </p>
 
-      {/* FIX: pass label="Model" so Select renders <label htmlFor={id}>Model</label>
-          This wires the visible label text to the <select> via htmlFor/id,
-          making getByLabelText("Model") resolve in tests and improving a11y. */}
       <Select
         label="Model"
         options={options}
@@ -69,7 +71,7 @@ export function ModelLoader({
         size="md"
         className="btn-full"
         onClick={onLoad}
-        disabled={isLoading}
+        disabled={isButtonDisabled}
         loading={isLoading}
         aria-label="Load selected model"
         style={{ width: "100%" }}
@@ -78,7 +80,9 @@ export function ModelLoader({
           ? "Loading…"
           : isNewModelSelected && loadedModelId !== null
             ? "↺ Switch Model"
-            : "Load Model"}
+            : isReady
+              ? "Model ready"
+              : "Load Model"}
       </Button>
 
       {!isLoading && modelLoadTimeMs !== null && (
