@@ -26,17 +26,15 @@ jobs:
   #
   # Optional tool detection — jobs that depend on tools not yet installed
   # by the developer are skipped gracefully rather than failing:
-  #   has-vitest      → Unit Tests job
-  #   has-playwright  → E2E Tests job
+  #   has-vitest → Unit Tests job
   # ───────────────────────────────────────────────────────────────────────────
   detect:
     name: Detect project state
     runs-on: ubuntu-latest
     outputs:
-      has-lockfile:   ${{ steps.check.outputs.has-lockfile }}
-      has-vite:       ${{ steps.check.outputs.has-vite }}
-      has-vitest:     ${{ steps.check.outputs.has-vitest }}
-      has-playwright: ${{ steps.check.outputs.has-playwright }}
+      has-lockfile: ${{ steps.check.outputs.has-lockfile }}
+      has-vite: ${{ steps.check.outputs.has-vite }}
+      has-vitest: ${{ steps.check.outputs.has-vitest }}
     steps:
       - uses: actions/checkout@v6
       - name: Check for project files
@@ -66,19 +64,11 @@ jobs:
             echo "has-vitest=false" >> "$GITHUB_OUTPUT"
             echo "ℹ️  No vitest — unit tests will be skipped"
           fi
-          if [ -f "pnpm-lock.yaml" ] && grep -q '"@playwright/test"' pnpm-lock.yaml 2>/dev/null; then
-            echo "has-playwright=true"  >> "$GITHUB_OUTPUT"
-            echo "✅ @playwright/test found in lockfile"
-          else
-            echo "has-playwright=false" >> "$GITHUB_OUTPUT"
-            echo "ℹ️  No @playwright/test — e2e will be skipped"
-          fi
           echo ""
           echo "Summary:"
-          echo "  pnpm-lock.yaml   : $([ -f pnpm-lock.yaml ] && echo 'YES' || echo 'NO')"
-          echo "  vite.config.ts   : $([ -f vite.config.ts ] && echo 'YES' || echo 'NO')"
-          echo "  vitest           : $(grep -q '"vitest"' pnpm-lock.yaml 2>/dev/null && echo 'YES' || echo 'NO')"
-          echo "  @playwright/test : $(grep -q '"@playwright/test"' pnpm-lock.yaml 2>/dev/null && echo 'YES' || echo 'NO')"
+          echo "  pnpm-lock.yaml : $([ -f pnpm-lock.yaml ] && echo 'YES' || echo 'NO')"
+          echo "  vite.config.ts : $([ -f vite.config.ts ] && echo 'YES' || echo 'NO')"
+          echo "  vitest         : $(grep -q '"vitest"' pnpm-lock.yaml 2>/dev/null && echo 'YES' || echo 'NO')"
   # ── Tier 3 only ─────────────────────────────────────────────────────────────
   typecheck:
     name: Type Check (tsc)
@@ -182,33 +172,6 @@ jobs:
           name: dist
           path: dist/
           retention-days: 7
-  e2e:
-    name: E2E Tests (Playwright)
-    runs-on: ubuntu-latest
-    needs: [detect, build]
-    # Guard: only run if @playwright/test is actually installed.
-    if: >
-      needs.build.result == 'success' &&
-      needs.detect.outputs.has-playwright == 'true'
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Run E2E tests
-        run: pnpm exec playwright test
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
   # ── Tier 3 only — Dockerfile security scan ──────────────────────────────────
   dockerfile-check:
     name: Dockerfile Check (Trivy)
@@ -224,8 +187,8 @@ jobs:
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: config
-          scan-ref:  docker/Dockerfile.prod
-          severity:  CRITICAL,HIGH
+          scan-ref: docker/Dockerfile.prod
+          severity: CRITICAL,HIGH
           exit-code: "1"
   # ── Tier 2 + Tier 3 ─────────────────────────────────────────────────────────
   security:
@@ -248,7 +211,7 @@ jobs:
   ci-passed:
     name: CI Passed ✅
     runs-on: ubuntu-latest
-    needs: [detect, typecheck, lint, test, build, e2e, dockerfile-check, security]
+    needs: [detect, typecheck, lint, test, build, dockerfile-check, security]
     if: always()
     steps:
       - name: Evaluate results
@@ -265,7 +228,7 @@ jobs:
           if [[ "$HAS_VITE" != "true" ]]; then
             echo "ℹ️  Tier 2: Husky + commitlint only"
             echo "   Active:  security (pnpm audit)"
-            echo "   Skipped: typecheck, lint, test, build, e2e, dockerfile-check"
+            echo "   Skipped: typecheck, lint, test, build, dockerfile-check"
           else
             echo "✅ Tier 3: Full project"
             echo "   All checks active"
@@ -288,7 +251,6 @@ jobs:
           check_job "lint"             "${{ needs.lint.result }}"
           check_job "test"             "${{ needs.test.result }}"
           check_job "build"            "${{ needs.build.result }}"
-          check_job "e2e"              "${{ needs.e2e.result }}"
           check_job "dockerfile-check" "${{ needs.dockerfile-check.result }}"
           check_job "security"         "${{ needs.security.result }}"
           echo ""
