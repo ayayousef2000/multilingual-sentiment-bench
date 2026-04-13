@@ -95,6 +95,7 @@ jobs:
           provenance: false
           build-args: |
             CACHE_BUST=${{ hashFiles('docker/Dockerfile.prod', 'package.json', 'pnpm-lock.yaml') }}
+            GITHUB_REPOSITORY=${{ github.repository }}
 
       - name: Write build summary
         run: |
