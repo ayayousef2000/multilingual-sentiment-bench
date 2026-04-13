@@ -5,7 +5,6 @@ import {
   Scatter,
   ScatterChart,
   Tooltip,
-  type TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -24,9 +23,22 @@ interface ChartPoint {
   sample_id: string;
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+// recharts 3.x: TooltipProps describes the <Tooltip> component itself and does
+// not expose `payload`. Custom content renderers receive their own injected
+// props — type them explicitly instead of reusing TooltipProps.
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name?: string;
+    payload: ChartPoint;
+  }>;
+  label?: string | number;
+}
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
-  const d = payload[0]?.payload as ChartPoint;
+  const d = payload[0].payload;
   return (
     <div
       style={{
