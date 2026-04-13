@@ -26,13 +26,7 @@ export const BenchmarkStatsPanel = memo(function BenchmarkStatsPanel({
       >
         Run statistics
       </p>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-          gap: "10px",
-        }}
-      >
+      <div className="stats-row">
         <Stat label="Samples" value={stats.count} />
         <Stat label="Avg latency" value={formatMs(stats.avgLatency)} />
         <Stat

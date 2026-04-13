@@ -107,8 +107,6 @@ export function Select({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      {/* FIX: use a real <label> element so getByLabelText("Model") resolves
-          correctly in tests and assistive technology announces the association. */}
       <label htmlFor={id} className="sidebar-label">
         {label}
       </label>
@@ -151,10 +149,18 @@ interface StatProps {
 }
 
 export function Stat({ label, value, style }: StatProps) {
+  // FIX 2 & 3: derive a plain-string title for the native tooltip so users can
+  // see the full value on hover/long-press even when the text is ellipsised.
+  const titleText =
+    typeof value === "string" || typeof value === "number" ? String(value) : undefined;
+
   return (
     <div className="stat-block" style={style}>
       <span className="stat-block-label">{label}</span>
-      <span className="stat-block-value">{value}</span>
+      {/* FIX 2 & 3: title surfaces the full value when truncated by ellipsis */}
+      <span className="stat-block-value" title={titleText}>
+        {value}
+      </span>
     </div>
   );
 }

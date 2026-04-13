@@ -112,9 +112,14 @@ export function computeStats(results: BenchmarkResult[]): BenchmarkStats | null 
   };
 }
 
+// FIX: Round floats to eliminate IEEE 754 noise (e.g. "375.6999999988ms").
+// Scale-aware: sub-10ms shows 2 decimals, sub-100ms shows 1, else integer ms.
+// Values ≥ 1 s are shown in seconds with 2 decimal places.
 export function formatMs(ms: number): string {
   if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
-  return `${ms}ms`;
+  if (ms < 10) return `${ms.toFixed(2)}ms`;
+  if (ms < 100) return `${ms.toFixed(1)}ms`;
+  return `${Math.round(ms)}ms`;
 }
 
 export function formatMB(mb: number | null | undefined): string {

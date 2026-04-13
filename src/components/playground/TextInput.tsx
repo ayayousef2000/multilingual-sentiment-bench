@@ -48,6 +48,9 @@ export function TextInput({ onClassify, isLoading, isModelReady }: TextInputProp
       <label className="panel-label" htmlFor={textareaId}>
         Input Text
       </label>
+
+      {/* FIX: char-counter moved inside .text-area-wrap so position:absolute
+          places it in the bottom-right corner of the textarea, not below it */}
       <div className="text-area-wrap">
         <textarea
           id={textareaId}
@@ -62,16 +65,17 @@ export function TextInput({ onClassify, isLoading, isModelReady }: TextInputProp
           aria-describedby="char-counter classify-hint"
           dir="auto"
         />
-      </div>
-      <div className="classify-row">
         <span
           id="char-counter"
           className="char-counter"
           aria-live="polite"
-          style={{ color: isOverLimit ? "var(--color-error)" : undefined }}
+          style={{ color: isOverLimit ? "var(--color-negative)" : undefined }}
         >
           {charCount}/{MAX_CHARS}
         </span>
+      </div>
+
+      <div className="classify-row">
         <Button
           variant="primary"
           onClick={handleSubmit}
@@ -81,16 +85,13 @@ export function TextInput({ onClassify, isLoading, isModelReady }: TextInputProp
         >
           {isLoading ? "Classifying…" : "Classify"}
         </Button>
+        <p id="classify-hint" className="classify-hint">
+          Press <kbd>Ctrl+Enter</kbd> / <kbd>⌘+Enter</kbd> to classify
+        </p>
       </div>
-      <p id="classify-hint" className="classify-hint">
-        Press <kbd>Ctrl+Enter</kbd> / <kbd>⌘+Enter</kbd> to classify
-      </p>
 
       <p className="quick-examples-label">QUICK EXAMPLES</p>
 
-      {/* FIX: Use a semantic <ul> instead of <div role="list">.
-          Each interactive chip is a <button> inside a <li>, which is the
-          correct pattern — buttons must not carry role="listitem". */}
       <ul className="quick-examples" style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {EXAMPLES.map((ex) => (
           <li key={ex.text}>

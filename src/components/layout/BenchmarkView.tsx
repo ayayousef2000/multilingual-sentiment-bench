@@ -12,7 +12,6 @@ import { ErrorBoundary } from "../ui";
 
 export function BenchmarkView() {
   const {
-    // loadState removed — was unused
     loadedModelId,
     loadModel,
     classify,
@@ -27,24 +26,18 @@ export function BenchmarkView() {
 
   const { results, runState, isPending, start, stop, clear } = useBenchmark({ classify });
 
-  // Persist results so they survive tab switches
   useEffect(() => {
     if (results.length > 0) setPersistedResults(results);
   }, [results, setPersistedResults]);
 
   const displayResults = results.length > 0 ? results : persistedResults;
 
-  // Clear persisted results when the loaded model changes (new model = fresh run).
-  // Use a real ref so this effect only fires on *changes* without adding
-  // prevModelRef.current as a reactive dependency (mutating a ref is intentionally
-  // non-reactive — adding it to the dep array would create an infinite loop).
   const prevModelRef = useRef<string | null>(null);
   useEffect(() => {
     if (prevModelRef.current !== null && loadedModelId !== prevModelRef.current) {
       clearPersistedResults();
     }
     prevModelRef.current = loadedModelId;
-    // clearPersistedResults is stable (useCallback) — safe to include.
   }, [loadedModelId, clearPersistedResults]);
 
   const handleLoadModel = () => loadModel(selectedModelId);
@@ -99,7 +92,20 @@ export function BenchmarkView() {
             </div>
           )}
         </div>
+
         <div className="main-content">
+          {/* Hero heading — mirrors the Playground's "Interactive Playground" block */}
+          <div className="page-heading">
+            <h1>
+              Benchmark <span>Lab</span>
+            </h1>
+            <p>
+              Measure model accuracy and latency across English, Arabic, and Russian. Upload a
+              labeled dataset, run inference in your browser, and export results as CSV — no server
+              required.
+            </p>
+          </div>
+
           {hasResults ? (
             <ErrorBoundary label="BenchmarkResults">
               <BenchmarkStatsPanel results={displayResults} />
@@ -109,7 +115,6 @@ export function BenchmarkView() {
           ) : (
             <div className="bench-placeholder">
               <div className="bench-placeholder-icon" aria-hidden="true">
-                {/* aria-hidden on the wrapper suppresses the SVG from the a11y tree */}
                 <svg
                   width="52"
                   height="60"

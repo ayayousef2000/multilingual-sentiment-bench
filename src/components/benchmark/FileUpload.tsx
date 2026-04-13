@@ -144,8 +144,8 @@ export function FileUpload({ onDatasetLoad, onError, loadedDataset }: FileUpload
             {isLoading
               ? "Parsing dataset…"
               : isError
-                ? "Click to try again"
-                : "Accepts envelope or flat-array JSON format"}
+                ? " Click to try again"
+                : " Accepts envelope or flat-array JSON format"}
           </span>
         </button>
       )}
