@@ -1,4 +1,5 @@
 import { useClassifierContext } from "@/context/ClassifierContext";
+import { formatMs } from "@/lib/export";
 import { MODELS } from "@/lib/models";
 import type { ModelLoadState } from "@/types";
 import { Button, ProgressBar, Select } from "../ui";
@@ -22,8 +23,6 @@ export function ModelLoader({
   const isReady = loadState.status === "ready";
   const isNewModelSelected = selectedModelId !== loadedModelId;
 
-  // FIX: disable the button when the selected model is already loaded and ready,
-  // matching the Benchmark Lab behaviour where Load Model greys out after loading.
   const isButtonDisabled = isLoading || (isReady && !isNewModelSelected);
 
   const options = MODELS.map((m) => ({ value: m.id, label: `${m.name} (${m.size})` }));
@@ -93,10 +92,8 @@ export function ModelLoader({
             color: "var(--color-text-tertiary)",
           }}
         >
-          <span style={{ opacity: 0.6 }}>⏱</span> Loaded in{" "}
-          {modelLoadTimeMs >= 1000
-            ? `${(modelLoadTimeMs / 1000).toFixed(2)}s`
-            : `${modelLoadTimeMs}ms`}
+          {/* formatMs handles IEEE 754 noise and s/ms switching correctly */}
+          <span style={{ opacity: 0.6 }}>⏱</span> Loaded in {formatMs(modelLoadTimeMs)}
         </p>
       )}
     </div>

@@ -51,13 +51,21 @@ export function Button({
 /* ─── ProgressBar ───────────────────────────────────────────────────────────── */
 
 export interface ProgressBarProps {
+  /**
+   * Progress fraction 0–1, or -1 to indicate an indeterminate / unknown state.
+   * When -1, the bar renders a continuous shimmer animation instead of a
+   * fixed-width fill, giving the user clear feedback that work is in progress
+   * even when the server omits a Content-Length header.
+   */
   value: number;
   label: string;
   statusText?: string;
 }
 
 export function ProgressBar({ value, label, statusText }: ProgressBarProps) {
-  const pct = Math.min(100, Math.max(0, value * 100));
+  const isIndeterminate = value === -1;
+  const pct = isIndeterminate ? 0 : Math.min(100, Math.max(0, value * 100));
+
   return (
     <div className="progress-wrap">
       <div className="progress-meta">
@@ -67,12 +75,46 @@ export function ProgressBar({ value, label, statusText }: ProgressBarProps) {
       <div
         className="progress-track"
         role="progressbar"
-        aria-valuenow={pct}
+        // Omit aria-valuenow when indeterminate — screen readers announce "unknown"
+        {...(!isIndeterminate && { "aria-valuenow": pct })}
         aria-valuemin={0}
         aria-valuemax={100}
+        aria-label={label}
       >
-        <div className="progress-fill" style={{ width: `${pct}%` }} />
+        {isIndeterminate ? (
+          // Shimmer block: slides from left to right in a continuous loop.
+          // Pure CSS — no JS timer, no layout thrash.
+          <div
+            className="progress-fill"
+            style={{
+              width: "40%",
+              animation: "progress-indeterminate 1.4s ease-in-out infinite",
+              transformOrigin: "left center",
+            }}
+          />
+        ) : (
+          <div
+            className="progress-fill"
+            style={{
+              width: `${pct}%`,
+              transition: "width 0.2s ease",
+            }}
+          />
+        )}
       </div>
+
+      {/*
+        Keyframe injected once as an inline <style> so no changes to globals.css
+        are required. The animation slides the 40%-wide fill block across the
+        full track width, giving a smooth indeterminate effect.
+      */}
+      <style>{`
+        @keyframes progress-indeterminate {
+          0%   { transform: translateX(-100%) scaleX(1); }
+          50%  { transform: translateX(150%) scaleX(1.2); }
+          100% { transform: translateX(250%) scaleX(1); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -149,15 +191,12 @@ interface StatProps {
 }
 
 export function Stat({ label, value, style }: StatProps) {
-  // FIX 2 & 3: derive a plain-string title for the native tooltip so users can
-  // see the full value on hover/long-press even when the text is ellipsised.
   const titleText =
     typeof value === "string" || typeof value === "number" ? String(value) : undefined;
 
   return (
     <div className="stat-block" style={style}>
       <span className="stat-block-label">{label}</span>
-      {/* FIX 2 & 3: title surfaces the full value when truncated by ellipsis */}
       <span className="stat-block-value" title={titleText}>
         {value}
       </span>

@@ -2,7 +2,7 @@ import { getModelById } from "@/lib/models";
 import type { BenchmarkResult, BenchmarkStats, ExportRow } from "@/types";
 
 /** Increment when the CSV schema changes so Colab notebooks can version-guard. */
-const CSV_SCHEMA_VERSION = "1";
+const CSV_SCHEMA_VERSION = "2"; // bumped: added model_load_time_ms column
 const APP_VERSION = `schema-v${CSV_SCHEMA_VERSION}`;
 
 function escapeCSV(value: string | number | boolean | null | undefined): string {
@@ -19,7 +19,8 @@ export function buildExportRow(
   result: BenchmarkResult,
   modelName: string,
   datasetName: string,
-  runId: string
+  runId: string,
+  modelLoadTimeMs: number | null // thesis Chapter 4: load time per exported row
 ): ExportRow {
   return {
     run_id: runId,
@@ -39,6 +40,7 @@ export function buildExportRow(
     score_pct: Math.round(result.score * 10000) / 100,
     time_ms: result.time_ms,
     memory_mb: result.memory_mb,
+    model_load_time_ms: modelLoadTimeMs, // thesis Chapter 4
     timestamp: result.timestamp,
     iso_datetime: new Date(result.timestamp).toISOString(),
   };
@@ -62,6 +64,7 @@ const CSV_HEADERS: (keyof ExportRow)[] = [
   "score_pct",
   "time_ms",
   "memory_mb",
+  "model_load_time_ms", // thesis Chapter 4
   "timestamp",
   "iso_datetime",
 ];
@@ -69,12 +72,13 @@ const CSV_HEADERS: (keyof ExportRow)[] = [
 export function resultsToCSV(
   results: BenchmarkResult[],
   datasetName = "unknown-dataset",
-  runId?: string
+  runId?: string,
+  modelLoadTimeMs: number | null = null // thesis Chapter 4: forwarded from context
 ): string {
   const id = runId ?? `run-${Date.now()}`;
   const rows = results.map((r) => {
     const model = getModelById(r.model_id);
-    const row = buildExportRow(r, model?.name ?? r.model_id, datasetName, id);
+    const row = buildExportRow(r, model?.name ?? r.model_id, datasetName, id, modelLoadTimeMs);
     return CSV_HEADERS.map((k) => escapeCSV(row[k])).join(",");
   });
   return [CSV_HEADERS.join(","), ...rows].join("\n");
@@ -90,7 +94,11 @@ export function downloadCSV(csv: string, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function computeStats(results: BenchmarkResult[]): BenchmarkStats | null {
+// thesis Chapter 4: modelLoadTimeMs passed in from context (not derived from results)
+export function computeStats(
+  results: BenchmarkResult[],
+  modelLoadTimeMs: number | null = null
+): BenchmarkStats | null {
   if (results.length === 0) return null;
 
   const latencies = results.map((r) => r.time_ms);
@@ -105,6 +113,7 @@ export function computeStats(results: BenchmarkResult[]): BenchmarkStats | null 
     minLatency: Math.min(...latencies),
     maxLatency: Math.max(...latencies),
     avgMemory: memories.length > 0 ? memories.reduce((a, b) => a + b, 0) / memories.length : null,
+    modelLoadTimeMs, // thesis Chapter 4
     positiveCount: results.filter((r) => r.label === "POSITIVE").length,
     negativeCount: results.filter((r) => r.label === "NEGATIVE").length,
     neutralCount: results.filter((r) => r.label === "NEUTRAL").length,

@@ -33,34 +33,22 @@ const IDLE_RUN_STATE: BenchmarkRunState = {
 export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkReturn {
   const [results, setResults] = useState<BenchmarkResult[]>([]);
   const [runState, setRunState] = useState<BenchmarkRunState>(IDLE_RUN_STATE);
-  const [runId, setRunId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const stop = useCallback(() => {
-    abortControllerRef.current?.abort();
-  }, []);
-
-  const clear = useCallback(() => {
-    abortControllerRef.current?.abort();
-    setResults([]);
-    setRunId(null);
-    setRunState(IDLE_RUN_STATE);
-  }, []);
+  const abortRef = useRef<AbortController | null>(null);
+  const runIdRef = useRef<string | null>(null);
 
   const start = useCallback(
     async (dataset: BenchmarkDataset, modelId: string) => {
-      // Abort any in-progress run
-      abortControllerRef.current?.abort();
+      // Cancel any existing run
+      abortRef.current?.abort();
       const controller = new AbortController();
-      abortControllerRef.current = controller;
+      abortRef.current = controller;
 
-      // Generate a fresh UUID for this run — used to group CSV rows in Colab
-      const thisRunId = crypto.randomUUID();
-      setRunId(thisRunId);
+      const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      runIdRef.current = runId;
+
       setResults([]);
-
       setRunState({
         isRunning: true,
         currentIdx: 0,
@@ -68,32 +56,28 @@ export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkRet
         datasetId: dataset.id,
         datasetName: dataset.name,
         modelId,
-        runId: thisRunId,
+        runId,
       });
 
-      const { signal } = controller;
+      const accumulated: BenchmarkResult[] = [];
 
       for (let i = 0; i < dataset.samples.length; i++) {
-        if (signal.aborted) break;
+        if (controller.signal.aborted) break;
 
         const sample = dataset.samples[i];
 
-        setRunState((prev) => ({ ...prev, currentIdx: i + 1 }));
-
         try {
-          const playgroundResult = await classify(sample.text, modelId, signal);
+          const result = await classify(sample.text, modelId, controller.signal);
 
-          if (signal.aborted) break;
-
-          const result: BenchmarkResult = {
-            id: `${thisRunId}-${i}`,
+          const benchmarkResult: BenchmarkResult = {
+            id: `${runId}-${i}`,
             sample_id: sample.id,
             model_id: modelId,
             dataset_id: dataset.id,
-            label: playgroundResult.label,
-            score: playgroundResult.score,
-            time_ms: playgroundResult.time_ms,
-            memory_mb: playgroundResult.memory_mb,
+            label: result.label,
+            score: result.score,
+            time_ms: result.time_ms,
+            memory_mb: result.memory_mb,
             input_len: sample.text.length,
             input_text: sample.text,
             language: sample.language,
@@ -101,13 +85,19 @@ export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkRet
             expected: sample.expected ?? null,
           };
 
+          accumulated.push(benchmarkResult);
+
           startTransition(() => {
-            setResults((prev) => [...prev, result]);
+            setResults([...accumulated]);
+            setRunState((prev) => ({
+              ...prev,
+              currentIdx: i + 1,
+            }));
           });
         } catch (err) {
-          // Ignore AbortError — it means stop() was called intentionally
-          if (err instanceof Error && err.name === "AbortError") break;
-          // Other errors are silently skipped to allow the run to continue
+          // AbortError = user stopped — exit cleanly
+          if (err instanceof DOMException && err.name === "AbortError") break;
+          // Other errors — skip sample and continue
           console.warn(`[useBenchmark] sample ${sample.id} failed:`, err);
         }
       }
@@ -117,5 +107,25 @@ export function useBenchmark({ classify }: UseBenchmarkOptions): UseBenchmarkRet
     [classify]
   );
 
-  return { results, runState, runId, isPending, start, stop, clear };
+  const stop = useCallback(() => {
+    abortRef.current?.abort();
+    setRunState((prev) => ({ ...prev, isRunning: false }));
+  }, []);
+
+  const clear = useCallback(() => {
+    abortRef.current?.abort();
+    setResults([]);
+    runIdRef.current = null;
+    setRunState(IDLE_RUN_STATE);
+  }, []);
+
+  return {
+    results,
+    runState,
+    runId: runIdRef.current,
+    isPending,
+    start,
+    stop,
+    clear,
+  };
 }

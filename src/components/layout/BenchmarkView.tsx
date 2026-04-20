@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useClassifierContext } from "@/context/ClassifierContext";
 import { useBenchmark } from "@/hooks/useBenchmark";
-import { downloadCSV, resultsToCSV } from "@/lib/export";
+import { computeStats, downloadCSV, resultsToCSV } from "@/lib/export";
 import { DEFAULT_MODEL_ID } from "@/lib/models";
 import type { BenchmarkDataset } from "@/types";
 import { BenchmarkChart } from "../benchmark/BenchmarkChart";
@@ -15,6 +15,7 @@ export function BenchmarkView() {
     loadedModelId,
     loadModel,
     classify,
+    modelLoadTimeMs, // thesis Chapter 4: forwarded from useClassifier via context
     persistedResults,
     setPersistedResults,
     clearPersistedResults,
@@ -61,11 +62,21 @@ export function BenchmarkView() {
 
   const handleExport = () => {
     if (displayResults.length === 0) return;
-    const csv = resultsToCSV(displayResults, loadedDataset?.name, runState.runId ?? undefined);
+    // thesis Chapter 4: modelLoadTimeMs included in every exported CSV row
+    const csv = resultsToCSV(
+      displayResults,
+      loadedDataset?.name,
+      runState.runId ?? undefined,
+      modelLoadTimeMs
+    );
     downloadCSV(csv, `benchmark-${Date.now()}.csv`);
   };
 
   const hasResults = displayResults.length > 0;
+
+  // thesis Chapter 4: pass modelLoadTimeMs into computeStats so it appears
+  // in the stats panel and is available for Chapter 4 Table comparison
+  const stats = computeStats(displayResults, modelLoadTimeMs);
 
   return (
     <ErrorBoundary label="BenchmarkView">
@@ -94,7 +105,6 @@ export function BenchmarkView() {
         </div>
 
         <div className="main-content">
-          {/* Hero heading — mirrors the Playground's "Interactive Playground" block */}
           <div className="page-heading">
             <h1>
               Benchmark <span>Lab</span>
@@ -108,7 +118,8 @@ export function BenchmarkView() {
 
           {hasResults ? (
             <ErrorBoundary label="BenchmarkResults">
-              <BenchmarkStatsPanel results={displayResults} />
+              {/* Pass pre-computed stats so BenchmarkStatsPanel gets modelLoadTimeMs */}
+              <BenchmarkStatsPanel results={displayResults} stats={stats} />
               <BenchmarkChart results={displayResults} />
               <ResultsTable results={displayResults} />
             </ErrorBoundary>

@@ -9,11 +9,28 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 // ─── Model registry ───────────────────────────────────────────────────────────
 
 export const MODELS: readonly ModelConfig[] = [
+  // ── Thesis fine-tuned model ───────────────────────────────────────────────
+  // Listed first so it is DEFAULT_MODEL_ID and pre-selected in the UI.
+  // INT8 per-channel quantized (75% size reduction, −1.99% accuracy delta).
+  // Fine-tuned on Amazon Reviews 2023 (EN) + Arabic 100K (AR) + RuReviews (RU).
+  // Repo layout: onnx/model_quantized.onnx — matches transformers.js default.
+  {
+    id: "ayayousef/distilbert-multilingual-sentiment-finetuned",
+    name: "DistilBERT Fine-tuned (EN/AR/RU)",
+    description:
+      "Fine-tuned on Amazon Reviews, Arabic 100K, and RuReviews datasets. " +
+      "INT8 per-channel quantized — 75% smaller than FP32, −1.99% accuracy delta. " +
+      "Thesis model evaluated in Chapter 4.",
+    languages: ["en", "ar", "ru"],
+    size: "small",
+    task: "sentiment-analysis",
+  },
   {
     id: "Xenova/distilbert-base-multilingual-cased-sentiments-student",
-    name: "DistilBERT Multilingual",
+    name: "DistilBERT Multilingual (Base)",
     description:
-      "Lightweight student model distilled from a multilingual sentiment teacher. Fast inference with solid accuracy across EN, AR, and RU.",
+      "Lightweight student model distilled from a multilingual sentiment teacher. " +
+      "Fast inference with solid accuracy across EN, AR, and RU.",
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
@@ -22,13 +39,15 @@ export const MODELS: readonly ModelConfig[] = [
     id: "Xenova/bert-base-multilingual-uncased-sentiment",
     name: "BERT Multilingual (uncased)",
     description:
-      "Full BERT base trained on multilingual product reviews. Higher accuracy at the cost of slower inference. Supports EN, AR, and RU.",
+      "Full BERT base trained on multilingual product reviews. Higher accuracy at " +
+      "the cost of slower inference. Supports EN, AR, and RU.",
     languages: ["en", "ar", "ru"],
     size: "medium",
     task: "sentiment-analysis",
   },
 ] as const;
 
+// Thesis model is first — pre-selected on load
 export const DEFAULT_MODEL_ID = MODELS[0].id;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -45,12 +64,10 @@ export function getModelById(id: string): ModelConfig | undefined {
 export function normalizeLabel(rawLabel: string): SentimentLabel {
   const upper = rawLabel.toUpperCase().trim();
 
-  // Direct matches
   if (upper === "POSITIVE") return "POSITIVE";
   if (upper === "NEGATIVE") return "NEGATIVE";
   if (upper === "NEUTRAL") return "NEUTRAL";
 
-  // Star-rating labels (1–2 stars = negative, 3 = neutral, 4–5 = positive)
   const starMatch = upper.match(/^(\d)\s*STAR/);
   if (starMatch) {
     const stars = parseInt(starMatch[1], 10);
@@ -59,7 +76,6 @@ export function normalizeLabel(rawLabel: string): SentimentLabel {
     return "POSITIVE";
   }
 
-  // Generic LABEL_N where N is 0-based index
   const labelMatch = upper.match(/^LABEL_(\d+)$/);
   if (labelMatch) {
     const idx = parseInt(labelMatch[1], 10);
@@ -68,10 +84,8 @@ export function normalizeLabel(rawLabel: string): SentimentLabel {
     return "POSITIVE";
   }
 
-  // Partial keyword matches
   if (upper.includes("POS")) return "POSITIVE";
   if (upper.includes("NEG")) return "NEGATIVE";
 
-  // Default fallback
   return "NEUTRAL";
 }
