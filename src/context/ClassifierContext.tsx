@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useState } from "react";
 import { useClassifier } from "@/hooks/useClassifier";
 import type { BenchmarkResult, ModelLoadState, PlaygroundResult } from "@/types";
 
@@ -16,10 +16,10 @@ interface ClassifierContextValue {
 const ClassifierContext = createContext<ClassifierContextValue | null>(null);
 
 export function ClassifierProvider({ children }: { children: ReactNode }) {
-  const classifier = useClassifier();
+  // modelLoadTimeMs: wall-clock ms from LOAD_MODEL dispatch → MODEL_READY acknowledgement,
+  // measured in useClassifier via performance.now() for sub-millisecond accuracy.
+  const { loadState, loadedModelId, modelLoadTimeMs, loadModel, classify } = useClassifier();
   const [persistedResults, setPersistedResultsState] = useState<BenchmarkResult[]>([]);
-  const modelLoadTimeMsRef = useRef<number | null>(null);
-  const [modelLoadTimeMs, setModelLoadTimeMs] = useState<number | null>(null);
 
   const setPersistedResults = useCallback((results: BenchmarkResult[]) => {
     setPersistedResultsState(results);
@@ -29,32 +29,12 @@ export function ClassifierProvider({ children }: { children: ReactNode }) {
     setPersistedResultsState([]);
   }, []);
 
-  const loadModel = useCallback(
-    (modelId: string) => {
-      modelLoadTimeMsRef.current = Date.now();
-      classifier.loadModel(modelId);
-    },
-    [classifier]
-  );
-
-  // Track model load time
-  const prevLoadState = useRef(classifier.loadState.status);
-  if (
-    prevLoadState.current !== classifier.loadState.status &&
-    classifier.loadState.status === "ready" &&
-    modelLoadTimeMsRef.current !== null
-  ) {
-    setModelLoadTimeMs(Date.now() - modelLoadTimeMsRef.current);
-    modelLoadTimeMsRef.current = null;
-  }
-  prevLoadState.current = classifier.loadState.status;
-
   const value: ClassifierContextValue = {
-    loadState: classifier.loadState,
-    loadedModelId: classifier.loadedModelId,
+    loadState,
+    loadedModelId,
     modelLoadTimeMs,
     loadModel,
-    classify: classifier.classify,
+    classify,
     persistedResults,
     setPersistedResults,
     clearPersistedResults,

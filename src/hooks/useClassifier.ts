@@ -14,6 +14,7 @@ interface PendingRequest {
 export interface UseClassifierReturn {
   loadState: ModelLoadState;
   loadedModelId: string | null;
+  modelLoadTimeMs: number | null;
   loadModel: (modelId: string) => void;
   classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
 }
@@ -37,6 +38,10 @@ export function useClassifier(): UseClassifierReturn {
   const loadedModelIdRef = useRef<string | null>(null);
   const [loadedModelId, setLoadedModelId] = useState<string | null>(null);
 
+  // Tracks total wall-clock time for the model load phase (LOAD_MODEL → MODEL_READY)
+  const loadStartTimeRef = useRef<number | null>(null);
+  const [modelLoadTimeMs, setModelLoadTimeMs] = useState<number | null>(null);
+
   // Worker ref — stable, replaced on model switch
   const workerRef = useRef<Worker | null>(null);
 
@@ -49,6 +54,12 @@ export function useClassifier(): UseClassifierReturn {
 
     switch (msg.type) {
       case "MODEL_READY": {
+        // Compute wall-clock load duration from the moment LOAD_MODEL was dispatched
+        if (loadStartTimeRef.current !== null) {
+          setModelLoadTimeMs(performance.now() - loadStartTimeRef.current);
+          loadStartTimeRef.current = null;
+        }
+
         loadedModelIdRef.current = msg.modelId;
         setLoadedModelId(msg.modelId);
         setLoadState({ status: "ready", progress: 100, statusText: "Model ready" });
@@ -87,7 +98,9 @@ export function useClassifier(): UseClassifierReturn {
             pending.reject(new Error(msg.message));
           }
         } else {
-          // Model-level error
+          // Model-level error — clear the load timer so it doesn't bleed into a retry
+          loadStartTimeRef.current = null;
+
           setLoadState({
             status: "error",
             progress: 0,
@@ -117,6 +130,7 @@ export function useClassifier(): UseClassifierReturn {
       worker.removeEventListener("message", handleMessage);
       worker.terminate();
       workerRef.current = null;
+      loadStartTimeRef.current = null;
       // Reject any pending requests on unmount
       for (const [, req] of pendingRef.current) {
         req.reject(new DOMException("Component unmounted", "AbortError"));
@@ -143,6 +157,10 @@ export function useClassifier(): UseClassifierReturn {
         fresh.addEventListener("message", handleMessage);
         workerRef.current = fresh;
       }
+
+      // Reset load-time tracking for this new load attempt
+      loadStartTimeRef.current = performance.now();
+      setModelLoadTimeMs(null);
 
       loadedModelIdRef.current = null;
       setLoadedModelId(null);
@@ -181,5 +199,5 @@ export function useClassifier(): UseClassifierReturn {
     []
   );
 
-  return { loadState, loadedModelId, loadModel, classify };
+  return { loadState, loadedModelId, modelLoadTimeMs, loadModel, classify };
 }

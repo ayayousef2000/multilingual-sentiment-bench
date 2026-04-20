@@ -10,6 +10,7 @@ export interface ModelConfig {
   readonly languages: readonly string[];
   readonly size: ModelSize;
   readonly task: ModelTask;
+  readonly onnxFile?: string;
 }
 
 export interface ModelLoadState {
@@ -36,6 +37,7 @@ export type WorkerInbound = WorkerInboundLoad | WorkerInboundClassify;
 export interface WorkerOutboundReady {
   readonly type: "MODEL_READY";
   readonly modelId: string;
+  readonly load_time_ms: number; // thesis Chapter 4: model load time
 }
 
 export interface WorkerOutboundProgress {
@@ -121,6 +123,7 @@ export interface BenchmarkStats {
   readonly minLatency: number;
   readonly maxLatency: number;
   readonly avgMemory: number | null;
+  readonly modelLoadTimeMs: number | null; // thesis Chapter 4: model load time
   readonly positiveCount: number;
   readonly negativeCount: number;
   readonly neutralCount: number;
@@ -154,6 +157,7 @@ export interface ExportRow {
   readonly score_pct: number;
   readonly time_ms: number;
   readonly memory_mb: number | null;
+  readonly model_load_time_ms: number | null; // thesis Chapter 4: load time per row
   readonly timestamp: number;
   readonly iso_datetime: string;
 }
