@@ -15,6 +15,7 @@ export interface UseClassifierReturn {
   loadState: ModelLoadState;
   loadedModelId: string | null;
   modelLoadTimeMs: number | null;
+  modelSizeMb: number | null;
   loadModel: (modelId: string) => void;
   classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
 }
@@ -34,31 +35,30 @@ function spawnWorker(): Worker {
 export function useClassifier(): UseClassifierReturn {
   const [loadState, setLoadState] = useState<ModelLoadState>(IDLE_STATE);
 
-  // The model ID that has been successfully loaded and is ready in the worker
   const loadedModelIdRef = useRef<string | null>(null);
   const [loadedModelId, setLoadedModelId] = useState<string | null>(null);
 
-  // Tracks total wall-clock time for the model load phase (LOAD_MODEL → MODEL_READY)
   const loadStartTimeRef = useRef<number | null>(null);
   const [modelLoadTimeMs, setModelLoadTimeMs] = useState<number | null>(null);
 
-  // Worker ref — stable, replaced on model switch
-  const workerRef = useRef<Worker | null>(null);
+  // Actual downloaded size reported by the worker via MODEL_READY
+  const [modelSizeMb, setModelSizeMb] = useState<number | null>(null);
 
-  // Map of in-flight classify requests keyed by request id
+  const workerRef = useRef<Worker | null>(null);
   const pendingRef = useRef<Map<string, PendingRequest>>(new Map());
 
-  // ── Message handler (defined once, re-used across worker instances) ─────────
   const handleMessage = useCallback((event: MessageEvent<WorkerOutbound>) => {
     const msg = event.data;
 
     switch (msg.type) {
       case "MODEL_READY": {
-        // Compute wall-clock load duration from the moment LOAD_MODEL was dispatched
         if (loadStartTimeRef.current !== null) {
           setModelLoadTimeMs(performance.now() - loadStartTimeRef.current);
           loadStartTimeRef.current = null;
         }
+
+        // Persist the real downloaded size reported by the worker
+        setModelSizeMb(msg.model_size_mb);
 
         loadedModelIdRef.current = msg.modelId;
         setLoadedModelId(msg.modelId);
@@ -91,23 +91,19 @@ export function useClassifier(): UseClassifierReturn {
       }
       case "ERROR": {
         if (msg.requestId) {
-          // Per-request error — reject only the affected promise
           const pending = pendingRef.current.get(msg.requestId);
           if (pending) {
             pendingRef.current.delete(msg.requestId);
             pending.reject(new Error(msg.message));
           }
         } else {
-          // Model-level error — clear the load timer so it doesn't bleed into a retry
           loadStartTimeRef.current = null;
-
           setLoadState({
             status: "error",
             progress: 0,
             statusText: msg.message,
             error: msg.message,
           });
-          // Reject all pending requests
           for (const [id, req] of pendingRef.current) {
             req.reject(new Error(msg.message));
             pendingRef.current.delete(id);
@@ -120,7 +116,6 @@ export function useClassifier(): UseClassifierReturn {
     }
   }, []);
 
-  // ── Spawn worker once, clean up on unmount ────────────────────────────────
   useEffect(() => {
     const worker = spawnWorker();
     worker.addEventListener("message", handleMessage);
@@ -131,7 +126,6 @@ export function useClassifier(): UseClassifierReturn {
       worker.terminate();
       workerRef.current = null;
       loadStartTimeRef.current = null;
-      // Reject any pending requests on unmount
       for (const [, req] of pendingRef.current) {
         req.reject(new DOMException("Component unmounted", "AbortError"));
       }
@@ -139,15 +133,12 @@ export function useClassifier(): UseClassifierReturn {
     };
   }, [handleMessage]);
 
-  // ── Load model ────────────────────────────────────────────────────────────
   const loadModel = useCallback(
     (modelId: string) => {
-      // If switching to a different model, terminate the current worker and spawn a fresh one
       if (loadedModelIdRef.current !== null && loadedModelIdRef.current !== modelId) {
         workerRef.current?.removeEventListener("message", handleMessage);
         workerRef.current?.terminate();
 
-        // Reject all pending requests from the previous model
         for (const [, req] of pendingRef.current) {
           req.reject(new DOMException("Model switched", "AbortError"));
         }
@@ -158,9 +149,9 @@ export function useClassifier(): UseClassifierReturn {
         workerRef.current = fresh;
       }
 
-      // Reset load-time tracking for this new load attempt
       loadStartTimeRef.current = performance.now();
       setModelLoadTimeMs(null);
+      setModelSizeMb(null); // reset size on each new load attempt
 
       loadedModelIdRef.current = null;
       setLoadedModelId(null);
@@ -172,7 +163,6 @@ export function useClassifier(): UseClassifierReturn {
     [handleMessage]
   );
 
-  // ── Classify ──────────────────────────────────────────────────────────────
   const classify = useCallback(
     (text: string, modelId: string, signal?: AbortSignal): Promise<PlaygroundResult> => {
       return new Promise<PlaygroundResult>((resolve, reject) => {
@@ -199,5 +189,5 @@ export function useClassifier(): UseClassifierReturn {
     []
   );
 
-  return { loadState, loadedModelId, modelLoadTimeMs, loadModel, classify };
+  return { loadState, loadedModelId, modelLoadTimeMs, modelSizeMb, loadModel, classify };
 }
