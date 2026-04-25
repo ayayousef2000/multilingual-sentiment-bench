@@ -6,6 +6,7 @@ interface ClassifierContextValue {
   loadState: ModelLoadState;
   loadedModelId: string | null;
   modelLoadTimeMs: number | null;
+  modelSizeMb: number | null;
   loadModel: (modelId: string) => void;
   classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
   persistedResults: BenchmarkResult[];
@@ -16,9 +17,8 @@ interface ClassifierContextValue {
 const ClassifierContext = createContext<ClassifierContextValue | null>(null);
 
 export function ClassifierProvider({ children }: { children: ReactNode }) {
-  // modelLoadTimeMs: wall-clock ms from LOAD_MODEL dispatch → MODEL_READY acknowledgement,
-  // measured in useClassifier via performance.now() for sub-millisecond accuracy.
-  const { loadState, loadedModelId, modelLoadTimeMs, loadModel, classify } = useClassifier();
+  const { loadState, loadedModelId, modelLoadTimeMs, modelSizeMb, loadModel, classify } =
+    useClassifier();
   const [persistedResults, setPersistedResultsState] = useState<BenchmarkResult[]>([]);
 
   const setPersistedResults = useCallback((results: BenchmarkResult[]) => {
@@ -33,6 +33,7 @@ export function ClassifierProvider({ children }: { children: ReactNode }) {
     loadState,
     loadedModelId,
     modelLoadTimeMs,
+    modelSizeMb,
     loadModel,
     classify,
     persistedResults,

@@ -11,6 +11,7 @@ export interface ModelConfig {
   readonly size: ModelSize;
   readonly task: ModelTask;
   readonly onnxFile?: string;
+  readonly dtype?: "q8" | "fp32" | "fp16";
 }
 
 export interface ModelLoadState {
@@ -37,7 +38,9 @@ export type WorkerInbound = WorkerInboundLoad | WorkerInboundClassify;
 export interface WorkerOutboundReady {
   readonly type: "MODEL_READY";
   readonly modelId: string;
-  readonly load_time_ms: number; // thesis Chapter 4: model load time
+  readonly load_time_ms: number;
+  /** Total bytes downloaded across all ONNX/tokenizer files, converted to MB. */
+  readonly model_size_mb: number | null;
 }
 
 export interface WorkerOutboundProgress {
@@ -75,10 +78,6 @@ export interface BenchmarkSample {
   readonly id: string;
   readonly text: string;
   readonly language: string;
-  /**
-   * Expected sentiment label. Accepted from both the canonical "expected"
-   * field and the flat-array "ground_truth" field used in uploaded datasets.
-   */
   readonly expected?: SentimentLabel;
 }
 
@@ -113,7 +112,6 @@ export interface BenchmarkRunState {
   readonly datasetId: string | null;
   readonly datasetName: string | null;
   readonly modelId: string | null;
-  /** UUID generated once per benchmark run — used to group rows in CSV export. */
   readonly runId: string | null;
 }
 
@@ -123,7 +121,7 @@ export interface BenchmarkStats {
   readonly minLatency: number;
   readonly maxLatency: number;
   readonly avgMemory: number | null;
-  readonly modelLoadTimeMs: number | null; // thesis Chapter 4: model load time
+  readonly modelLoadTimeMs: number | null;
   readonly positiveCount: number;
   readonly negativeCount: number;
   readonly neutralCount: number;
@@ -138,9 +136,7 @@ export interface PlaygroundResult {
 }
 
 export interface ExportRow {
-  /** UUID that groups all rows from the same benchmark run. */
   readonly run_id: string;
-  /** Application version string for downstream tracking. */
   readonly app_version: string;
   readonly model_id: string;
   readonly model_name: string;
@@ -157,7 +153,7 @@ export interface ExportRow {
   readonly score_pct: number;
   readonly time_ms: number;
   readonly memory_mb: number | null;
-  readonly model_load_time_ms: number | null; // thesis Chapter 4: load time per row
+  readonly model_load_time_ms: number | null;
   readonly timestamp: number;
   readonly iso_datetime: string;
 }

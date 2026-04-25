@@ -17,7 +17,7 @@ export function ModelLoader({
   onModelChange,
   onLoad,
 }: ModelLoaderProps) {
-  const { loadedModelId, modelLoadTimeMs } = useClassifierContext();
+  const { loadedModelId, modelLoadTimeMs, modelSizeMb } = useClassifierContext();
 
   const isLoading = loadState.status === "loading";
   const isReady = loadState.status === "ready";
@@ -90,10 +90,18 @@ export function ModelLoader({
             fontSize: 11,
             fontFamily: "var(--font-mono)",
             color: "var(--color-text-tertiary)",
+            display: "flex",
+            gap: "0.75rem",
           }}
         >
-          {/* formatMs handles IEEE 754 noise and s/ms switching correctly */}
-          <span style={{ opacity: 0.6 }}>⏱</span> Loaded in {formatMs(modelLoadTimeMs)}
+          <span>
+            <span style={{ opacity: 0.6 }}>⏱</span> Loaded in {formatMs(modelLoadTimeMs)}
+          </span>
+          {modelSizeMb !== null && (
+            <span>
+              <span style={{ opacity: 0.6 }}>⬇</span> {modelSizeMb.toFixed(1)} MB
+            </span>
+          )}
         </p>
       )}
     </div>

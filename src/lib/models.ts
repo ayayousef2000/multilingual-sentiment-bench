@@ -9,11 +9,6 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 // ─── Model registry ───────────────────────────────────────────────────────────
 
 export const MODELS: readonly ModelConfig[] = [
-  // ── Thesis fine-tuned model ───────────────────────────────────────────────
-  // Listed first so it is DEFAULT_MODEL_ID and pre-selected in the UI.
-  // INT8 per-channel quantized (75% size reduction, −1.99% accuracy delta).
-  // Fine-tuned on Amazon Reviews 2023 (EN) + Arabic 100K (AR) + RuReviews (RU).
-  // Repo layout: onnx/model_quantized.onnx — matches transformers.js default.
   {
     id: "ayayousef/distilbert-multilingual-sentiment-finetuned",
     name: "DistilBERT Fine-tuned (EN/AR/RU)",
@@ -24,6 +19,9 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
+    // No onnxFile → Transformers.js resolves the quantised file automatically.
+    // dtype "q8" tells it to pick the INT8 variant during that resolution.
+    dtype: "q8",
   },
   {
     id: "Xenova/distilbert-base-multilingual-cased-sentiments-student",
@@ -34,6 +32,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
+    dtype: "q8",
   },
   {
     id: "Xenova/bert-base-multilingual-uncased-sentiment",
@@ -44,6 +43,19 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "medium",
     task: "sentiment-analysis",
+    dtype: "q8",
+  },
+  {
+    id: "onnx-community/twitter-xlm-roberta-base-sentiment-ONNX",
+    name: "XLM-RoBERTa Sentiment (ONNX)",
+    description:
+      "ONNX export of cardiffnlp/twitter-xlm-roberta-base-sentiment. " +
+      "100+ languages, ~278M parameters. Loaded from the pre-exported " +
+      "model_quantized.onnx (~279 MB) — no additional quantisation applied.",
+    languages: ["multilingual"],
+    size: "medium",
+    task: "sentiment-analysis",
+    dtype: "q8",
   },
 ] as const;
 

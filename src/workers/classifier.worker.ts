@@ -8,13 +8,14 @@ import { assertNever } from "@/utils/assert";
 let cachedModelId: string | null = null;
 let cachedPipeline: TextClassificationPipeline | null = null;
 let cachedLoadTimeMs: number | null = null;
+let cachedSizeMb: number | null = null;
 
 // ── Progress callback types ───────────────────────────────────────────────────
 
 interface ProgressCallbackInfo {
   status: string;
-  progress?: number; // 0–100 or undefined when content-length is absent
-  file?: string; // filename being downloaded
+  progress?: number;
+  file?: string;
   loaded?: number;
   total?: number;
 }
@@ -22,33 +23,43 @@ interface ProgressCallbackInfo {
 async function getPipelineInstance(
   modelId: string,
   onProgress: (progress: number, statusText: string) => void
-): Promise<{ pipe: TextClassificationPipeline; load_time_ms: number }> {
+): Promise<{
+  pipe: TextClassificationPipeline;
+  load_time_ms: number;
+  model_size_mb: number | null;
+}> {
   if (cachedPipeline && cachedModelId === modelId && cachedLoadTimeMs !== null) {
-    return { pipe: cachedPipeline, load_time_ms: cachedLoadTimeMs };
+    return { pipe: cachedPipeline, load_time_ms: cachedLoadTimeMs, model_size_mb: cachedSizeMb };
   }
 
   cachedPipeline = null;
   cachedModelId = null;
   cachedLoadTimeMs = null;
+  cachedSizeMb = null;
 
-  // ── Resolve task and ONNX path from model registry ───────────────────────
   const modelConfig = getModelById(modelId);
   const task = modelConfig?.task ?? "sentiment-analysis";
-
-  // FIX: transformers.js defaults to looking for ONNX files inside an `onnx/`
-  // subfolder (e.g. onnx/model_quantized.onnx). The thesis model repo has
-  // model_quantized.onnx at the REPO ROOT, not inside an onnx/ directory.
-  // The `model_file_name` option overrides the resolved path so transformers.js
-  // fetches the correct file directly from the root.
+  const dtype = modelConfig?.dtype ?? "q8";
   const modelFileName = modelConfig?.onnxFile ?? undefined;
 
-  const loadStart = performance.now(); // thesis Chapter 4: start load timer
+  // Track the largest `total` bytes seen across all downloaded files.
+  // The ONNX model file is always the biggest download so its `total` reliably
+  // represents the on-wire model size. We take the max across all files to be
+  // safe in case the progress events arrive interleaved.
+  let maxTotalBytes = 0;
+
+  const loadStart = performance.now();
 
   const pipelineOptions: Record<string, unknown> = {
     device: "wasm",
-    dtype: "q8",
+    dtype,
     ...(modelFileName ? { model_file_name: modelFileName } : {}),
     progress_callback: (info: ProgressCallbackInfo) => {
+      // Accumulate the largest total seen — the model weights file dominates
+      if (typeof info.total === "number" && info.total > maxTotalBytes) {
+        maxTotalBytes = info.total;
+      }
+
       switch (info.status) {
         case "initiate":
           onProgress(-1, `Fetching ${info.file ?? "model files"}…`);
@@ -94,21 +105,24 @@ async function getPipelineInstance(
     },
   };
 
-  // Double assertion required: transformers.js v3 pipeline() overloads resolve
-  // to a complex union type when task is a runtime string — ts(2590).
   const instance = (await pipeline(
     task,
     modelId,
     pipelineOptions
   )) as unknown as TextClassificationPipeline;
 
-  const load_time_ms = performance.now() - loadStart; // thesis Chapter 4: end load timer
+  const load_time_ms = performance.now() - loadStart;
+  // Convert bytes → MB, round to 1 decimal. Null if no total was ever reported
+  // (e.g. server omits Content-Length — rare but possible on HF CDN).
+  const model_size_mb =
+    maxTotalBytes > 0 ? Math.round((maxTotalBytes / 1_048_576) * 10) / 10 : null;
 
   cachedPipeline = instance;
   cachedModelId = modelId;
   cachedLoadTimeMs = load_time_ms;
+  cachedSizeMb = model_size_mb;
 
-  return { pipe: instance, load_time_ms };
+  return { pipe: instance, load_time_ms, model_size_mb };
 }
 
 // ── Memory helper ─────────────────────────────────────────────────────────────
@@ -128,23 +142,24 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
   switch (msg.type) {
     case "LOAD_MODEL": {
       try {
-        const { load_time_ms } = await getPipelineInstance(msg.modelId, (progress, statusText) => {
-          const out: WorkerOutbound = {
-            type: "PROGRESS",
-            modelId: msg.modelId,
-            // Normalise to 0–1 fraction for the host, preserving -1 as the
-            // indeterminate sentinel so ProgressBar renders an animated shimmer
-            progress: progress === -1 ? -1 : progress / 100,
-            status: statusText,
-          };
-          self.postMessage(out);
-        });
+        const { load_time_ms, model_size_mb } = await getPipelineInstance(
+          msg.modelId,
+          (progress, statusText) => {
+            const out: WorkerOutbound = {
+              type: "PROGRESS",
+              modelId: msg.modelId,
+              progress: progress === -1 ? -1 : progress / 100,
+              status: statusText,
+            };
+            self.postMessage(out);
+          }
+        );
 
-        // thesis Chapter 4: emit load_time_ms in MODEL_READY for display + CSV
         const ready: WorkerOutbound = {
           type: "MODEL_READY",
           modelId: msg.modelId,
           load_time_ms,
+          model_size_mb,
         };
         self.postMessage(ready);
       } catch (err) {
@@ -167,7 +182,6 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
         const raw = await pipe(text);
         const time_ms = performance.now() - t0;
 
-        // Transformers.js returns an array; take the top result
         const top = Array.isArray(raw) ? raw[0] : raw;
 
         const result: WorkerOutbound = {
