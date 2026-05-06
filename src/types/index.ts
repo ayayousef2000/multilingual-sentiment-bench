@@ -5,6 +5,7 @@ export type ModelLoadStatus = "idle" | "loading" | "ready" | "error";
 
 export interface ModelConfig {
   readonly id: string;
+  readonly repoId: string;
   readonly name: string;
   readonly description: string;
   readonly languages: readonly string[];
@@ -39,7 +40,6 @@ export interface WorkerOutboundReady {
   readonly type: "MODEL_READY";
   readonly modelId: string;
   readonly load_time_ms: number;
-  /** Total bytes downloaded across all ONNX/tokenizer files, converted to MB. */
   readonly model_size_mb: number | null;
 }
 

@@ -25,7 +25,7 @@ export function ModelLoader({
 
   const isButtonDisabled = isLoading || (isReady && !isNewModelSelected);
 
-  const options = MODELS.map((m) => ({ value: m.id, label: `${m.name} (${m.size})` }));
+  const options = MODELS.map((m) => ({ value: m.id, label: m.name }));
   const selectedModel = MODELS.find((m) => m.id === selectedModelId);
 
   return (
