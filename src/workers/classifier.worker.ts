@@ -41,6 +41,7 @@ async function getPipelineInstance(
   const task = modelConfig?.task ?? "sentiment-analysis";
   const dtype = modelConfig?.dtype ?? "q8";
   const modelFileName = modelConfig?.onnxFile ?? undefined;
+  const repoId = modelConfig?.repoId ?? modelId;
 
   // Track the largest `total` bytes seen across all downloaded files.
   // The ONNX model file is always the biggest download so its `total` reliably
@@ -107,7 +108,7 @@ async function getPipelineInstance(
 
   const instance = (await pipeline(
     task,
-    modelId,
+    repoId,
     pipelineOptions
   )) as unknown as TextClassificationPipeline;
 
