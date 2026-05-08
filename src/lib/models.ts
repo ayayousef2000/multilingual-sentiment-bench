@@ -1,4 +1,4 @@
-import type { ModelConfig, SentimentLabel } from "@/types";
+import type { ModelConfig, ModelDtype, SentimentLabel } from "@/types";
 
 // ─── Language scope ───────────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["multilingual"],
     size: "medium",
     task: "sentiment-analysis",
-    dtype: "fp32",
+    dtype: "fp32" satisfies ModelDtype,
   },
   {
     id: "xlm-roberta-oc-int8",
@@ -32,7 +32,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["multilingual"],
     size: "medium",
     task: "sentiment-analysis",
-    dtype: "q8",
+    dtype: "q8" satisfies ModelDtype,
   },
 
   // ── BERT Multilingual uncased (Xenova) ────────────────────────────────────
@@ -46,7 +46,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "medium",
     task: "sentiment-analysis",
-    dtype: "fp32",
+    dtype: "fp32" satisfies ModelDtype,
   },
   {
     id: "mbert-xenova-int8",
@@ -58,7 +58,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "medium",
     task: "sentiment-analysis",
-    dtype: "q8",
+    dtype: "q8" satisfies ModelDtype,
   },
 
   // ── DistilBERT Multilingual student (Xenova) ──────────────────────────────
@@ -72,7 +72,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
-    dtype: "fp32",
+    dtype: "fp32" satisfies ModelDtype,
   },
   {
     id: "distilmbert-xenova-int8",
@@ -84,7 +84,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
-    dtype: "q8",
+    dtype: "q8" satisfies ModelDtype,
   },
 
   // ── DistilBERT Fine-tuned (ayayousef) ─────────────────────────────────────
@@ -98,7 +98,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
-    dtype: "fp32",
+    dtype: "fp32" satisfies ModelDtype,
   },
   {
     id: "distilbert-ft-int8",
@@ -110,7 +110,7 @@ export const MODELS: readonly ModelConfig[] = [
     languages: ["en", "ar", "ru"],
     size: "small",
     task: "sentiment-analysis",
-    dtype: "q8",
+    dtype: "q8" satisfies ModelDtype,
   },
 ] as const;
 

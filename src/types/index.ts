@@ -3,6 +3,19 @@ export type ModelSize = "small" | "medium" | "large";
 export type ModelTask = "sentiment-analysis" | "text-classification";
 export type ModelLoadStatus = "idle" | "loading" | "ready" | "error";
 
+// ── dtype ─────────────────────────────────────────────────────────────────────
+/** The only two precisions this application supports. */
+export type ModelDtype = "fp32" | "q8";
+
+// ── WebGPU ────────────────────────────────────────────────────────────────────
+export type WebGpuStatus = "checking" | "supported" | "unsupported";
+
+export interface WebGpuState {
+  readonly status: WebGpuStatus;
+  readonly enabled: boolean;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export interface ModelConfig {
   readonly id: string;
   readonly repoId: string;
@@ -12,7 +25,7 @@ export interface ModelConfig {
   readonly size: ModelSize;
   readonly task: ModelTask;
   readonly onnxFile?: string;
-  readonly dtype?: "q8" | "fp32" | "fp16";
+  readonly dtype?: ModelDtype;
 }
 
 export interface ModelLoadState {
@@ -25,6 +38,7 @@ export interface ModelLoadState {
 export interface WorkerInboundLoad {
   readonly type: "LOAD_MODEL";
   readonly modelId: string;
+  readonly useWebGpu: boolean;
 }
 
 export interface WorkerInboundClassify {

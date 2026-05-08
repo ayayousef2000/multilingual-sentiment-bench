@@ -1,4 +1,4 @@
-import { pipeline, type TextClassificationPipeline } from "@huggingface/transformers";
+import { env, pipeline, type TextClassificationPipeline } from "@huggingface/transformers";
 import { getModelById, normalizeLabel } from "@/lib/models";
 import type { WorkerInbound, WorkerOutbound } from "@/types";
 import { assertNever } from "@/utils/assert";
@@ -9,6 +9,7 @@ let cachedModelId: string | null = null;
 let cachedPipeline: TextClassificationPipeline | null = null;
 let cachedLoadTimeMs: number | null = null;
 let cachedSizeMb: number | null = null;
+let cachedUseWebGpu: boolean = false;
 
 // ── Progress callback types ───────────────────────────────────────────────────
 
@@ -22,13 +23,19 @@ interface ProgressCallbackInfo {
 
 async function getPipelineInstance(
   modelId: string,
+  useWebGpu: boolean,
   onProgress: (progress: number, statusText: string) => void
 ): Promise<{
   pipe: TextClassificationPipeline;
   load_time_ms: number;
   model_size_mb: number | null;
 }> {
-  if (cachedPipeline && cachedModelId === modelId && cachedLoadTimeMs !== null) {
+  if (
+    cachedPipeline &&
+    cachedModelId === modelId &&
+    cachedUseWebGpu === useWebGpu &&
+    cachedLoadTimeMs !== null
+  ) {
     return { pipe: cachedPipeline, load_time_ms: cachedLoadTimeMs, model_size_mb: cachedSizeMb };
   }
 
@@ -36,6 +43,7 @@ async function getPipelineInstance(
   cachedModelId = null;
   cachedLoadTimeMs = null;
   cachedSizeMb = null;
+  cachedUseWebGpu = false;
 
   const modelConfig = getModelById(modelId);
   const task = modelConfig?.task ?? "sentiment-analysis";
@@ -43,20 +51,21 @@ async function getPipelineInstance(
   const modelFileName = modelConfig?.onnxFile ?? undefined;
   const repoId = modelConfig?.repoId ?? modelId;
 
-  // Track the largest `total` bytes seen across all downloaded files.
-  // The ONNX model file is always the biggest download so its `total` reliably
-  // represents the on-wire model size. We take the max across all files to be
-  // safe in case the progress events arrive interleaved.
   let maxTotalBytes = 0;
 
   const loadStart = performance.now();
 
+  if (useWebGpu && env.backends?.onnx?.wasm) {
+    env.backends.onnx.wasm.proxy = false;
+  }
+
+  const device = useWebGpu ? "webgpu" : "wasm";
+
   const pipelineOptions: Record<string, unknown> = {
-    device: "wasm",
+    device,
     dtype,
     ...(modelFileName ? { model_file_name: modelFileName } : {}),
     progress_callback: (info: ProgressCallbackInfo) => {
-      // Accumulate the largest total seen — the model weights file dominates
       if (typeof info.total === "number" && info.total > maxTotalBytes) {
         maxTotalBytes = info.total;
       }
@@ -88,7 +97,7 @@ async function getPipelineInstance(
         }
 
         case "loading":
-          onProgress(-1, "Loading model into WASM runtime…");
+          onProgress(-1, `Loading model into ${useWebGpu ? "WebGPU" : "WASM"} runtime…`);
           break;
 
         case "loaded":
@@ -113,8 +122,6 @@ async function getPipelineInstance(
   )) as unknown as TextClassificationPipeline;
 
   const load_time_ms = performance.now() - loadStart;
-  // Convert bytes → MB, round to 1 decimal. Null if no total was ever reported
-  // (e.g. server omits Content-Length — rare but possible on HF CDN).
   const model_size_mb =
     maxTotalBytes > 0 ? Math.round((maxTotalBytes / 1_048_576) * 10) / 10 : null;
 
@@ -122,6 +129,7 @@ async function getPipelineInstance(
   cachedModelId = modelId;
   cachedLoadTimeMs = load_time_ms;
   cachedSizeMb = model_size_mb;
+  cachedUseWebGpu = useWebGpu;
 
   return { pipe: instance, load_time_ms, model_size_mb };
 }
@@ -145,6 +153,7 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
       try {
         const { load_time_ms, model_size_mb } = await getPipelineInstance(
           msg.modelId,
+          msg.useWebGpu,
           (progress, statusText) => {
             const out: WorkerOutbound = {
               type: "PROGRESS",
@@ -177,7 +186,7 @@ self.onmessage = async (event: MessageEvent<WorkerInbound>) => {
     case "CLASSIFY": {
       const { id, text, modelId } = msg;
       try {
-        const { pipe } = await getPipelineInstance(modelId, () => {});
+        const { pipe } = await getPipelineInstance(modelId, cachedUseWebGpu, () => {});
 
         const t0 = performance.now();
         const raw = await pipe(text);

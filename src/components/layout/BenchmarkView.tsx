@@ -2,26 +2,28 @@ import { useEffect, useRef, useState } from "react";
 import { useClassifierContext } from "@/context/ClassifierContext";
 import { useBenchmark } from "@/hooks/useBenchmark";
 import { computeStats, downloadCSV, resultsToCSV } from "@/lib/export";
-import { DEFAULT_MODEL_ID } from "@/lib/models";
 import type { BenchmarkDataset } from "@/types";
 import { BenchmarkChart } from "../benchmark/BenchmarkChart";
 import { BenchmarkControls } from "../benchmark/BenchmarkControls";
 import { BenchmarkStatsPanel } from "../benchmark/BenchmarkStats";
 import { ResultsTable } from "../benchmark/ResultsTable";
 import { ErrorBoundary } from "../ui";
+import { WebGpuPanel } from "../ui/WebGpuPanel";
 
 export function BenchmarkView() {
   const {
     loadedModelId,
     loadModel,
     classify,
-    modelLoadTimeMs, // thesis Chapter 4: forwarded from useClassifier via context
+    modelLoadTimeMs,
     persistedResults,
     setPersistedResults,
     clearPersistedResults,
+    webGpu,
+    selectedModelId,
+    setSelectedModelId,
   } = useClassifierContext();
 
-  const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
   const [loadedDataset, setLoadedDataset] = useState<BenchmarkDataset | null>(null);
   const [datasetError, setDatasetError] = useState<string | null>(null);
 
@@ -62,7 +64,6 @@ export function BenchmarkView() {
 
   const handleExport = () => {
     if (displayResults.length === 0) return;
-    // thesis Chapter 4: modelLoadTimeMs included in every exported CSV row
     const csv = resultsToCSV(
       displayResults,
       loadedDataset?.name,
@@ -73,10 +74,8 @@ export function BenchmarkView() {
   };
 
   const hasResults = displayResults.length > 0;
-
-  // thesis Chapter 4: pass modelLoadTimeMs into computeStats so it appears
-  // in the stats panel and is available for Chapter 4 Table comparison
   const stats = computeStats(displayResults, modelLoadTimeMs);
+  const backendLabel = webGpu.enabled ? "GPU" : "WASM";
 
   return (
     <ErrorBoundary label="BenchmarkView">
@@ -102,6 +101,10 @@ export function BenchmarkView() {
               <p className="error-message">{datasetError}</p>
             </div>
           )}
+
+          <div className="sidebar-card">
+            <WebGpuPanel />
+          </div>
         </div>
 
         <div className="main-content">
@@ -118,8 +121,11 @@ export function BenchmarkView() {
 
           {hasResults ? (
             <ErrorBoundary label="BenchmarkResults">
-              {/* Pass pre-computed stats so BenchmarkStatsPanel gets modelLoadTimeMs */}
-              <BenchmarkStatsPanel results={displayResults} stats={stats} />
+              <BenchmarkStatsPanel
+                results={displayResults}
+                stats={stats}
+                backendLabel={backendLabel}
+              />
               <BenchmarkChart results={displayResults} />
               <ResultsTable results={displayResults} />
             </ErrorBoundary>

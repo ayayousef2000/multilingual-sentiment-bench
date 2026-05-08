@@ -1,15 +1,11 @@
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/models";
 import type { BenchmarkDataset, BenchmarkSample, SentimentLabel } from "@/types";
 
-// ─── Supported languages ──────────────────────────────────────────────────────
-
-const SUPPORTED_LANGUAGES = ["en", "ar", "ru"] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 function isSupportedLanguage(value: unknown): value is SupportedLanguage {
   return SUPPORTED_LANGUAGES.includes(value as SupportedLanguage);
 }
-
-// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 function invariant(condition: unknown, message: string): asserts condition {
   if (!condition) {
