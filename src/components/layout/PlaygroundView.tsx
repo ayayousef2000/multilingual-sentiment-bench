@@ -1,16 +1,16 @@
 import { useCallback, useState } from "react";
 import { useClassifierContext } from "@/context/ClassifierContext";
-import { DEFAULT_MODEL_ID } from "@/lib/models";
 import type { PlaygroundResult } from "@/types";
 import { ModelLoader } from "../playground/ModelLoader";
 import { ResultCard } from "../playground/ResultCard";
 import { TextInput } from "../playground/TextInput";
 import { ErrorBoundary } from "../ui";
+import { WebGpuPanel } from "../ui/WebGpuPanel";
 
 export function PlaygroundView() {
-  const { loadState, loadedModelId, loadModel, classify } = useClassifierContext();
+  const { loadState, loadedModelId, loadModel, classify, selectedModelId, setSelectedModelId } =
+    useClassifierContext();
 
-  const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
   const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
 
@@ -46,6 +46,10 @@ export function PlaygroundView() {
               onModelChange={setSelectedModelId}
               onLoad={handleLoad}
             />
+          </div>
+
+          <div className="sidebar-card">
+            <WebGpuPanel />
           </div>
         </aside>
 

@@ -16,7 +16,7 @@ export interface UseClassifierReturn {
   loadedModelId: string | null;
   modelLoadTimeMs: number | null;
   modelSizeMb: number | null;
-  loadModel: (modelId: string) => void;
+  loadModel: (modelId: string, useWebGpu: boolean) => void;
   classify: (text: string, modelId: string, signal?: AbortSignal) => Promise<PlaygroundResult>;
 }
 
@@ -41,7 +41,6 @@ export function useClassifier(): UseClassifierReturn {
   const loadStartTimeRef = useRef<number | null>(null);
   const [modelLoadTimeMs, setModelLoadTimeMs] = useState<number | null>(null);
 
-  // Actual downloaded size reported by the worker via MODEL_READY
   const [modelSizeMb, setModelSizeMb] = useState<number | null>(null);
 
   const workerRef = useRef<Worker | null>(null);
@@ -56,10 +55,7 @@ export function useClassifier(): UseClassifierReturn {
           setModelLoadTimeMs(performance.now() - loadStartTimeRef.current);
           loadStartTimeRef.current = null;
         }
-
-        // Persist the real downloaded size reported by the worker
         setModelSizeMb(msg.model_size_mb);
-
         loadedModelIdRef.current = msg.modelId;
         setLoadedModelId(msg.modelId);
         setLoadState({ status: "ready", progress: 100, statusText: "Model ready" });
@@ -134,7 +130,7 @@ export function useClassifier(): UseClassifierReturn {
   }, [handleMessage]);
 
   const loadModel = useCallback(
-    (modelId: string) => {
+    (modelId: string, useWebGpu: boolean) => {
       if (loadedModelIdRef.current !== null && loadedModelIdRef.current !== modelId) {
         workerRef.current?.removeEventListener("message", handleMessage);
         workerRef.current?.terminate();
@@ -151,13 +147,13 @@ export function useClassifier(): UseClassifierReturn {
 
       loadStartTimeRef.current = performance.now();
       setModelLoadTimeMs(null);
-      setModelSizeMb(null); // reset size on each new load attempt
+      setModelSizeMb(null);
 
       loadedModelIdRef.current = null;
       setLoadedModelId(null);
       setLoadState({ status: "loading", progress: 0, statusText: "Initialising…" });
 
-      const msg: WorkerInbound = { type: "LOAD_MODEL", modelId };
+      const msg: WorkerInbound = { type: "LOAD_MODEL", modelId, useWebGpu };
       workerRef.current?.postMessage(msg);
     },
     [handleMessage]

@@ -1,4 +1,5 @@
 import { useClassifierContext } from "@/context/ClassifierContext";
+import { formatMs } from "@/lib/export";
 import { MODELS } from "@/lib/models";
 import type { BenchmarkDataset, BenchmarkRunState } from "@/types";
 import { Button, ProgressBar, Select } from "../ui";
@@ -51,15 +52,11 @@ export function BenchmarkControls({
     runState.total > 0 ? Math.round((runState.currentIdx / runState.total) * 100) : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* ── Dataset ─────────────────────────────────────────── */}
-      <div>
-        <div className="sidebar-section-title" style={{ marginBottom: 6 }}>
-          DATASET
-        </div>
-        <p className="sidebar-section-desc" style={{ marginBottom: 8 }}>
-          Upload a JSON file containing benchmark samples
-        </p>
+      <div className="sidebar-card">
+        <div className="sidebar-section-title">DATASET</div>
+        <p className="sidebar-section-desc">Upload a JSON file containing benchmark samples</p>
         <FileUpload
           onDatasetLoad={onDatasetLoad}
           onError={onDatasetError}
@@ -67,13 +64,12 @@ export function BenchmarkControls({
         />
       </div>
 
-      <div className="divider" />
-
       {/* ── Model ────────────────────────────────────────────── */}
-      <div>
-        <div className="sidebar-section-title" style={{ marginBottom: 6 }}>
-          MODEL
-        </div>
+      <div className="sidebar-card">
+        <div className="sidebar-section-title">MODEL</div>
+        <p className="sidebar-section-desc">
+          Select a multilingual model. Supports English, Arabic, and Russian.
+        </p>
 
         <Select
           label="Model"
@@ -84,7 +80,7 @@ export function BenchmarkControls({
         />
 
         {selectedModel && (
-          <div className="model-desc-card" style={{ marginTop: 8 }}>
+          <div className="model-desc-card">
             <p className="model-desc-text">{selectedModel.description}</p>
             <div className="model-tags">
               <span className="model-tag model-tag-size">{selectedModel.size}</span>
@@ -97,39 +93,32 @@ export function BenchmarkControls({
           </div>
         )}
 
-        {/* Load model button — full width within card */}
-        <div style={{ marginTop: 10 }}>
-          <Button
-            variant="primary"
-            size="md"
-            style={{ width: "100%", boxSizing: "border-box" }}
-            onClick={onLoadModel}
-            disabled={!canLoad}
-            loading={isLoadInProgress}
-          >
-            {isLoadInProgress
-              ? "Loading…"
-              : isNewModelSelected && loadedModelId !== null
-                ? "↺ Switch Model"
-                : "Load Model"}
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          size="md"
+          style={{ width: "100%", boxSizing: "border-box" }}
+          onClick={onLoadModel}
+          disabled={!canLoad}
+          loading={isLoadInProgress}
+        >
+          {isLoadInProgress
+            ? "Loading…"
+            : isNewModelSelected && loadedModelId !== null
+              ? "↺ Switch Model"
+              : "Load Model"}
+        </Button>
 
         {(loadState.status === "loading" || loadState.status === "ready") && (
-          <div style={{ marginTop: 8 }}>
-            <ProgressBar
-              value={loadState.progress}
-              label={loadState.status === "ready" ? "Model ready" : "Loading model"}
-              statusText={loadState.statusText}
-            />
-          </div>
+          <ProgressBar
+            value={loadState.progress}
+            label={loadState.status === "ready" ? "Model ready" : "Loading model"}
+            statusText={loadState.statusText}
+          />
         )}
 
-        {/* Model load time */}
         {loadState.status === "ready" && modelLoadTimeMs !== null && (
           <p
             style={{
-              marginTop: 6,
               fontSize: 11,
               fontFamily: "var(--font-mono)",
               color: "var(--color-accent)",
@@ -139,37 +128,28 @@ export function BenchmarkControls({
             }}
           >
             <span style={{ opacity: 0.6 }}>⏱</span>
-            Loaded in{" "}
-            {modelLoadTimeMs >= 1000
-              ? `${(modelLoadTimeMs / 1000).toFixed(2)}s`
-              : `${modelLoadTimeMs}ms`}
+            Loaded in {formatMs(modelLoadTimeMs)}
           </p>
         )}
 
         {loadState.status === "error" && (
-          <p className="error-message" style={{ marginTop: 6 }} role="alert">
+          <p className="error-message" role="alert">
             {loadState.error ?? "Failed to load model."}
           </p>
         )}
       </div>
 
-      <div className="divider" />
-
       {/* ── Run ──────────────────────────────────────────────── */}
-      <div>
-        <div className="sidebar-section-title" style={{ marginBottom: 8 }}>
-          RUN
-        </div>
+      <div className="sidebar-card">
+        <div className="sidebar-section-title">RUN</div>
 
         {runState.isRunning ? (
           <>
-            <div style={{ marginBottom: 8 }}>
-              <ProgressBar
-                value={progress}
-                label={`Running ${runState.currentIdx} / ${runState.total}`}
-                statusText={`${runState.currentIdx} of ${runState.total} samples`}
-              />
-            </div>
+            <ProgressBar
+              value={progress}
+              label={`Running ${runState.currentIdx} / ${runState.total}`}
+              statusText={`${runState.currentIdx} of ${runState.total} samples`}
+            />
             <Button
               variant="danger"
               size="md"
@@ -194,7 +174,6 @@ export function BenchmarkControls({
         {!loadedDataset && !runState.isRunning && (
           <p
             style={{
-              marginTop: 6,
               fontSize: 12,
               color: "var(--color-text-tertiary)",
               fontFamily: "var(--font-mono)",
@@ -206,7 +185,6 @@ export function BenchmarkControls({
         {loadedDataset && loadState.status !== "ready" && !runState.isRunning && (
           <p
             style={{
-              marginTop: 6,
               fontSize: 12,
               color: "var(--color-text-tertiary)",
               fontFamily: "var(--font-mono)",
@@ -219,27 +197,24 @@ export function BenchmarkControls({
 
       {/* ── Actions ──────────────────────────────────────────── */}
       {hasResults && (
-        <>
-          <div className="divider" />
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <Button
-              variant="primary"
-              size="sm"
-              style={{ width: "100%", boxSizing: "border-box" }}
-              onClick={onExport}
-            >
-              Export CSV
-            </Button>
-            <Button
-              variant="danger"
-              size="sm"
-              style={{ width: "100%", boxSizing: "border-box" }}
-              onClick={onClear}
-            >
-              Clear Results
-            </Button>
-          </div>
-        </>
+        <div className="sidebar-card">
+          <Button
+            variant="primary"
+            size="sm"
+            style={{ width: "100%", boxSizing: "border-box" }}
+            onClick={onExport}
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            style={{ width: "100%", boxSizing: "border-box" }}
+            onClick={onClear}
+          >
+            Clear Results
+          </Button>
+        </div>
       )}
     </div>
   );
