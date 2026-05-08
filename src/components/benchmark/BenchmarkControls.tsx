@@ -38,7 +38,7 @@ export function BenchmarkControls({
 
   const modelOptions = MODELS.map((m) => ({
     value: m.id,
-    label: `${m.name} (${m.size})`,
+    label: m.name,
   }));
 
   const selectedModel = MODELS.find((m) => m.id === selectedModelId);
